@@ -1,0 +1,82 @@
+<testng-results>
+  <reporter-output>
+  </reporter-output>
+  <suite name="Custom suite">
+    <groups>
+    </groups>
+    <test name="xstream-fastconverter">
+      <class name="si.ptb.fastconverter.XStest">
+        <test-method status="FAIL" signature="testPerson()" name="testPerson" duration-ms="234" started-at="2008-02-18T23:31:40Z" finished-at="2008-02-18T23:31:41Z">
+          <exception class="com.thoughtworks.xstream.converters.ConversionException">
+            <message>
+              <![CDATA[Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+---- Debugging information ----
+message             : Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+cause-exception     : java.lang.IllegalArgumentException
+cause-message       : Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+class               : si.ptb.fastconverter.XStest$Person
+required-type       : si.ptb.fastconverter.XStest$Person
+path                : /person/number
+line number         : 1
+-------------------------------]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[com.thoughtworks.xstream.converters.ConversionException: Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+---- Debugging information ----
+message             : Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+cause-exception     : java.lang.IllegalArgumentException
+cause-message       : Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+class               : si.ptb.fastconverter.XStest$Person
+required-type       : si.ptb.fastconverter.XStest$Person
+path                : /person/number
+line number         : 1
+-------------------------------
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:45)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:46)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:117)
+	at com.thoughtworks.xstream.core.ReferenceByXPathMarshallingStrategy.unmarshal(ReferenceByXPathMarshallingStrategy.java:29)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:846)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:833)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:781)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:773)
+	at si.ptb.fastconverter.XStest.testPerson(XStest.java:64)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.testng.internal.MethodHelper.invokeMethod(MethodHelper.java:580)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:473)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:567)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:834)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:125)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:109)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:689)
+	at org.testng.TestRunner.privateRun(TestRunner.java:566)
+	at org.testng.TestRunner.run(TestRunner.java:466)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:301)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:296)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:276)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:191)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:808)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:776)
+	at org.testng.TestNG.run(TestNG.java:701)
+	at org.testng.remote.RemoteTestNG.run(RemoteTestNG.java:73)
+	at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:124)
+Caused by: java.lang.IllegalArgumentException: Can not set int field si.ptb.fastconverter.XStest$Person.number to java.lang.String
+	at sun.reflect.UnsafeFieldAccessorImpl.throwSetIllegalArgumentException(UnsafeFieldAccessorImpl.java:146)
+	at sun.reflect.UnsafeFieldAccessorImpl.throwSetIllegalArgumentException(UnsafeFieldAccessorImpl.java:150)
+	at sun.reflect.UnsafeIntegerFieldAccessorImpl.set(UnsafeIntegerFieldAccessorImpl.java:80)
+	at java.lang.reflect.Field.set(Field.java:657)
+	at si.ptb.fastconverter.FieldMapper.set(FieldMapper.java:40)
+	at si.ptb.fastconverter.FastClassConverter.unmarshal(FastClassConverter.java:102)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:56)
+	... 31 more
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+      </class>
+    </test>
+  </suite>
+</testng-results>
