@@ -1,4 +1,4 @@
-package si.ptb.xfast;
+package old;
 
 import com.thoughtworks.xstream.XStream;
 import org.testng.annotations.Test;

@@ -1,10 +1,11 @@
-package si.ptb.xfast.docx;
+package old;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import si.ptb.xfast.docx.Run;
 
 /**
  * User: peter

@@ -1,4 +1,4 @@
-package si.ptb.xfast;/* -*-             c-basic-offset: 4; indent-tabs-mode: nil; -*-  //------100-columns-wide------>|*/
+package old;/* -*-             c-basic-offset: 4; indent-tabs-mode: nil; -*-  //------100-columns-wide------>|*/
 // for license please see accompanying LICENSE.txt file (available also at http://www.xmlpull.org/)
 
 import org.xmlpull.v1.XmlPullParser;
@@ -15,7 +15,7 @@ import java.io.StringReader;
  *
  * @author <a href="http://www.extreme.indiana.edu/~aslom/">Aleksander Slominski</a>
  */
-public class XmlPullTest {
+public class Xpp3Test {
 
     static String xml = "<person personAttribute=\"justPerson\">"
             + "<number lastattr=\"AAA\">42</number>"
@@ -45,7 +45,7 @@ public class XmlPullTest {
         XmlPullParser xpp = factory.newPullParser();
         System.out.println("parser implementation class is " + xpp.getClass());
 
-        XmlPullTest test = new XmlPullTest();
+        Xpp3Test test = new Xpp3Test();
 
 //        File docFile = new File("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document.xml");
         File docFile = new File("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
@@ -87,7 +87,7 @@ public class XmlPullTest {
 
     public void processStartElement(XmlPullParser xpp) {
         String name = xpp.getName();
-        String uri = xpp.getNamespace();
+//        String uri = xpp.getNamespace();
 //        System.out.println("start:"+name);
 
         elementCount++;
@@ -97,8 +97,8 @@ public class XmlPullTest {
     }
 
     public void processEndElement(XmlPullParser xpp) {
-        String name = xpp.getName();
-        String uri = xpp.getNamespace();
+//        String name = xpp.getName();
+//        String uri = xpp.getNamespace();
 //        System.out.println("  end:"+name);
 
     }
@@ -106,9 +106,9 @@ public class XmlPullTest {
     int holderForStartAndLength[] = new int[2];
 
     public void processText(XmlPullParser xpp) throws XmlPullParserException {
-        char ch[] = xpp.getTextCharacters(holderForStartAndLength);
-        int start = holderForStartAndLength[0];
-        int length = holderForStartAndLength[1];
+//        char ch[] = xpp.getTextCharacters(holderForStartAndLength);
+//        int start = holderForStartAndLength[0];
+//        int length = holderForStartAndLength[1];
 //        System.out.println("  chars["+start+"-"+length+"] "+new String(ch,start,length));
     }
 }

@@ -1,4 +1,4 @@
-package si.ptb.xfast;
+package old;
 
 import com.thoughtworks.xstream.XStream;
 import org.testng.annotations.Test;
@@ -6,6 +6,9 @@ import org.testng.annotations.Test;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import si.ptb.xfast.FastClassConverter;
+import si.ptb.xfast.XMLnode;
 
 /**
  * User: peter

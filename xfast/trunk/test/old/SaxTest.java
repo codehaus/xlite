@@ -1,4 +1,4 @@
-package si.ptb.xfast;
+package old;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -54,7 +54,7 @@ public class SaxTest {
         InputStream is = new ByteArrayInputStream(xml.getBytes());
         // Parse the file using the handler
         MyHandler handler = new MyHandler();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             handler.count = 0;
             long startTime = System.currentTimeMillis();
             parseXmlFile(filename, handler, false);
@@ -67,7 +67,7 @@ public class SaxTest {
         ArrayList<String> list = new ArrayList<String>(elements);
         Collections.sort(list);
         for (String s : list) {
-            System.out.println(s);
+//            System.out.println(s);
         }
     }
 
@@ -118,9 +118,9 @@ public class SaxTest {
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 //            System.out.println("node:" + qName);
-            if(!elements.containsKey(qName)){
-                elements.put(qName,qName);
-            }
+//            if(!elements.containsKey(qName)){
+//                elements.put(qName,qName);
+//            }
             count++;
         }
 
