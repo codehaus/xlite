@@ -5,6 +5,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -13,18 +15,24 @@ import java.io.StringReader;
  *
  * @author <a href="http://www.extreme.indiana.edu/~aslom/">Aleksander Slominski</a>
  */
-public class MyXmlPullApp {
+public class XmlPullTest {
 
-    public final static String SAMPLE_XML =
-        "<?xml version=\"1.0\"?>\n"+
-        "\n"+
-        "<poem xmlns=\"http://www.megginson.com/ns/exp/poetry\">\n"+
-        "<title>Roses are Red</title>\n"+
-        "<l>Roses are red,</l>\n"+
-        "<l>Violets are blue;</l>\n"+
-        "<l>Sugar is sweet,</l>\n"+
-        "<l>And I love you.</l>\n"+
-        "</poem>";
+    static String xml = "<person personAttribute=\"justPerson\">"
+            + "<number lastattr=\"AAA\">42</number>"
+            + "<firstname>"
+            + "Joe"
+            + "</firstname>"
+            + "<fax unknownAttrib=\"xxx\">"
+            + "justAValue"
+            + "<code>321</code>"
+            + "anotherText"
+            + "<number>9999-999</number>"
+            + "</fax>"
+            + "<phone newAttrib=\"unknown??\">"
+            + "    <code>123</code>"
+            + "<number>1234-456</number>"
+            + "</phone>"
+            + "</person>";
 
     private int elementCount = 0;
 
@@ -37,20 +45,25 @@ public class MyXmlPullApp {
         XmlPullParser xpp = factory.newPullParser();
         System.out.println("parser implementation class is " + xpp.getClass());
 
-        MyXmlPullApp app = new MyXmlPullApp();
+        XmlPullTest test = new XmlPullTest();
 
 //        File docFile = new File("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document.xml");
-//        File docFile = new File("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
-//        FileReader reader = new FileReader(docFile);
+        File docFile = new File("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
 
-        StringReader reader = new StringReader(SAMPLE_XML);
+        StringReader sreader = new StringReader(xml);
 
-        long startTime = System.currentTimeMillis();
 
-        xpp.setInput(reader);
-        app.processDocument(xpp);
+        for (int i = 0; i < 5; i++) {
+            FileReader reader = new FileReader(docFile);
+            long startTime = System.currentTimeMillis();
+            test.elementCount=0;
+            xpp.setInput(reader);
+            test.processDocument(xpp);
 
-        System.out.println("Duration: " + (System.currentTimeMillis() - startTime));
+            System.out.println("Duration" + i + ": " + (System.currentTimeMillis() - startTime));
+            reader.close();
+        }
+        System.out.println("Count: "+test.elementCount);
     }
 
     public void processDocument(XmlPullParser xpp)
@@ -75,6 +88,8 @@ public class MyXmlPullApp {
     public void processStartElement(XmlPullParser xpp) {
         String name = xpp.getName();
         String uri = xpp.getNamespace();
+//        System.out.println("start:"+name);
+
         elementCount++;
 //        if (elementCount % 1000 == 0) {
 //            System.out.println(elementCount);
@@ -84,6 +99,8 @@ public class MyXmlPullApp {
     public void processEndElement(XmlPullParser xpp) {
         String name = xpp.getName();
         String uri = xpp.getNamespace();
+//        System.out.println("  end:"+name);
+
     }
 
     int holderForStartAndLength[] = new int[2];
@@ -92,6 +109,7 @@ public class MyXmlPullApp {
         char ch[] = xpp.getTextCharacters(holderForStartAndLength);
         int start = holderForStartAndLength[0];
         int length = holderForStartAndLength[1];
+//        System.out.println("  chars["+start+"-"+length+"] "+new String(ch,start,length));
     }
 }
 

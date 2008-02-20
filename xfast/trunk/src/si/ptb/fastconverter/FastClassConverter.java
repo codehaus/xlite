@@ -97,9 +97,9 @@ public class FastClassConverter implements Converter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
             String subNodeName = reader.getNodeName();
-            FieldMapper fm = mapper.nodeMappers.get(subNodeName);   
+            FieldMapper fm = mapper.nodeMappers.get(subNodeName);
             if (fm != null) {
-                fm.set(object, subNodeName, context);
+                fm.set(object, reader, context);
             } else {
                 System.out.println("node " + nodeName + ": unknown subnode "+subNodeName);
             }

@@ -4,11 +4,8 @@ import com.thoughtworks.xstream.XStream;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.ArrayList;
-
-import si.ptb.fastconverter.docx.BodyConverter;
-import si.ptb.fastconverter.docx.DocxDocument;
+import java.util.List;
 
 /**
  * User: peter
@@ -33,24 +30,10 @@ public class XStest {
             + "</phone>"
             + "</person>";
 
-    String xml2 = "<person personAttribute=\"justPerson\">"
-            + "<number lastattr=\"AAA\">42</number>"
-            + "<firstname>Joe</firstname>"
-            + "<numbers>"
-            + "<fax unknownAttrib=\"xxx\">"
-            + "justAValue"
-            + "  <code>321</code>"
-            + "  <number>9999-999</number>"
-            + "</fax>"
-            + "<phone newAttrib=\"unknown??\">"
-            + "  <code>123</code>"
-            + "  <number>1234-456</number>"
-            + "</phone>"
-            + "<fax2>fff</fax2>"
-            + "</numbers>"
-            + "</person>";
-
-
+    String xml2 = "<rootnode rootattrib=\"rootattribValue\">"
+            + "rootnodeValue"
+            + "<subnode subattrib=\"subattribValue\">subnodeValue</number>"
+            + "</rootnode>";
 
 
     @Test
@@ -58,16 +41,13 @@ public class XStest {
 
         XStream xs = new XStream();
         xs.alias("person", Person.class);
-        xs.registerConverter(new BodyConverter());
         xs.registerConverter(new FastClassConverter(Person.class, "person"));
 
         Person person = (Person) xs.fromXML(xml);
 
         String out = xs.toXML(person);
 
-        //comment
         System.out.println(out);
-
 
     }
 
