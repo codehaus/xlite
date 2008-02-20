@@ -1,9 +1,9 @@
-package si.ptb.fastconverter.docx;
+package si.ptb.xfast.docx;
 
 
-import si.ptb.fastconverter.docx.Paragraph;
-import si.ptb.fastconverter.XmlStorage;
-import si.ptb.fastconverter.*;
+import si.ptb.xfast.docx.Paragraph;
+import si.ptb.xfast.XmlStorage;
+import si.ptb.xfast.*;
 
 
 import java.util.List;

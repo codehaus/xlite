@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;

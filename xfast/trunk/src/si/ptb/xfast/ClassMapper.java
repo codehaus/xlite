@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import java.util.Arrays;
 import java.util.Comparator;

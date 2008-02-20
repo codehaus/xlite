@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;

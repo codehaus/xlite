@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

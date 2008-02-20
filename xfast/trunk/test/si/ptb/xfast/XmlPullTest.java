@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;/* -*-             c-basic-offset: 4; indent-tabs-mode: nil; -*-  //------100-columns-wide------>|*/
+package si.ptb.xfast;/* -*-             c-basic-offset: 4; indent-tabs-mode: nil; -*-  //------100-columns-wide------>|*/
 // for license please see accompanying LICENSE.txt file (available also at http://www.xmlpull.org/)
 
 import org.xmlpull.v1.XmlPullParser;

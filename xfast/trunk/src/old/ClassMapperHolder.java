@@ -1,6 +1,6 @@
 package old;
 
-import si.ptb.fastconverter.ClassMapper;
+import si.ptb.xfast.ClassMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

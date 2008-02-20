@@ -1,4 +1,4 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -108,6 +108,6 @@ public class AnnotationProcessor {
         if (found != 1) {
             return null;  // annotation was not found
         }
-        return new FieldMapper(annotation.value(), targetField);
+        return new FieldMapper("", targetField);
     }
 }

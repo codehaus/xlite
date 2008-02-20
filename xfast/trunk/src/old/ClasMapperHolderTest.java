@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import si.ptb.fastconverter.ClassMapper;
+import si.ptb.xfast.ClassMapper;
 import old.ClassMapperHolder;
 
 /**

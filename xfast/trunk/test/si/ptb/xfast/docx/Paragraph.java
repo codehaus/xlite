@@ -1,9 +1,9 @@
-package si.ptb.fastconverter.docx;
+package si.ptb.xfast.docx;
 
 
 
-import si.ptb.fastconverter.XmlStorage;
-import si.ptb.fastconverter.XMLnode;
+import si.ptb.xfast.XmlStorage;
+import si.ptb.xfast.XMLnode;
 
 import java.util.List;
 import java.util.ArrayList;

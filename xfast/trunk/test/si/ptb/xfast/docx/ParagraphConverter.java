@@ -1,38 +1,48 @@
-package si.ptb.fastconverter.docx;
+package si.ptb.xfast.docx;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
  * User: peter
  * Date: Feb 16, 2008
- * Time: 9:41:00 PM
+ * Time: 9:27:21 PM
  */
-public class DocxDocumentConverter implements Converter{
+
+public class ParagraphConverter implements Converter {
+
+    static int count;
 
     public boolean canConvert(Class type) {
-        return type.equals(DocxDocument.class);
+        return type.equals(Paragraph.class);
     }
 
     public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        DocxDocument docxDocument = new DocxDocument();
+        Paragraph paragraph = new Paragraph();
         while (reader.hasMoreChildren()) {
             reader.moveDown();
-            if ("w:body".equals(reader.getNodeName())) {
-                Body body = (Body) context.convertAnother(docxDocument, Body.class);
-                docxDocument.body = body;
+            if ("w:r".equals(reader.getNodeName())) {
+                Run run = (Run) context.convertAnother(paragraph, Run.class);
+                paragraph.runs.add(run);
             } else {
-                docxDocument.saveNodeTree(reader);
+                paragraph.saveNodeTree(reader);
             }
             reader.moveUp();
         }
-        return docxDocument;
+
+        count++;
+        if (count % 1000 == 0) {
+            System.out.println("paragraph: " + count);
+        }
+
+        return paragraph;
     }
+
 }

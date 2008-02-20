@@ -1,8 +1,8 @@
-package si.ptb.fastconverter;
+package si.ptb.xfast;
 
 import com.thoughtworks.xstream.XStream;
 import org.testng.annotations.Test;
-import si.ptb.fastconverter.docx.*;
+import si.ptb.xfast.docx.*;
 
 import java.io.*;
 

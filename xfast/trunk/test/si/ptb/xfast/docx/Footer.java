@@ -1,6 +1,6 @@
-package si.ptb.fastconverter.docx;
+package si.ptb.xfast.docx;
 
-import si.ptb.fastconverter.XmlStorage;
+import si.ptb.xfast.XmlStorage;
 
 
 /**

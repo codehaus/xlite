@@ -1,11 +1,9 @@
-package si.ptb.fastconverter.docx;
+package si.ptb.xfast.docx;
 
-import si.ptb.fastconverter.docx.Body;
-import si.ptb.fastconverter.docx.Paragraph;
-import si.ptb.fastconverter.docx.Run;
-import si.ptb.fastconverter.XmlStorage;
-import si.ptb.fastconverter.XMLnode;
-
+import si.ptb.xfast.docx.Body;
+import si.ptb.xfast.docx.Paragraph;
+import si.ptb.xfast.docx.Run;
+import si.ptb.xfast.XMLnode;
 
 import java.io.*;
 
@@ -17,7 +15,7 @@ import com.thoughtworks.xstream.XStream;
  * Time: 2:52:22 PM
  */
 
-public class DocxDocument extends XmlStorage {
+public class DocxDocument extends si.ptb.xfast.XmlStorage {
 
     private static String mainPartName = "word/document.xml";
     private static String settingsPartName = "word/settings.xml";
