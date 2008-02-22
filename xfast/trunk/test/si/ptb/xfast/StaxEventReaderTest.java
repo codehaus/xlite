@@ -1,18 +1,21 @@
 package si.ptb.xfast;
 
-/**
- * User: peter
- * Date: Feb 20, 2008
- * Time: 10:33:01 PM
- */
-
 import javax.xml.stream.*;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.util.*;
 
-public class StaxTest {
+/**
+ * User: peter
+ * Date: Feb 21, 2008
+ * Time: 3:14:45 PM
+ */
+public class StaxEventReaderTest {
 
     static String xml = "<person personAttribute=\"justPerson\">"
             + "<number lastattr=\"AAA\">42</number>"
@@ -31,54 +34,62 @@ public class StaxTest {
             + "</phone>"
             + "</person>";
 
+
     public static void main(String[] args) {
 
-        Map<String, String> elements = null;
         SubTreeStore rootSubTree = null;
-        SubTreeStore currentSubTree = null;
         int count = 0;
+        SubTreeStore currentSubTree = null;
         for (int i = 0; i < 5; i++) {
 
             long start = System.currentTimeMillis();
+            count = 0;
 //            currentSubTree = new SubTreeStore();
             rootSubTree = currentSubTree;
-            count = 0;
-            elements = new HashMap<String, String>();
             try {
                 String filename = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml";
                 FileReader reader = new FileReader(filename);
                 StringReader sreader = new StringReader(xml);
                 XMLInputFactory factory = XMLInputFactory.newInstance();
-                XMLStreamReader parser = factory.createXMLStreamReader(reader);
+                XMLEventReader parser = factory.createXMLEventReader(reader);
 
-                for (int event = parser.next(); event != XMLStreamConstants.END_DOCUMENT; event = parser.next()) {
-                    switch (event) {
+                XMLEvent event;
+                while (parser.hasNext()) {
+
+                    event = parser.nextEvent();
+                    switch (event.getEventType()) {
                         case XMLStreamConstants.START_ELEMENT:
 //                            SubTreeStore newSubTree = new SubTreeStore();
-//                            String lname = parser.getName().getLocalPart();
-//                            String pname = parser.getName().getPrefix();
-//                            String qName = pname + ":" + lname;
+//                            Location location = event.getLocation();
+                            StartElement sevent = event.asStartElement();
+                            String lname = sevent.getName().getLocalPart();
+                            String pname = sevent.getName().getPrefix();
+                            String qName = pname + ":" + lname;
 //                            newSubTree.name = qName.toCharArray();
-//                            for (int j = 0; j < parser.getAttributeCount(); j++) {
-//                                newSubTree.attributes.add(new SubTreeStore.Attrib(parser.getAttributeLocalName(j).toCharArray(),
-//                                        parser.getAttributeValue(j).toCharArray()));
+//                            Iterator iter = sevent.getAttributes();
+//                            while (iter.hasNext()) {
+//                                Attribute attr = (Attribute) iter.next();
+//                                newSubTree.attributes.add(new SubTreeStore.Attrib(attr.getName().getLocalPart().toCharArray(), attr.getValue().toCharArray()));
 //                            }
 //                            currentSubTree.subnodes.add(newSubTree);
 //                            newSubTree.parent = currentSubTree;
 //                            currentSubTree = newSubTree;
-//                            count++;
+
+                            count++;
                             break;
                         case XMLStreamConstants.END_ELEMENT:
 
                             break;
                         case XMLStreamConstants.CHARACTERS:
-//                            currentSubTree.value = parser.getText().toCharArray();
+                            Characters cevent = event.asCharacters();
+//                            currentSubTree.value = cevent.getData().toCharArray();
                             break;
                         case XMLStreamConstants.CDATA:
 
                             break;
                     } // end switch
-                } // end while
+
+                }
                 parser.close();
             } catch (FactoryConfigurationError ex) {
                 System.out.println(ex.getMessage());
@@ -91,15 +102,7 @@ public class StaxTest {
             System.out.println("dur: " + (System.currentTimeMillis() - start));
         }
 
-        System.out.println("Count: " + count);
-        System.out.println("Elements: " + elements.size());
-        Set<String> elementos = elements.keySet();
-        ArrayList<String> list = new ArrayList<String>(elementos);
-        Collections.sort(list);
-        for (String s : list) {
-            System.out.println(s);
-        }
-
+//        System.out.println("end "+ rootSubTree.name);
     }
 
 

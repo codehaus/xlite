@@ -39,7 +39,7 @@ public class FastConverterException extends RuntimeException {
     }
 
     public String getMessage() {
-        StringBuilder msg = new StringBuilder();
+        StringBuilder msg = new StringBuilder(super.getMessage());
         msg.append(super.getMessage());
 
         msg.append("\n   node name: ").append(nodeName);

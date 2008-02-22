@@ -87,7 +87,7 @@ public class Xpp3Test {
 
     public void processStartElement(XmlPullParser xpp) {
         String name = xpp.getName();
-//        String uri = xpp.getNamespace();
+        String uri = xpp.getPrefix();
 //        System.out.println("start:"+name);
 
         elementCount++;

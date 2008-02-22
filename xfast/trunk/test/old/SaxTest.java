@@ -67,7 +67,7 @@ public class SaxTest {
         ArrayList<String> list = new ArrayList<String>(elements);
         Collections.sort(list);
         for (String s : list) {
-//            System.out.println(s);
+            System.out.println(s);
         }
     }
 
@@ -117,10 +117,11 @@ public class SaxTest {
         }
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-//            System.out.println("node:" + qName);
-//            if(!elements.containsKey(qName)){
-//                elements.put(qName,qName);
-//            }
+            String name = localName+" - "+qName;
+            System.out.println(name);
+            if(!elements.containsKey(name)){
+                elements.put(name ,name);
+            }
             count++;
         }
 
