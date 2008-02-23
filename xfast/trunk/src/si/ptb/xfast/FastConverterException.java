@@ -5,7 +5,7 @@ package si.ptb.xfast;
  * Date: Feb 17, 2008
  * Time: 10:15:47 PM
  */
-public class FastConverterException extends RuntimeException {
+public class FastConverterException extends RuntimeException {    //todo FIX THIS EXCEPTION CLASS - IT DOES NOT SHOW PROPER MESSAGES
 
     private String nodeName;
     private String nodeValue;

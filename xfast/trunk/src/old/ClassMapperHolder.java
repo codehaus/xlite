@@ -1,16 +1,17 @@
 package old;
 
 import si.ptb.xfast.ClassMapper;
+import si.ptb.xfast.ArrayUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * This class represents a List of ClassMappers. It was created to be as fast as possible.
  * Internally it uses an array and a ClassMapper Comparer to keep this array sorted for fast binary search.
- *
+ * <p/>
  * This class is NOT THREAD-SAFE!
  * User: peter
  * Date: Feb 17, 2008
@@ -27,7 +28,7 @@ public class ClassMapperHolder {
     public void add(ClassMapper classMapper) {
         needsResize();
         mappers[lastIndex] = classMapper;
-        lastIndex++;        
+        lastIndex++;
         sortNeeded = true;
     }
 
@@ -56,7 +57,7 @@ public class ClassMapperHolder {
 
     private void needsResize() {
         if (length - 1 == lastIndex) {
-            mappers = Arrays.copyOf(mappers, length + increment);
+            mappers = ArrayUtil.arrayCopy(mappers, length + increment);
             length += increment;
         }
     }

@@ -5,12 +5,14 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/deprecated" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="xstream-1.2.2" level="application" />
     <orderEntry type="library" name="TestNG" level="application" />
     <orderEntry type="library" name="xpp3" level="application" />
+    <orderEntry type="library" name="StaX" level="application" />
     <orderEntryProperties />
   </component>
 </module>
