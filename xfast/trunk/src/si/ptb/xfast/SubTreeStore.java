@@ -19,7 +19,7 @@ public class SubTreeStore {
     private static final byte START_DOCUMENT = 6;
     private static final byte END_DOCUMENT = 7;
     private static final byte NAMESPACE = 8;
-    private static final byte EMPTY = 9;
+    private static final byte EMPTY_ELEMENT = 9;
 
 
     public byte[] data;
@@ -35,33 +35,62 @@ public class SubTreeStore {
     public int saveSubTree(XMLStreamReader reader) throws XMLStreamException {
         int pos = last;
         QName qName;
+        boolean emptyElement = false;
+        int emptyElementIndex = 0;
         String name;
+        String encoding = "UTF-8";
+        StringBuffer elementText = new StringBuffer();
         for (int event = reader.getEventType(); event != XMLStreamConstants.END_DOCUMENT; event = reader.next()) {
             switch (event) {
                 case XMLStreamConstants.START_DOCUMENT:
-                    String header = reader.getEncoding() + "\n" + reader.getVersion() + "\n" + reader.isStandalone();
-                    addElement(START_DOCUMENT);
+                    encoding = reader.getCharacterEncodingScheme() != null ? reader.getCharacterEncodingScheme() : encoding;
+                    String header = encoding + "\n" + reader.getVersion() + "\n" + reader.isStandalone();
+                    System.out.println("Header: " + header);
+                    addElement(START_DOCUMENT, header, encoding);
                     break;
                 case XMLStreamConstants.END_DOCUMENT:
                     addElement(END_DOCUMENT);
                     break;
                 case XMLStreamConstants.START_ELEMENT:
+                    // first write out text of current element
+                    if (elementText.length() != 0) {
+                        addElement(CHAR, elementText.toString(), encoding);
+                        elementText = new StringBuffer();
+                    }
+
+                    emptyElementIndex = last;
                     qName = reader.getName();
                     name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-                    addElement(START_ELEMENT, name);
-                    addAtributes(reader);
-                    addNamespaces(reader);                    
+                    emptyElementIndex = addElement(START_ELEMENT, name, encoding);
+                    emptyElement = true;
+                    addAtributes(reader, encoding);
+                    addNamespaces(reader, encoding);
                     break;
                 case XMLStreamConstants.END_ELEMENT:
-                    qName = reader.getName();
-                    name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-                    addElement(END_ELEMENT, name);
+                    // first write out text of current element
+                    if (elementText.length() != 0) {
+                        addElement(CHAR, elementText.toString(), encoding);
+                        elementText = new StringBuffer();
+                    }
+
+                    if (emptyElement) {
+                        replaceStartWithEmpty(emptyElementIndex);
+                    } else {
+                        qName = reader.getName();
+                        name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                        addElement(END_ELEMENT, name, encoding);
+                    }
+                    emptyElement = false;
+
+
                     break;
                 case XMLStreamConstants.CHARACTERS:
-                    addElement(CHAR, reader.getText());
+                    emptyElement = false;
+                    elementText.append(reader.getText());
                     break;
                 case XMLStreamConstants.CDATA:
-                    addElement(CDATA, reader.getText());
+                    emptyElement = false;
+                    addElement(CDATA, reader.getText(), encoding);
                     break;
                 case XMLStreamConstants.SPACE:
                     System.out.println("space: type=" + reader.getEventType());
@@ -73,35 +102,45 @@ public class SubTreeStore {
         return pos;
     }
 
-    private void addAtributes(XMLStreamReader reader) {
+    private void replaceStartWithEmpty(int index) {
+        data[index] = EMPTY_ELEMENT;
+    }
+
+    private void addAtributes(XMLStreamReader reader, String encoding) {
         QName qName;
         String name;
         for (int i = 0, n = reader.getAttributeCount(); i < n; ++i) {
             qName = reader.getAttributeName(i);
             name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-            addElement(ATTR, name + "=" + reader.getAttributeValue(i));
+            addElement(ATTR, name + "=" + reader.getAttributeValue(i), encoding);
         }
     }
-     private void addNamespaces(XMLStreamReader reader) {
+
+    private void addNamespaces(XMLStreamReader reader, String encoding) {
         String uri;
         String prefix;
         for (int i = 0, n = reader.getNamespaceCount(); i < n; ++i) {
             uri = reader.getNamespaceURI(i);
             prefix = reader.getNamespacePrefix(i);
-            addElement(NAMESPACE, prefix + "=" + uri);
+            addElement(NAMESPACE, prefix + "=" + uri, encoding);
         }
-     }
+    }
 
 
-    public void restoreSubTree(int location, XMLStreamWriter writer) throws XMLStreamException {
+    public void restoreSubTree(int location, XMLStreamWriter writer) throws XMLStreamException, UnsupportedEncodingException {
 
         Element element;
         String attrName, attrValue, data;
         String prefix, uri;
+        String encoding = "UTF-8";  // default encoding
         int index;
         while ((element = getNextElement()) != null) {
             switch (element.command) {
                 case START_DOCUMENT:
+                    String header = new String(element.data);
+                    String[] headers = header.split("\n");
+                    encoding = headers[0].equals("null") ? encoding : headers[0];  // default encoding is UTF-8
+                    System.out.println("Header written: " + headers[0] + " " + headers[1]);
                     writer.writeStartDocument();
                     break;
                 case END_DOCUMENT:
@@ -109,6 +148,9 @@ public class SubTreeStore {
                     break;
                 case START_ELEMENT:
                     writer.writeStartElement(new String(element.data));
+                    break;
+                case EMPTY_ELEMENT:
+                    writer.writeEmptyElement(new String(element.data));
                     break;
                 case END_ELEMENT:
                     writer.writeEndElement();
@@ -134,10 +176,10 @@ public class SubTreeStore {
                     writer.writeNamespace(prefix, uri);
                     break;
                 case CHAR:
-                    writer.writeCharacters(new String(element.data));
+                    writer.writeCharacters(new String(element.data, encoding));
                     break;
                 case CDATA:
-                    writer.writeCData(new String(element.data));
+                    writer.writeCData(new String(element.data, encoding));
                     break;
 //                default:
 //                    System.out.println("other: type="+reader.getEventType());
@@ -145,19 +187,21 @@ public class SubTreeStore {
         }
     }
 
-    public void addElement(byte command) {
-        addElement(command, (byte[]) null);
+    private int addElement(byte command) {
+        return addElement(command, (byte[]) null);
     }
 
-    public void addElement(byte command, String source) {
+    private int addElement(byte command, String source, String encoding) {
         try {
-            addElement(command, source.getBytes("UTF-8"));
+            return addElement(command, source.getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
             System.out.println(e.getMessage());
         }
+        return -1;
     }
 
-    public void addElement(byte command, byte[] source) {
+    private int addElement(byte command, byte[] source) {
+
         if (writingFinished) {
             throw new FastConverterException("Writing has finished for this SubTreeStore instance. " +
                     "Once getNextElement() was called the addElement() must not be called again!");
@@ -170,6 +214,7 @@ public class SubTreeStore {
         }
         needsResize(len + 3);
         last++;
+        int start = last;
         data[last++] = command;
         data[last++] = (byte) (len21 & 0x007F);
         data[last++] = (byte) ((len21 >>> 7) & 0x007F);
@@ -180,6 +225,8 @@ public class SubTreeStore {
         }
         last += len - 1;
         elementNumber++;
+
+        return start;
     }
 
     public Element getNextElement() {
@@ -204,8 +251,8 @@ public class SubTreeStore {
 
     private boolean isNextCommand() {
         byte d = data[last + 1];
-        return d == START_ELEMENT || d == END_ELEMENT || d == CDATA || d == CHAR ||
-                d == ATTR || d == START_DOCUMENT || d == END_DOCUMENT || d== NAMESPACE;
+        return d == START_ELEMENT || d == END_ELEMENT || d == CDATA || d == CHAR || d == ATTR ||
+                d == START_DOCUMENT || d == END_DOCUMENT || d == NAMESPACE || d == EMPTY_ELEMENT;
     }
 
     private void needsResize(int size) {
@@ -223,65 +270,6 @@ public class SubTreeStore {
         public Element(byte command, byte[] data) {
             this.command = command;
             this.data = data == null ? (new byte[0]) : data;
-        }
-    }
-
-    static String xml = "<?xml version=\"1.0\" encoding=\"ASCII\" standalone=\"yes\"?>"
-            + "<person personAttribute=\"justPerson\">"
-            + "<number lastattr=\"AAA\">44</number>"
-            + "<firstname>"
-            + "Joe"
-            + "</firstname>"
-            + "<fax unknownAttrib=\"xxx\">"
-            + "justAValue"
-            + "<code>321</code>"
-            + "anotherText"
-            + "<number>9999-999</number>"
-            + "</fax>"
-            + "<phone newAttrib=\"unknown??\">"
-            + "<code>123</code>"
-            + "<number>1234-456</number>"
-            + "</phone>"
-            + "</person>";
-
-    public static void main(String[] args) throws IOException, XMLStreamException {
-
-        for (int i = 0; i < 1; i++) {
-
-            long start = System.currentTimeMillis();
-//            String infile = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml";
-            String outfile = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document2.xml";
-//            String infile = "/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document.xml";
-//            String infile = "/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document2.xml";
-            String infile = "/home/peter/vmware/shared/testdoc2/word/document.xml";
-
-            FileReader freader = new FileReader(infile);
-            StringReader sreader = new StringReader(xml);
-
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLStreamReader reader = null;
-            reader = factory.createXMLStreamReader(freader);
-
-            SubTreeStore sub = new SubTreeStore(70000000);
-            sub.saveSubTree(reader);
-
-//            Element element;
-//            int c = 30;
-//            while ((element = sub.getNextElement()) != null && c != 0) {
-//                c--;
-//                System.out.println(element.command + " : " + new String(element.data));
-//            }
-
-
-            XMLOutputFactory ofactory = XMLOutputFactory.newInstance();
-            FileWriter out = new FileWriter("/home/peter/vmware/shared/testdoc2/word/document2.xml");
-            XMLStreamWriter ostr = ofactory.createXMLStreamWriter(out);
-            sub.restoreSubTree(0, ostr);
-            System.out.println(out);
-
-            System.out.println("duration: " + (System.currentTimeMillis() - start));
-            System.out.println("elements: " + sub.elementNumber);
-            System.out.println("length: " + sub.data.length);
         }
     }
 
