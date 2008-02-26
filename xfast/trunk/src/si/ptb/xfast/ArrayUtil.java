@@ -1,5 +1,7 @@
 package si.ptb.xfast;
 
+import si.ptb.xfast.ClassMapper;
+
 /**
  * User: peter
  * Date: Feb 23, 2008

@@ -1,4 +1,4 @@
-package old;
+package deprecated;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -34,7 +34,7 @@ public class BodyConverter implements Converter {
                 Paragraph paragraph = (Paragraph) context.convertAnother(body, Paragraph.class);
                 body.paragraphs.add(paragraph);
             } else {
-                body.saveNodeTree(reader);
+//                body.saveNodeTree(reader);
             }
             reader.moveUp();
         }

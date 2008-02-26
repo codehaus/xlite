@@ -1,4 +1,4 @@
-package old;
+package deprecated;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

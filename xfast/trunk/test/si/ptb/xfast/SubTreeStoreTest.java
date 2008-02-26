@@ -1,4 +1,4 @@
-package old;
+package si.ptb.xfast;
 
 import org.testng.annotations.Test;
 import si.ptb.xfast.SubTreeStore;

@@ -13,7 +13,7 @@ import java.util.List;
  * Date: Feb 24, 2008
  * Time: 12:46:34 AM
  */
-public class XmlComparer {  //TODO Finish this FIRST!!
+public class XmlComparer {  
 
     public static List<CompareResult> compare(Reader xml1, Reader xml2) throws XMLStreamException {
         List<CompareResult> results = new ArrayList<CompareResult>();

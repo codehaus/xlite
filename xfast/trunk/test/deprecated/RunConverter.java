@@ -1,4 +1,4 @@
-package old;
+package deprecated;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -26,7 +26,7 @@ public class RunConverter implements Converter {
             if ("w:t".equals(reader.getNodeName())) {
                 run.text = reader.getValue();
             }else {
-                run.saveNodeTree(reader);
+//                run.saveNodeTree(reader);
             }
             reader.moveUp();
         }

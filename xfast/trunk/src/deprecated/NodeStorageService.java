@@ -1,4 +1,4 @@
-package si.ptb.xfast;
+package deprecated;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import deprecated.NodeTree;
+import deprecated.XmlStoring;
+import si.ptb.xfast.ObjectReference;
 
 /**
  * User: peter

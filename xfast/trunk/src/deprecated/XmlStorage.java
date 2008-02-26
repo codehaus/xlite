@@ -1,10 +1,12 @@
-package si.ptb.xfast;
+package deprecated;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import deprecated.NodeTree;
 
 /**
  * Enables storing unknown XML data inside unmarshaled objects.

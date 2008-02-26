@@ -1,5 +1,7 @@
 package si.ptb.xfast;
 
+import si.ptb.xfast.ArrayUtil;
+
 import java.io.*;
 import java.util.Random;
 

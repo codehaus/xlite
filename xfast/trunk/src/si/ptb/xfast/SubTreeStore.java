@@ -1,5 +1,7 @@
 package si.ptb.xfast;
 
+import si.ptb.xfast.ArrayUtil;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import java.io.*;

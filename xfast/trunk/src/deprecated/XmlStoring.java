@@ -1,4 +1,4 @@
-package si.ptb.xfast;
+package deprecated;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;

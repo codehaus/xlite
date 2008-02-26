@@ -1,4 +1,4 @@
-package old;
+package deprecated;
 
 import com.thoughtworks.xstream.XStream;
 import org.testng.annotations.Test;

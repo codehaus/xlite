@@ -11,19 +11,14 @@ import java.util.Map;
  */
 public class AnnotationProcessor {
 
-    public static Map<String, ClassMapper> processClassTree(Class rootClass, String nodeName) {
-        Map<String, ClassMapper> map = new HashMap<String, ClassMapper>();
-        processClass(map, rootClass, nodeName);
-        return map;
-    }
 
     /**
      * Processes @XMLnode, @XMLattribute and @XMLtext annotations in a given class.
-     * @param map
-     * @param currentClass
+     * If subnodes are found (@XMLnode), they are processed recursivelly.
      * @param nodeName
+     * @param currentClass
      */
-    public static void processClass(Map<String, ClassMapper> map, Class currentClass, String nodeName) {
+    public static ClassMapper processClass(String nodeName, Class currentClass) {
         ClassMapper mapper = new ClassMapper(nodeName, currentClass);
 
         // find and process @XMLattribute annotations
@@ -35,13 +30,13 @@ public class AnnotationProcessor {
         // find and process @XMLnode annotations
         mapper.nodeMappers = processNodes(currentClass);
 
-        // save mapper to the map
-        map.put(nodeName, mapper);
-        
         // process subnodes recursivelly
-        for (Map.Entry<String, FieldMapper> entry : mapper.nodeMappers.entrySet()) {
-            processClass(map, entry.getValue().targetClass, entry.getValue().elementName);
-        }
+//        for (Map.Entry<String, ClassMapper> entry : mapper.nodeMappers.entrySet()) {
+//            ClassMapper submapper = new ClassMapper(nodeName, entry.getValue().);
+//            processClass(submapper, entry.getValue().targetClass, entry.getValue().nodeName);
+//        }
+
+        return mapper;
     }
 
     /**
@@ -50,15 +45,16 @@ public class AnnotationProcessor {
      * @param currentClass
      * @return Map of XML node names to {@link FieldMapper} objects.
      */
-    public static Map<String, FieldMapper> processNodes(Class currentClass) {
-        Map<String, FieldMapper> map = new HashMap<String, FieldMapper>();
+    private static Map<String, ClassMapper> processNodes(Class currentClass) {
+        Map<String, ClassMapper> map = new HashMap<String, ClassMapper>();
         int found = 0;
         XMLnode annotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
+            String nodeName = annotation.value();
             if (annotation != null) {
                 found++;
-                map.put(annotation.value(), new FieldMapper(annotation.value(), field));
+                map.put(nodeName, processClass(nodeName, field.getType()));  //TODO Implement targetType=Class annotation!
             }
         }
         return map;
@@ -70,7 +66,7 @@ public class AnnotationProcessor {
      * @param currentClass
      * @return Map of XML attribute names to {@link FieldMapper} objects.
      */
-    public static Map<String, FieldMapper> processAttributes(Class currentClass) {
+    private static Map<String, FieldMapper> processAttributes(Class currentClass) {
         Map<String, FieldMapper> map = new HashMap<String, FieldMapper>();
         int found = 0;
         XMLattribute annotation = null;
@@ -90,7 +86,7 @@ public class AnnotationProcessor {
      * @param currentClass
      * @return {@link FieldMapper} for the found field.
      */
-    public static FieldMapper processValue(Class currentClass) {
+    private static FieldMapper processValue(Class currentClass) {
         Field targetField = null;
         int found = 0;
         XMLtext annotation = null;

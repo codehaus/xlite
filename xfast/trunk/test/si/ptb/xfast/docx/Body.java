@@ -1,13 +1,10 @@
 package si.ptb.xfast.docx;
 
 
-import si.ptb.xfast.docx.Paragraph;
-import si.ptb.xfast.XmlStorage;
-import si.ptb.xfast.*;
+import si.ptb.xfast.XMLnode;
 
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: peter
@@ -15,9 +12,9 @@ import java.util.ArrayList;
  * Time: 11:08:01 PM
  */
 
-public class Body extends XmlStorage {
+public class Body {
 
-    @XMLnode("w:p")     
+    @XMLnode("w:p")
     public List<Paragraph> paragraphs = new ArrayList<Paragraph>();
 
 
