@@ -3,6 +3,7 @@ package si.ptb.xfast;
 import si.ptb.xfast.ClassMapper;
 
 /**
+ * Utility methods for copying arrays. Needed because they are not present in Java 1.5
  * User: peter
  * Date: Feb 23, 2008
  * Time: 5:57:10 PM

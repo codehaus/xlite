@@ -13,10 +13,11 @@ import java.io.Writer;
  */
 public class Xfast {
 
+    ClassMapper rootMapper;
     
 
     public Xfast(Class rootClass, String nodeName) {
-       ClassMapper rootMapper =  AnnotationProcessor.processClass(nodeName, rootClass);
+       rootMapper =  AnnotationProcessor.processClass(nodeName, rootClass);
 
     }
 
@@ -33,4 +34,5 @@ public class Xfast {
     public void toXML(Object source, Writer writer) {
 
     }
+
 }

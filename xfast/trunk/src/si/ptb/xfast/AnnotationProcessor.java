@@ -47,13 +47,18 @@ public class AnnotationProcessor {
      */
     private static Map<String, ClassMapper> processNodes(Class currentClass) {
         Map<String, ClassMapper> map = new HashMap<String, ClassMapper>();
-        int found = 0;
         XMLnode annotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
-            String nodeName = annotation.value();
             if (annotation != null) {
-                found++;
+
+                // TODO Implement CollactionMapper? Is this the right way?
+                // CollectionMapper and ClassMapper should have common interface: Mapper?
+                // Should ValueConverters also implement Mapper interface?
+
+                // TODO if CollectionMapper.isCollection(field.getType()) -> processCollection(name, Class)
+
+                String nodeName = annotation.value();
                 map.put(nodeName, processClass(nodeName, field.getType()));  //TODO Implement targetType=Class annotation!
             }
         }
@@ -68,12 +73,10 @@ public class AnnotationProcessor {
      */
     private static Map<String, FieldMapper> processAttributes(Class currentClass) {
         Map<String, FieldMapper> map = new HashMap<String, FieldMapper>();
-        int found = 0;
         XMLattribute annotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
-                found++;
                 map.put(annotation.value(), new FieldMapper(annotation.value(), field));
             }
         }
