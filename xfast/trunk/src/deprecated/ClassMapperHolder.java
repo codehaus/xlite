@@ -1,6 +1,6 @@
 package deprecated;
 
-import si.ptb.xfast.ClassMapper;
+import si.ptb.xfast.DefaultMapper;
 import si.ptb.xfast.ArrayUtil;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * This class represents a List of ClassMappers. It was created to be as fast as possible.
- * Internally it uses an array and a ClassMapper Comparer to keep this array sorted for fast binary search.
+ * Internally it uses an array and a DefaultMapper Comparer to keep this array sorted for fast binary search.
  * <p/>
  * This class is NOT THREAD-SAFE!
  * User: peter
@@ -21,11 +21,11 @@ public class ClassMapperHolder {
     private int increment = 10;
     private int length = 20;
     private int lastIndex = 0;
-    private ClassMapper[] mappers = new ClassMapper[length];
+    private DefaultMapper[] mappers = new DefaultMapper[length];
     private boolean sortNeeded = false;
 
 
-    public void add(ClassMapper classMapper) {
+    public void add(DefaultMapper classMapper) {
         needsResize();
         mappers[lastIndex] = classMapper;
         lastIndex++;
@@ -39,12 +39,12 @@ public class ClassMapperHolder {
         }
     }
 
-    public ClassMapper get(String nodeName) {
-        sortByNodeName();
-        ClassMapper fakeMapper = new ClassMapper(nodeName, null);
-        int index = Arrays.binarySearch(mappers, fakeMapper, new ClassMapperComparer());
-        return mappers[index];
-    }
+//    public DefaultMapper get(String nodeName) {
+//        sortByNodeName();
+////        DefaultMapper fakeMapper = new DefaultMapper(nodeName, null);
+////        int index = Arrays.binarySearch(mappers, fakeMapper, new ClassMapperComparer());
+//        return mappers[index];
+//    }
 
     public List<String> getNodeNames() {
         sortByNodeName();
@@ -62,8 +62,8 @@ public class ClassMapperHolder {
         }
     }
 
-    public static class ClassMapperComparer implements Comparator<ClassMapper> {
-        public int compare(ClassMapper o1, ClassMapper o2) {
+    public static class ClassMapperComparer implements Comparator<DefaultMapper> {
+        public int compare(DefaultMapper o1, DefaultMapper o2) {
             if (o1 == null && o2 != null) {
                 return 1;
             } else if (o1 != null && o2 == null) {

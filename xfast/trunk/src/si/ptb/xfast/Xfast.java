@@ -13,11 +13,11 @@ import java.io.Writer;
  */
 public class Xfast {
 
-    ClassMapper rootMapper;
+    DefaultMapper rootMapper;
     
 
     public Xfast(Class rootClass, String nodeName) {
-       rootMapper =  AnnotationProcessor.processClass(nodeName, rootClass);
+       rootMapper =  AnnotationProcessor.processClassTree(nodeName, rootClass);
 
     }
 
@@ -26,9 +26,9 @@ public class Xfast {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xmlreader = factory.createXMLStreamReader(reader);
 
-        
+        Object obj = rootMapper.deserialize(null, xmlreader);
 
-        return null;
+        return obj;
     }
 
     public void toXML(Object source, Writer writer) {

@@ -8,10 +8,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import java.util.Map;
 
-import si.ptb.xfast.ClassMapper;
-import si.ptb.xfast.AnnotationProcessor;
-import si.ptb.xfast.FastConverterException;
-import si.ptb.xfast.FieldMapper;
+import si.ptb.xfast.DefaultMapper;
+import si.ptb.xfast.XfastException;
+import deprecated.FieldMapper;
 
 /**
  * User: peter
@@ -20,7 +19,7 @@ import si.ptb.xfast.FieldMapper;
  */
 public class FastClassConverter implements Converter {
 
-    private Map<String, ClassMapper> classMappers;
+    private Map<String, DefaultMapper> classMappers;
 
     public FastClassConverter(Class rootClass, String nodeName) {
 //        classMappers = AnnotationProcessor.processClassTree(rootClass, nodeName);
@@ -32,7 +31,7 @@ public class FastClassConverter implements Converter {
      * @param type the Class representing the object type to be converted
      */
     public boolean canConvert(Class type) {
-        for (ClassMapper classMapper : classMappers.values()) {
+        for (DefaultMapper classMapper : classMappers.values()) {
             if (classMapper.targetClass.equals(type)) {
                 return true;
             }
@@ -62,11 +61,11 @@ public class FastClassConverter implements Converter {
         String nodeName = reader.getNodeName();
         String nodeValue = reader.getValue().trim();
 
-        ClassMapper mapper = classMappers.get(nodeName);
+        DefaultMapper mapper = classMappers.get(nodeName);
         Object object = null;
         // this should not happen - canConvert() method takes care of that
         if (mapper == null) {
-            throw new FastConverterException("Can not find class mapper for the node " + nodeName);
+            throw new XfastException("Can not find class mapper for the node " + nodeName);
         }
         try {
             object = mapper.targetClass.newInstance();

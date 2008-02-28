@@ -1,5 +1,7 @@
 package si.ptb.xfast;
 
+import deprecated.FieldMapper;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,17 @@ import java.util.Map;
  */
 public class AnnotationProcessor {
 
+    /**
+     * Processes @XMLnode, @XMLattribute and @XMLtext annotations in a class tree,
+     * starting from the given root class and working down through all referenced classes.
+     * @param nodeName  Name of the XMl node that this class maps to.
+     * @param rootClass A root class in a tree of classes
+     * @return
+     */
+    public static DefaultMapper processClassTree(String nodeName, Class rootClass){
+        return processClass(nodeName, rootClass, null);
+    }
+
 
     /**
      * Processes @XMLnode, @XMLattribute and @XMLtext annotations in a given class.
@@ -18,8 +31,8 @@ public class AnnotationProcessor {
      * @param nodeName
      * @param currentClass
      */
-    public static ClassMapper processClass(String nodeName, Class currentClass) {
-        ClassMapper mapper = new ClassMapper(nodeName, currentClass);
+    public static DefaultMapper processClass(String nodeName, Class currentClass, Field parentField) {
+        DefaultMapper mapper = new DefaultMapper(nodeName, currentClass, parentField);
 
         // find and process @XMLattribute annotations
         mapper.attributeMappers = processAttributes(currentClass);
@@ -30,12 +43,6 @@ public class AnnotationProcessor {
         // find and process @XMLnode annotations
         mapper.nodeMappers = processNodes(currentClass);
 
-        // process subnodes recursivelly
-//        for (Map.Entry<String, ClassMapper> entry : mapper.nodeMappers.entrySet()) {
-//            ClassMapper submapper = new ClassMapper(nodeName, entry.getValue().);
-//            processClass(submapper, entry.getValue().targetClass, entry.getValue().nodeName);
-//        }
-
         return mapper;
     }
 
@@ -43,23 +50,24 @@ public class AnnotationProcessor {
      * Searches class for fields that have @XMLnode annotation.
      *
      * @param currentClass
-     * @return Map of XML node names to {@link FieldMapper} objects.
+     * @return Map of XML node names to {@link deprecated.FieldMapper} objects.
      */
-    private static Map<String, ClassMapper> processNodes(Class currentClass) {
-        Map<String, ClassMapper> map = new HashMap<String, ClassMapper>();
+    private static Map<String, DefaultMapper> processNodes(Class currentClass) {
+        Map<String, DefaultMapper> map = new HashMap<String, DefaultMapper>();
         XMLnode annotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
             if (annotation != null) {
 
-                // TODO Implement CollactionMapper? Is this the right way?
-                // CollectionMapper and ClassMapper should have common interface: Mapper?
-                // Should ValueConverters also implement Mapper interface?
+                // TODO Implement CollectionMapper? Is this the right way?  Yes, probably!
+                // CollectionMapper and DefaultMapper should have common interface: NodeMapper?
+                // Should ValueConverters also implement NodeMapper interface?
 
                 // TODO if CollectionMapper.isCollection(field.getType()) -> processCollection(name, Class)
+                // TODO process primitive types -> isPrimitive(field.getType())
 
                 String nodeName = annotation.value();
-                map.put(nodeName, processClass(nodeName, field.getType()));  //TODO Implement targetType=Class annotation!
+                map.put(nodeName, processClass(nodeName, field.getType(), field));  //TODO Implement targetType=Class annotation!
             }
         }
         return map;
@@ -101,7 +109,7 @@ public class AnnotationProcessor {
             }
         }
         if (found > 1) {
-            throw new FastConverterException("Error: Multiple @XMLtext annotations in class "
+            throw new XfastException("Error: Multiple @XMLtext annotations in class "
                     + currentClass.getName() + ". Max one @XMLtext annotation can be present in a class.");
         }
         if (found != 1) {

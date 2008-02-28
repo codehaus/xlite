@@ -163,7 +163,7 @@ public class SubTreeStore {
                     attrName = data.substring(0, index);
                     attrValue = data.substring(index + 1, data.length());
                     if (index == -1) {
-                        throw new FastConverterException("Error in attribute syntax!");
+                        throw new XfastException("Error in attribute syntax!");
                     }
                     writer.writeAttribute(attrName, attrValue);
                     break;
@@ -173,7 +173,7 @@ public class SubTreeStore {
                     prefix = data.substring(0, index);
                     uri = data.substring(index + 1, data.length());
                     if (index == -1) {
-                        throw new FastConverterException("Error in attribute syntax!");
+                        throw new XfastException("Error in attribute syntax!");
                     }
                     writer.writeNamespace(prefix, uri);
                     break;
@@ -205,13 +205,13 @@ public class SubTreeStore {
     private int addElement(byte command, byte[] source) {
 
         if (writingFinished) {
-            throw new FastConverterException("Writing has finished for this SubTreeStore instance. " +
+            throw new XfastException("Writing has finished for this SubTreeStore instance. " +
                     "Once getNextElement() was called the addElement() must not be called again!");
         }
         int len = source == null ? 0 : source.length;
         int len21 = len & 0x1FFFF;
         if (len != len21) {
-            throw new FastConverterException("Data too long: addElement() can only save byte arrays of max" +
+            throw new XfastException("Data too long: addElement() can only save byte arrays of max" +
                     " 65533 bytes long. Current length :" + len);
         }
         needsResize(len + 3);
