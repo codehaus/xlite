@@ -5,6 +5,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.List;
 
 /**
  * User: peter
@@ -13,11 +14,26 @@ import java.io.Writer;
  */
 public class Xfast {
 
-    DefaultMapper rootMapper;
-    
+    Mapper rootMapper;
+    private List<Mapper> mappers;
+    private List<ValueConverter> converters;
+    private AnnotationProcessor annotationProcessor;
 
     public Xfast(Class rootClass, String nodeName) {
-       rootMapper =  AnnotationProcessor.processClassTree(nodeName, rootClass);
+
+        setupMappers();
+        setuprConverters();
+        annotationProcessor = new AnnotationProcessor(converters, mappers);
+
+        rootMapper = annotationProcessor.processClassTree(nodeName, rootClass);
+
+    }
+
+    private void setupMappers() {
+
+    }
+
+    private void setuprConverters() {
 
     }
 
@@ -26,7 +42,7 @@ public class Xfast {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xmlreader = factory.createXMLStreamReader(reader);
 
-        Object obj = rootMapper.deserialize(null, xmlreader);
+        Object obj = rootMapper.fromNode(null, xmlreader);
 
         return obj;
     }
