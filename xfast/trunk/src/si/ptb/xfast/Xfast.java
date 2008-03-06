@@ -1,5 +1,8 @@
 package si.ptb.xfast;
 
+import si.ptb.xfast.converters.NodeConverter;
+import si.ptb.xfast.converters.ValueConverter;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -14,19 +17,17 @@ import java.util.List;
  */
 public class Xfast {
 
-    Mapper rootMapper;
-    private List<Mapper> mappers;
-    private List<ValueConverter> converters;
+    NodeConverter rootNodeConverter;
+    private List<NodeConverter> nodeConverters;
+    private List<ValueConverter> valueConverters;
     private AnnotationProcessor annotationProcessor;
 
     public Xfast(Class rootClass, String nodeName) {
-
         setupMappers();
         setuprConverters();
-        annotationProcessor = new AnnotationProcessor(converters, mappers);
+        annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
 
-        rootMapper = annotationProcessor.processClassTree(nodeName, rootClass);
-
+        rootNodeConverter = annotationProcessor.processClassTree(nodeName, rootClass);
     }
 
     private void setupMappers() {
@@ -42,7 +43,7 @@ public class Xfast {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xmlreader = factory.createXMLStreamReader(reader);
 
-        Object obj = rootMapper.fromNode(null, xmlreader);
+        Object obj = rootNodeConverter.fromNode(null, xmlreader);
 
         return obj;
     }

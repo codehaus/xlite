@@ -1,47 +1,65 @@
 package si.ptb.xfast;
 
+import si.ptb.xfast.converters.ValueMapper;
+import si.ptb.xfast.converters.NodeConverter;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: peter
- * Date: Feb 17, 2008
- * Time: 5:20:50 PM
+ * Date: Feb 28, 2008
+ * Time: 10:19:19 PM
  */
-public class DefaultMapper extends AnnotatedMapper {
+public class AnnotatedClassMapper implements NodeConverter {
 
+    private String nodeName;
+    private Class targetClass;
+    private Field parentReference;
+    private ValueMapper valueMapper;
+    private Map<String, NodeConverter> nodeMappers = new HashMap<String, NodeConverter>();
+    private Map<String, ValueMapper> attributeConverters = new HashMap<String, ValueMapper>();
     private SubTreeStore unknownNodeStorage;
 
-    public DefaultMapper(String nodeName, Class targetClass) {
-        super(targetClass, nodeName);
+    public AnnotatedClassMapper(Class targetClass, String nodeName) {
+        this.targetClass = targetClass;
+        this.nodeName = nodeName;
+    }
+
+    public void setValueConverter(ValueMapper valueMapper) {
+        this.valueMapper = valueMapper;
+    }
+
+    public void addNodeMapper(String nodeName, NodeConverter nodeConverter) {
+        nodeMappers.put(nodeName, nodeConverter);
+    }
+
+    public void addAttributeConverter(String attributeName, ValueMapper valueMapper) {
+        attributeConverters.put(attributeName, valueMapper);
+    }
+
+    public void setParentReference(Field parentReference) {
+        this.parentReference = parentReference;
     }
 
     /**
-     * This is a default Mapper that tries to convert all classes.
+     * This is a default NodeConverter that tries to convert all classes.
+     *
      * @param type
-     * @return  Always returns true.
+     * @return Always returns true.
      */
-    public boolean canMapNode(Class type) {
+    public boolean canConvert(Class type) {
         return true;
     }
 
-    /**
-     * Default mapper does not convert any simple values.
-     * @return Always returns false.
-     */
-    public boolean canConvertValue(Class type) {
-        return false;
-    }
-
-    public Object fromValue(String value) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public String toValue(Object object) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public NodeConverter getConverter(Class type) {
+        return null;  //ToDo Finish this ASAP!!!
     }
 
     public Object fromNode(Object parentObject, XMLStreamReader reader) {
@@ -59,18 +77,25 @@ public class DefaultMapper extends AnnotatedMapper {
         StringBuilder chars = new StringBuilder();
         QName qname;
         String name;
+        int depth = 1;
+        boolean continueLoop = true;
         try {
-            for (int event = reader.getEventType(); event != XMLStreamConstants.END_ELEMENT; event = reader.next()) {
+            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
+                        depth++;
                         qname = reader.getName();
                         name = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
-                        Mapper submapper = nodeMappers.get(name);
+                        NodeConverter submapper = nodeMappers.get(name);
                         if (submapper != null) {  // subnode is mapped to class
                             submapper.fromNode(currentObject, reader);
                         } else {  // unknown subnode
                             //TODO process unknown nodes
                         }
+                        break;
+                    case XMLStreamConstants.END_ELEMENT:
+                        depth--;
+                        continueLoop = (depth != 0);
                         break;
                     case XMLStreamConstants.ATTRIBUTE:
 
@@ -80,6 +105,7 @@ public class DefaultMapper extends AnnotatedMapper {
                         break;
                 }
             }
+            //todo assign value
 
             if (parentObject != null) {
                 parentReference.set(parentObject, currentObject);
@@ -96,5 +122,4 @@ public class DefaultMapper extends AnnotatedMapper {
     public void toNode(Object object, XMLStreamWriter writer) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-
 }

@@ -1,32 +1,30 @@
-package si.ptb.xfast;
+package si.ptb.xfast.converters;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * Classes implementing Mapper interface are used for serializing/deserializing xml
- * node's textual data to Java objects. They are responsible for reading/writing the xml stream on their own,
+ * Classes implementing NodeConverter interface are used for serializing/deserializing xml
+ * nodes to Java objects. They are responsible for reading/writing the xml stream on their own,
  * such that they always read/write the full xml node including all subnodes.
- * User: peter
- * Date: Feb 28, 2008
- * Time: 11:31:27 AM
+ * @author peter
  */
-public interface Mapper {
+public interface NodeConverter {
 
     /**
-     * Indicates if an implementation of Mapper interface can map a XML node to a given type.
-     *
+     * Indicates whether an implementation of NodeConverter can convert xml node to given Class.
+     * If it can then it returns an instance of NodeConverter. Otherwise it returns null.
      * @param type
      * @return
      */
-    public boolean canMapNode(Class type);
+    public NodeConverter getConverter(Class type);
 
     /**
      * Method responsible for reading a complete xml node from XMLStreamReader  and returning deserialized Object
      * that corresponds to this node. When XMLStreamReader instance is passed to this method it is already
      * positioned on the xml node that is to be converted. Method should use reader.next() to traverse through
-     * all node's attributes, value and subnodes. It shuld stop reading the stream when it encounters an END_ELEMENT
-     * event that corresponds to 
+     * all node's attributes, value and subnodes. It should stop reading the stream when it encounters an END_ELEMENT
+     * event that corresponds to first node.
      * @param parentObject
      * @param reader
      * @return

@@ -1,6 +1,6 @@
 package si.ptb.xfast;
 
-import si.ptb.xfast.DefaultMapper;
+import si.ptb.xfast.AnnotatedClassMapper;
 
 /**
  * Utility methods for copying arrays. Needed because they are not present in Java 1.5
@@ -10,25 +10,21 @@ import si.ptb.xfast.DefaultMapper;
  */
 public class ArrayUtil {
 
-
     public static byte[] arrayCopy(byte[] original, int newLength) {
         byte[] copy = new byte[newLength];
-        System.arraycopy(original, 0, copy, 0,
-                Math.min(original.length, newLength));
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }
 
     public static byte[][] arrayCopy(byte[][] original, int newLength) {
         byte[][] copy = new byte[newLength][];
-        System.arraycopy(original, 0, copy, 0,
-                Math.min(original.length, newLength));
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }
 
-    public static DefaultMapper[] arrayCopy(DefaultMapper[] original, int newLength) {
-        DefaultMapper[] copy = new DefaultMapper[newLength];
-        System.arraycopy(original, 0, copy, 0,
-                Math.min(original.length, newLength));
+    public static AnnotatedClassMapper[] arrayCopy(AnnotatedClassMapper[] original, int newLength) {
+        AnnotatedClassMapper[] copy = new AnnotatedClassMapper[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }
 }
