@@ -1,47 +1,61 @@
-package si.ptb.xfast.converters;
-
-import si.ptb.xfast.converters.ValueConverter;
-import si.ptb.xfast.converters.PrimitiveConverter;
-
-import java.lang.reflect.Field;
-
 /**
  * User: peter
  * Date: Feb 15, 2008
  * Time: 9:36:39 PM
  */
-public class ValueMapper {
+package si.ptb.xfast.converters;
 
-    public Field field;
+import java.lang.reflect.Field;
+
+/**
+ * Used to get/set values of a Field. It keeps a reference to a Field.
+ * Values are internally converted to/from Strings, using assigned converters.
+ * @author peter
+ */
+public class ValueMapper implements FieldConnector {
+
+    private Field targetField;
     private ValueConverter valueConverter;
     private PrimitiveConverter primitiveConverter;
-    private String elementName;
     private boolean isPrimitive;
     private int primitiveType;
 
+    /**
+     * Assigns a value to the Field.
+     * @param object Instance of an Object that contains the Field.
+     * @param elementValue  Value to be set.
+     */
     public void setValue(Object object, String elementValue) {
         if (isPrimitive) {
             try {
-                primitiveConverter.setPrimitive(primitiveType, field, object,  elementValue);
+                primitiveConverter.setPrimitive(primitiveType, targetField, object, elementValue);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();  //todo replace with custom exception
             }
         } else {
             try {
-                field.set(object, valueConverter.fromValue(elementValue));
+                targetField.set(object, valueConverter.fromValue(elementValue));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();    //todo replace with custom exception
             }
         }
     }
 
-    public ValueMapper(String elementName, Field field, ValueConverter valueConverter) {
-        this.elementName = elementName;
-        this.field = field;
+    /**
+     * Reads a value from a Field.
+     * @param object Instance of an Object that contains the Field.
+     * @return
+     */
+    public String getValue(Object object) {
+        return null;  //Todo implement this
+    }
+
+    public ValueMapper(Field targetField, ValueConverter valueConverter) {
+        this.targetField = targetField;
         this.valueConverter = valueConverter;
-        this.isPrimitive = field.getType().isPrimitive();
+        this.isPrimitive = targetField.getType().isPrimitive();
         if (isPrimitive) {
-            primitiveType = PrimitiveConverter.getPrimitiveCode(field.getType());
+            primitiveType = PrimitiveConverter.getPrimitiveCode(targetField.getType());
             primitiveConverter = (PrimitiveConverter) valueConverter;
         }
     }

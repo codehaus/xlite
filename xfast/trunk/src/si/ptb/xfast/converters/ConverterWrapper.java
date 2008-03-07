@@ -8,6 +8,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
+import java.lang.reflect.Field;
 
 /**
  * Wraps {@link ValueConverter} to make it behave as {@link si.ptb.xfast.converters.NodeConverter}. This is useful in situations
@@ -16,16 +17,16 @@ import java.util.List;
  * Date: Mar 3, 2008
  * Time: 11:06:36 AM
  */
-public class ValueConverterWrapper implements NodeConverter {
+public class ConverterWrapper implements NodeConverter {
 
     private List<ValueConverter> valueConverters;
     private ValueConverter choosenValueConverter;
 
-    public ValueConverterWrapper(List<ValueConverter> valueConverters) {
+    public ConverterWrapper(List<ValueConverter> valueConverters) {
         this.valueConverters = valueConverters;
     }
 
-    public ValueConverterWrapper(ValueConverterWrapper converterWrapper, ValueConverter valueConverter) {
+    public ConverterWrapper(ConverterWrapper converterWrapper, ValueConverter valueConverter) {
         this.valueConverters = converterWrapper.valueConverters;
         this.choosenValueConverter = valueConverter;
     }
@@ -33,14 +34,14 @@ public class ValueConverterWrapper implements NodeConverter {
     public NodeConverter getConverter(Class type) {
         for (ValueConverter valueConverter : valueConverters) {
             if (valueConverter.canConvert(type)) {
-                return new ValueConverterWrapper(this, valueConverter);
+                return new ConverterWrapper(this, valueConverter);
             }
         }
         return null;
     }
 
 
-    public Object fromNode(Object parentObject, XMLStreamReader reader) {
+    public Object fromNode(XMLStreamReader reader) {
 
         StringBuilder chars = new StringBuilder();
         QName qname;
@@ -73,5 +74,13 @@ public class ValueConverterWrapper implements NodeConverter {
 
     public void toNode(Object object, XMLStreamWriter writer) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setParentField(Field parentField) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Field getParentField() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

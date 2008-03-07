@@ -1,9 +1,6 @@
 package si.ptb.xfast;
 
-import si.ptb.xfast.converters.ValueConverter;
-import si.ptb.xfast.converters.ValueMapper;
-import si.ptb.xfast.converters.NodeConverter;
-import si.ptb.xfast.AnnotatedClassMapper;
+import si.ptb.xfast.converters.*;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -31,8 +28,8 @@ public class AnnotationProcessor {
      * @param rootClass A root class in a tree of classes
      * @return
      */
-    public NodeConverter processClassTree(String nodeName, Class rootClass) {
-        return processClass(nodeName, rootClass, null);
+    public RootMapper processClassTree(String nodeName, Class rootClass) {
+        return new RootMapper(null, processClass(nodeName, rootClass, null));
     }
 
 
@@ -47,21 +44,24 @@ public class AnnotationProcessor {
 
         NodeConverter nodeConverter = lookupMapper(currentClass);
 
-        // is a subclass of AnnotatedClassMapper?
-        if (nodeConverter.getClass().isAssignableFrom(AnnotatedClassMapper.class)) {
-            AnnotatedClassMapper annotatedClassMapper = (AnnotatedClassMapper) nodeConverter;
+        // Was appropriate NodeConverter found for given class?
+        if (nodeConverter != null) {
+
+            return nodeConverter;
+
+        } else {  // default NodeConverter is used -> AnnotatedClassMapper
+
+            AnnotatedClassMapper annotatedClassMapper = new AnnotatedClassMapper(currentClass, nodeName, parentField);
 
             // find and process @XMLattribute annotations
             processAttributes(currentClass, annotatedClassMapper);
-
             // find and process @XMLvalue annotation
             processValue(currentClass, annotatedClassMapper);
-
             // find and process @XMLnode annotations
             processNodes(currentClass, annotatedClassMapper);
-        }
 
-        return nodeConverter;
+            return annotatedClassMapper;
+        }
     }
 
     private NodeConverter lookupMapper(Class type) {
@@ -98,8 +98,8 @@ public class AnnotationProcessor {
                 String nodeName = annotation.value();
 
                 // recursive call that builds a tree of Mappers
-                NodeConverter submapper = processClass(nodeName, field.getType(), field);
-                mapper.addNodeMapper(nodeName, submapper);
+                NodeMapper submapper = new NodeMapper(mapper.getParentField(), processClass(nodeName, field.getType(), field));
+                mapper.addNodeConnector(nodeName, submapper);
             }
         }
     }
@@ -107,8 +107,8 @@ public class AnnotationProcessor {
     /**
      * Searches class for fields that have @XMLattribute annotation and creates a ValueMapper for that field
      *
-     * @param mapper AnnotatedClassMapper to which the ValueMapper
-     * @param currentClass
+     * @param mapper       AnnotatedClassMapper to which the ValueMapper is referenced
+     * @param currentClass Class being inspected for @XMLattribute annotations
      * @return Map of XML attribute names to {@link si.ptb.xfast.converters.ValueMapper} objects.
      */
     private void processAttributes(Class currentClass, AnnotatedClassMapper mapper) {
@@ -117,7 +117,7 @@ public class AnnotationProcessor {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
                 ValueConverter valueConverter = lookupConverter(field.getType());
-                mapper.addAttributeConverter(annotation.value(), new ValueMapper(annotation.value(), field, valueConverter));
+                mapper.addAttributeConverter(annotation.value(), new ValueMapper(field, valueConverter));
             }
         }
     }
@@ -145,8 +145,8 @@ public class AnnotationProcessor {
         }
         if (found == 1) {
             ValueConverter valueConverter = lookupConverter(targetField.getType());
-            mapper.setValueConverter(new ValueMapper("", targetField, valueConverter));
+            mapper.setValueConnector(new ValueMapper(targetField, valueConverter));
         }
     }
-    
+
 }

@@ -2,6 +2,7 @@ package si.ptb.xfast;
 
 import si.ptb.xfast.converters.ValueMapper;
 import si.ptb.xfast.converters.NodeConverter;
+import si.ptb.xfast.converters.NodeMapper;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
@@ -21,31 +22,36 @@ public class AnnotatedClassMapper implements NodeConverter {
 
     private String nodeName;
     private Class targetClass;
-    private Field parentReference;
+    private Field parentField;
     private ValueMapper valueMapper;
-    private Map<String, NodeConverter> nodeMappers = new HashMap<String, NodeConverter>();
-    private Map<String, ValueMapper> attributeConverters = new HashMap<String, ValueMapper>();
+    private Map<String, NodeMapper> nodeMappers = new HashMap<String, NodeMapper>();
+    private Map<String, ValueMapper> attributeMappers = new HashMap<String, ValueMapper>();
     private SubTreeStore unknownNodeStorage;
 
-    public AnnotatedClassMapper(Class targetClass, String nodeName) {
+    public AnnotatedClassMapper(Class targetClass, String nodeName, Field parentField) {
         this.targetClass = targetClass;
         this.nodeName = nodeName;
+        this.parentField = parentField;
     }
 
-    public void setValueConverter(ValueMapper valueMapper) {
+    public void setValueConnector(ValueMapper valueMapper) {
         this.valueMapper = valueMapper;
     }
 
-    public void addNodeMapper(String nodeName, NodeConverter nodeConverter) {
+    public void addNodeConnector(String nodeName, NodeMapper nodeConverter) {
         nodeMappers.put(nodeName, nodeConverter);
     }
 
     public void addAttributeConverter(String attributeName, ValueMapper valueMapper) {
-        attributeConverters.put(attributeName, valueMapper);
+        attributeMappers.put(attributeName, valueMapper);
     }
 
-    public void setParentReference(Field parentReference) {
-        this.parentReference = parentReference;
+    public void setParentField(Field parentField) {
+        this.parentField = parentField;
+    }
+
+    public Field getParentField() {
+        return parentField;
     }
 
     /**
@@ -62,7 +68,7 @@ public class AnnotatedClassMapper implements NodeConverter {
         return null;  //ToDo Finish this ASAP!!!
     }
 
-    public Object fromNode(Object parentObject, XMLStreamReader reader) {
+    public Object fromNode(XMLStreamReader reader) {
 
         // instantiate object that maps to the current XML node
         Object currentObject = null;
@@ -86,10 +92,12 @@ public class AnnotatedClassMapper implements NodeConverter {
                         depth++;
                         qname = reader.getName();
                         name = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
-                        NodeConverter submapper = nodeMappers.get(name);
-                        if (submapper != null) {  // subnode is mapped to class
-                            submapper.fromNode(currentObject, reader);
-                        } else {  // unknown subnode
+
+                        // find NodeMapper for converting XML node with given name
+                        NodeMapper subNode = nodeMappers.get(name);
+                        if (subNode != null) {  // converter is found
+                            subNode.setValue(currentObject, reader);
+                        } else {  // unknown subNode
                             //TODO process unknown nodes
                         }
                         break;
@@ -107,16 +115,11 @@ public class AnnotatedClassMapper implements NodeConverter {
             }
             //todo assign value
 
-            if (parentObject != null) {
-                parentReference.set(parentObject, currentObject);
-            }
-            return currentObject;
         } catch (XMLStreamException e) {
             throw new XfastException("Error getting next xml element.", e);
-        } catch (IllegalAccessException e) {
-            throw new XfastException("Error setting parent-child reference.", e);
         }
 
+        return currentObject;
     }
 
     public void toNode(Object object, XMLStreamWriter writer) {

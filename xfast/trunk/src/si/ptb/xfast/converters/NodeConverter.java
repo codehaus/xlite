@@ -2,6 +2,7 @@ package si.ptb.xfast.converters;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.lang.reflect.Field;
 
 /**
  * Classes implementing NodeConverter interface are used for serializing/deserializing xml
@@ -25,13 +26,16 @@ public interface NodeConverter {
      * positioned on the xml node that is to be converted. Method should use reader.next() to traverse through
      * all node's attributes, value and subnodes. It should stop reading the stream when it encounters an END_ELEMENT
      * event that corresponds to first node.
-     * @param parentObject
+//     * @param parentObject
      * @param reader
      * @return
      */
-    public Object fromNode(Object parentObject, XMLStreamReader reader);
+    public Object fromNode(XMLStreamReader reader);
 
     public void toNode(Object object, XMLStreamWriter writer);
-    
 
+
+    void setParentField(Field parentField);
+
+    Field getParentField();
 }

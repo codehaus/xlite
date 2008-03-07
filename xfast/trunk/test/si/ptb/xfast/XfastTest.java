@@ -50,8 +50,8 @@ public class XfastTest {
         @XMLnode("number")
         public int number;
 
-        @XMLnode("numbers")
-        public List numbers = new ArrayList();
+//        @XMLnode("numbers")
+//        public List numbers = new ArrayList();
 
         @XMLnode("phone")
         public PhoneNumber phone;
