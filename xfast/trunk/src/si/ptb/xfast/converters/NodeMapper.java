@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 public class NodeMapper {
 
     private Field targetField;
-    protected NodeConverter nodeConverter;
+    public NodeConverter nodeConverter;    //todo make private
 
     public void setValue(Object targetObject, XMLStreamReader reader) {
         try {

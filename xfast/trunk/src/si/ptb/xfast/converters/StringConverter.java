@@ -13,7 +13,7 @@ public class StringConverter implements ValueConverter {
     }
 
     public Object fromValue(String value) {
-        return value;
+        return value.intern();
     }
 
     public String toValue(Object object) {

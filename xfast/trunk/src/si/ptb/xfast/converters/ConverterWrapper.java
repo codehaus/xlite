@@ -76,11 +76,4 @@ public class ConverterWrapper implements NodeConverter {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setParentField(Field parentField) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Field getParentField() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }

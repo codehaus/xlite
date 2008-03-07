@@ -35,7 +35,7 @@ public interface NodeConverter {
     public void toNode(Object object, XMLStreamWriter writer);
 
 
-    void setParentField(Field parentField);
-
-    Field getParentField();
+//    void setParentField(Field parentField);
+//
+//    Field getParentField();
 }

@@ -14,9 +14,9 @@ import java.lang.reflect.Field;
  */
 public class ValueMapper implements FieldConnector {
 
-    private Field targetField;
-    private ValueConverter valueConverter;
-    private PrimitiveConverter primitiveConverter;
+    public Field targetField;
+    public ValueConverter valueConverter;
+    public PrimitiveConverter primitiveConverter;
     private boolean isPrimitive;
     private int primitiveType;
 

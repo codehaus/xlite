@@ -1,9 +1,6 @@
 package si.ptb.xfast;
 
-import si.ptb.xfast.converters.NodeConverter;
-import si.ptb.xfast.converters.ValueConverter;
-import si.ptb.xfast.converters.NodeMapper;
-import si.ptb.xfast.converters.RootMapper;
+import si.ptb.xfast.converters.*;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -40,6 +37,9 @@ public class Xfast {
 
     private void setupValueConverters() {
         valueConverters = new ArrayList<ValueConverter>();
+
+        valueConverters.add(new StringConverter());
+
 
     }
 

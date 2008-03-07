@@ -20,10 +20,10 @@ import java.util.Map;
  */
 public class AnnotatedClassMapper implements NodeConverter {
 
-    private String nodeName;
-    private Class targetClass;
-    private Field parentField;
-    private ValueMapper valueMapper;
+    public String nodeName;
+    public Class targetClass;
+//    public Field parentField;
+    public ValueMapper valueMapper;
     private Map<String, NodeMapper> nodeMappers = new HashMap<String, NodeMapper>();
     private Map<String, ValueMapper> attributeMappers = new HashMap<String, ValueMapper>();
     private SubTreeStore unknownNodeStorage;
@@ -31,7 +31,7 @@ public class AnnotatedClassMapper implements NodeConverter {
     public AnnotatedClassMapper(Class targetClass, String nodeName, Field parentField) {
         this.targetClass = targetClass;
         this.nodeName = nodeName;
-        this.parentField = parentField;
+//        this.parentField = parentField;
     }
 
     public void setValueConnector(ValueMapper valueMapper) {
@@ -46,13 +46,13 @@ public class AnnotatedClassMapper implements NodeConverter {
         attributeMappers.put(attributeName, valueMapper);
     }
 
-    public void setParentField(Field parentField) {
-        this.parentField = parentField;
-    }
-
-    public Field getParentField() {
-        return parentField;
-    }
+//    public void setParentField(Field parentField) {
+//        this.parentField = parentField;
+//    }
+//
+//    public Field getParentField() {
+//        return parentField;
+//    }
 
     /**
      * This is a default NodeConverter that tries to convert all classes.
@@ -124,5 +124,18 @@ public class AnnotatedClassMapper implements NodeConverter {
 
     public void toNode(Object object, XMLStreamWriter writer) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void printContents(String prefix){
+        prefix += " ";
+        for (Map.Entry<String, ValueMapper> attrEntry : attributeMappers.entrySet()) {
+            System.out.println(prefix+"attribute:"+attrEntry.getKey()
+                    +" field:"+attrEntry.getValue().targetField.getName()+"("+attrEntry.getValue().targetField.getType()+")");
+        }
+
+        for (Map.Entry<String, NodeMapper> nodeEntry : nodeMappers.entrySet()) {
+            System.out.println(prefix+"node:"+nodeEntry.getKey());
+        }
+
     }
 }

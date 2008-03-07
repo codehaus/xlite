@@ -98,8 +98,11 @@ public class AnnotationProcessor {
                 String nodeName = annotation.value();
 
                 // recursive call that builds a tree of Mappers
-                NodeMapper submapper = new NodeMapper(mapper.getParentField(), processClass(nodeName, field.getType(), field));
+                NodeMapper submapper = new NodeMapper(field, processClass(nodeName, field.getType(), field));
                 mapper.addNodeConnector(nodeName, submapper);
+
+                System.out.println("class:"+currentClass.getSimpleName()+" field:"+field.getName()+" node:"+nodeName
+                        +" converter:"+submapper.nodeConverter.getClass().getSimpleName());
             }
         }
     }
