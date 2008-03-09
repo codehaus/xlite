@@ -23,8 +23,10 @@ public class Xfast {
     private AnnotationProcessor annotationProcessor;
 
     public Xfast(Class rootClass, String nodeName) {
-        setupNodeConverters();
+        // ValueConverters must be setup before NodeConverters
+        // because ConverterWrapper expects ValueConverters to already exist
         setupValueConverters();
+        setupNodeConverters();
         annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
 
         rootNodeMapper = annotationProcessor.processClassTree(nodeName, rootClass);
@@ -33,20 +35,27 @@ public class Xfast {
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
 
+        nodeConverters.add(new ConverterWrapper(valueConverters));
     }
 
     private void setupValueConverters() {
         valueConverters = new ArrayList<ValueConverter>();
 
         valueConverters.add(new StringConverter());
+        valueConverters.add(new PrimitiveConverter());
 
 
     }
 
 
-    public Object fromXML(Reader reader) throws XMLStreamException {
+    public Object fromXML(Reader reader) {
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader xmlreader = factory.createXMLStreamReader(reader);
+        XMLStreamReader xmlreader = null;
+        try {
+            xmlreader = factory.createXMLStreamReader(reader);
+        } catch (XMLStreamException e) {
+            throw new XfastException("Error reading XML data from Reader", e);
+        }
 
         return rootNodeMapper.getRootObject(xmlreader);
     }

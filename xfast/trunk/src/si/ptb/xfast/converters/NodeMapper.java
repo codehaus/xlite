@@ -15,7 +15,8 @@ public class NodeMapper {
 
     public void setValue(Object targetObject, XMLStreamReader reader) {
         try {
-            targetField.set(targetObject, nodeConverter.fromNode(reader));
+            Object value = nodeConverter.fromNode(reader);
+            targetField.set(targetObject, value);
         } catch (IllegalAccessException e) {
             throw new XfastException("Field could not be set!", e);
         }

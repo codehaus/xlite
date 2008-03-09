@@ -29,7 +29,7 @@ public class AnnotationProcessor {
      * @return
      */
     public RootMapper processClassTree(String nodeName, Class rootClass) {
-        return new RootMapper(null, processClass(nodeName, rootClass, null));
+        return new RootMapper(nodeName, processClass(nodeName, rootClass));
     }
 
 
@@ -40,10 +40,11 @@ public class AnnotationProcessor {
      * @param nodeName
      * @param currentClass
      */
-    private NodeConverter processClass(String nodeName, Class currentClass, Field parentField) {
+    private NodeConverter processClass(String nodeName, Class currentClass) {
 
         NodeConverter nodeConverter = lookupMapper(currentClass);
 
+        //todo change such that ACM is part of mappers hierarchy - list in setupMappers(), implement 
         // Was appropriate NodeConverter found for given class?
         if (nodeConverter != null) {
 
@@ -51,7 +52,7 @@ public class AnnotationProcessor {
 
         } else {  // default NodeConverter is used -> AnnotatedClassMapper
 
-            AnnotatedClassMapper annotatedClassMapper = new AnnotatedClassMapper(currentClass, nodeName, parentField);
+            AnnotatedClassMapper annotatedClassMapper = new AnnotatedClassMapper(currentClass, nodeName);
 
             // find and process @XMLattribute annotations
             processAttributes(currentClass, annotatedClassMapper);
@@ -98,11 +99,11 @@ public class AnnotationProcessor {
                 String nodeName = annotation.value();
 
                 // recursive call that builds a tree of Mappers
-                NodeMapper submapper = new NodeMapper(field, processClass(nodeName, field.getType(), field));
+                NodeMapper submapper = new NodeMapper(field, processClass(nodeName, field.getType()));
                 mapper.addNodeConnector(nodeName, submapper);
 
-                System.out.println("class:"+currentClass.getSimpleName()+" field:"+field.getName()+" node:"+nodeName
-                        +" converter:"+submapper.nodeConverter.getClass().getSimpleName());
+                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodeName
+                        + " converter:" + submapper.nodeConverter.getClass().getSimpleName());
             }
         }
     }
@@ -116,11 +117,16 @@ public class AnnotationProcessor {
      */
     private void processAttributes(Class currentClass, AnnotatedClassMapper mapper) {
         XMLattribute annotation = null;
+        String attributeName;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
+                attributeName = annotation.value().isEmpty() ? field.getName() : annotation.value();
                 ValueConverter valueConverter = lookupConverter(field.getType());
-                mapper.addAttributeConverter(annotation.value(), new ValueMapper(field, valueConverter));
+                mapper.addAttributeConverter(attributeName, new ValueMapper(field, valueConverter));
+
+                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
+                        + " converter:" + valueConverter.getClass().getSimpleName());
             }
         }
     }
@@ -149,6 +155,9 @@ public class AnnotationProcessor {
         if (found == 1) {
             ValueConverter valueConverter = lookupConverter(targetField.getType());
             mapper.setValueConnector(new ValueMapper(targetField, valueConverter));
+
+            System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
+                        + " converter:" + valueConverter.getClass().getSimpleName());
         }
     }
 

@@ -1,18 +1,20 @@
 package si.ptb.xfast.converters;
 
 import javax.xml.stream.XMLStreamReader;
-import java.lang.reflect.Field;
 
 /**
  * @author peter
  */
 public class RootMapper extends NodeMapper {
 
-    public RootMapper(Field targetField, NodeConverter nodeConverter) {
-        super(targetField, nodeConverter);
+    private String rootNodeName;
+
+    public RootMapper(String rootNodeName, NodeConverter nodeConverter) {
+        super(null, nodeConverter);
+        this.rootNodeName = rootNodeName;
     }
 
-    public Object getRootObject(XMLStreamReader reader){
+    public Object getRootObject(XMLStreamReader reader) {
         return nodeConverter.fromNode(reader);
     }
 }

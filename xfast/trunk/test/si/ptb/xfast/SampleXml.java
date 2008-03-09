@@ -6,7 +6,8 @@ package si.ptb.xfast;
 public class SampleXml {
 
     static String xml =
-            "<person personAttribute=\"justPerson\">"
+             "<person personAttribute=\"justPerson\">"
+            + "just some text"
             +   "<number lastattr=\"AAA\">42</number>"
             +   "<firstname>"
             +       "Joe"
@@ -25,6 +26,13 @@ public class SampleXml {
 
 
     public static class Person {
+
+        @XMLattribute("personAttribute")
+        public String pa;
+
+        @XMLtext
+        public String textValue;
+
         @XMLnode("firstname")
         public String firstname;
 

@@ -21,7 +21,7 @@ public class XfastTest {
         StringReader reader = new StringReader(SampleXml.xml);
         Xfast xf = new Xfast(SampleXml.Person.class, "person");
 
-//        Person person = (Person) xf.fromXML(reader);
+        SampleXml.Person person = (SampleXml.Person) xf.fromXML(reader);
 
         System.out.println("end!");
     }

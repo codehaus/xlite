@@ -23,9 +23,11 @@ public class PrimitiveConverter implements ValueConverter {
         return null;
     }
 
+    //todo Replace all Exceptions with XfastExceptions
+
     public void setPrimitive(int primitiveType, Field field, Object object, String nodeValue) throws IllegalAccessException {
         switch (primitiveType) {
-            case 1: // boolean
+            case 0: // boolean
                 if (nodeValue.equals("true")) {
                     field.setBoolean(object, true);
                 } else if (nodeValue.equals("false")) {
@@ -34,7 +36,7 @@ public class PrimitiveConverter implements ValueConverter {
                     new RuntimeException("PrimitiveConverter: could not set field type boolean.");
                 }
                 break;
-            case 2:  // byte
+            case 1:  // byte
                 try {
                     byte val = Byte.parseByte(nodeValue);
                     field.setByte(object, val);
@@ -42,14 +44,14 @@ public class PrimitiveConverter implements ValueConverter {
                     nfe.printStackTrace();
                 }
                 break;
-            case 3:  // char
+            case 2:  // char
                 if (nodeValue.length() == 1) {
                     field.setChar(object, nodeValue.charAt(0));
                 } else if (nodeValue.length() > 1) {
                     new RuntimeException("PrimitiveConverter: could not set field type char - element value longer than 1.");
                 }
                 break;
-            case 4:  // double
+            case 3:  // double
                 try {
                     double val = Double.parseDouble(nodeValue);
                     field.setDouble(object, val);
@@ -57,7 +59,7 @@ public class PrimitiveConverter implements ValueConverter {
                     nfe.printStackTrace();
                 }
                 break;
-            case 5:  // float
+            case 4:  // float
                 try {
                     float val = Float.parseFloat(nodeValue);
                     field.setFloat(object, val);
@@ -65,7 +67,7 @@ public class PrimitiveConverter implements ValueConverter {
                     nfe.printStackTrace();
                 }
                 break;
-            case 6:  // integer
+            case 5:  // integer
                 try {
                     int val = Integer.parseInt(nodeValue);
                     field.setInt(object, val);
@@ -73,7 +75,7 @@ public class PrimitiveConverter implements ValueConverter {
                     nfe.printStackTrace();
                 }
                 break;
-            case 7:  // long
+            case 6:  // long
                 try {
                     long val = Long.parseLong(nodeValue);
                     field.setLong(object, val);
@@ -81,7 +83,7 @@ public class PrimitiveConverter implements ValueConverter {
                     nfe.printStackTrace();
                 }
                 break;
-            case 8:  // short
+            case 7:  // short
                 try {
                     short val = Short.parseShort(nodeValue);
                     field.setShort(object, val);
@@ -94,22 +96,22 @@ public class PrimitiveConverter implements ValueConverter {
 
     public static int getPrimitiveCode(Class clazz) {
         if (boolean.class.equals(clazz)) {
-            return 1;
+            return 0;
         } else if (byte.class.equals(clazz)) {
-            return 2;
+            return 1;
         } else if (char.class.equals(clazz)) {
-            return 3;
+            return 2;
         } else if (double.class.equals(clazz)) {
-            return 4;
+            return 3;
         } else if (float.class.equals(clazz)) {
-            return 5;
+            return 4;
         } else if (int.class.equals(clazz)) {
-            return 6;
+            return 5;
         } else if (long.class.equals(clazz)) {
-            return 7;
+            return 6;
         } else if (short.class.equals(clazz)) {
-            return 8;
+            return 7;
         }
-        return 0;
+        return -1;
     }
 }

@@ -1,15 +1,14 @@
 package si.ptb.xfast;
 
-import si.ptb.xfast.converters.ValueMapper;
 import si.ptb.xfast.converters.NodeConverter;
 import si.ptb.xfast.converters.NodeMapper;
+import si.ptb.xfast.converters.ValueMapper;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +21,14 @@ public class AnnotatedClassMapper implements NodeConverter {
 
     public String nodeName;
     public Class targetClass;
-//    public Field parentField;
     public ValueMapper valueMapper;
     private Map<String, NodeMapper> nodeMappers = new HashMap<String, NodeMapper>();
     private Map<String, ValueMapper> attributeMappers = new HashMap<String, ValueMapper>();
     private SubTreeStore unknownNodeStorage;
 
-    public AnnotatedClassMapper(Class targetClass, String nodeName, Field parentField) {
+    public AnnotatedClassMapper(Class targetClass, String nodeName) {
         this.targetClass = targetClass;
         this.nodeName = nodeName;
-//        this.parentField = parentField;
     }
 
     public void setValueConnector(ValueMapper valueMapper) {
@@ -46,26 +43,14 @@ public class AnnotatedClassMapper implements NodeConverter {
         attributeMappers.put(attributeName, valueMapper);
     }
 
-//    public void setParentField(Field parentField) {
-//        this.parentField = parentField;
-//    }
-//
-//    public Field getParentField() {
-//        return parentField;
-//    }
-
     /**
      * This is a default NodeConverter that tries to convert all classes.
      *
      * @param type
-     * @return Always returns true.
+     * @return
      */
-    public boolean canConvert(Class type) {
-        return true;
-    }
-
     public NodeConverter getConverter(Class type) {
-        return null;  //ToDo Finish this ASAP!!!
+        return null;  //todo implement this - How?
     }
 
     public Object fromNode(XMLStreamReader reader) {
@@ -94,11 +79,11 @@ public class AnnotatedClassMapper implements NodeConverter {
                         name = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
                         // find NodeMapper for converting XML node with given name
-                        NodeMapper subNode = nodeMappers.get(name);
-                        if (subNode != null) {  // converter is found
-                            subNode.setValue(currentObject, reader);
-                        } else {  // unknown subNode
-                            //TODO process unknown nodes
+                        NodeMapper subMapper = nodeMappers.get(name);
+                        if (subMapper != null) {  // converter is found
+                            subMapper.setValue(currentObject, reader);
+                        } else {  // unknown subMapper
+                            System.out.println("unknown node: "+name);
                         }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
@@ -106,14 +91,28 @@ public class AnnotatedClassMapper implements NodeConverter {
                         continueLoop = (depth != 0);
                         break;
                     case XMLStreamConstants.ATTRIBUTE:
-
+                        int count = reader.getAttributeCount();
+                        String attrName, attrValue;
+                        for (int i = 0; i < count; i++) {
+                            qname = reader.getAttributeName(i);
+                            attrName = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                            attrValue = reader.getAttributeValue(i);
+                            ValueMapper attrMapper = attributeMappers.get(attrName);
+                        }
                         break;
                     case XMLStreamConstants.CHARACTERS:
-                        chars.append(reader.getText());
+                        String text = reader.getText();
+                        System.out.println("Text: "+text);
+                        chars.append(text);
+                        break;
+                    case XMLStreamConstants.END_DOCUMENT:
+                        continueLoop = false;
                         break;
                 }
             }
-            //todo assign value
+
+            // XML node value
+            valueMapper.setValue(currentObject, chars.toString());
 
         } catch (XMLStreamException e) {
             throw new XfastException("Error getting next xml element.", e);
@@ -126,15 +125,15 @@ public class AnnotatedClassMapper implements NodeConverter {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void printContents(String prefix){
+    public void printContents(String prefix) {
         prefix += " ";
         for (Map.Entry<String, ValueMapper> attrEntry : attributeMappers.entrySet()) {
-            System.out.println(prefix+"attribute:"+attrEntry.getKey()
-                    +" field:"+attrEntry.getValue().targetField.getName()+"("+attrEntry.getValue().targetField.getType()+")");
+            System.out.println(prefix + "attribute:" + attrEntry.getKey()
+                    + " field:" + attrEntry.getValue().targetField.getName() + "(" + attrEntry.getValue().targetField.getType() + ")");
         }
 
         for (Map.Entry<String, NodeMapper> nodeEntry : nodeMappers.entrySet()) {
-            System.out.println(prefix+"node:"+nodeEntry.getKey());
+            System.out.println(prefix + "node:" + nodeEntry.getKey());
         }
 
     }
