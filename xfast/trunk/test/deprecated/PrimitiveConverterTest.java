@@ -1,15 +1,19 @@
-package si.ptb.xfast;
+package deprecated;
 
 import org.testng.Assert;
 import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
-import si.ptb.xfast.converters.PrimitiveConverter;
+import deprecated.PrimitiveConverter;
 
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import si.ptb.xfast.Xfast;
+import si.ptb.xfast.XMLattribute;
+import si.ptb.xfast.XMLtext;
 
 /**
  * @author peter

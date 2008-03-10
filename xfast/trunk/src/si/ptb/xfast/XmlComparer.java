@@ -52,9 +52,9 @@ public class XmlComparer {
                     break;
                 case XMLStreamConstants.START_ELEMENT:
                     q1 = r1.getName();
-                    n1 = q1.getPrefix().isEmpty() ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
+                    n1 = q1.getPrefix().length()==0 ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
                     q2 = r2.getName();
-                    n2 = q2.getPrefix().isEmpty() ? q2.getLocalPart() : (q2.getPrefix() + ":" + q2.getLocalPart());
+                    n2 = q2.getPrefix().length()==0 ? q2.getLocalPart() : (q2.getPrefix() + ":" + q2.getLocalPart());
                     enclosingNode = n1;
                     if (!n1.equals(n2)) {
                         System.out.println("START_ELEMENT " + location.getLineNumber() + ":" + location.getColumnNumber());
@@ -68,7 +68,7 @@ public class XmlComparer {
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     q1 = r1.getName();
-                    n1 = q1.getPrefix().isEmpty() ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
+                    n1 = q1.getPrefix().length()==0 ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
 
 
                     if (!t1.toString().equals(t2.toString())) {
@@ -103,10 +103,10 @@ public class XmlComparer {
         Location location;
         for (int i = 0, n = r1.getAttributeCount(); i < n; ++i) {
             q1 = r1.getAttributeName(i);
-            n1 = q1.getPrefix().isEmpty() ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
+            n1 = q1.getPrefix().length()==0 ? q1.getLocalPart() : (q1.getPrefix() + ":" + q1.getLocalPart());
             v1 = r1.getAttributeValue(i);
             q2 = r2.getAttributeName(i);
-            n2 = q2.getPrefix().isEmpty() ? q2.getLocalPart() : (q2.getPrefix() + ":" + q2.getLocalPart());
+            n2 = q2.getPrefix().length()==0 ? q2.getLocalPart() : (q2.getPrefix() + ":" + q2.getLocalPart());
             v2 = r2.getAttributeValue(i);
             if (!n1.equals(n2) || !v1.equals(v2)) {
                 location = r1.getLocation();

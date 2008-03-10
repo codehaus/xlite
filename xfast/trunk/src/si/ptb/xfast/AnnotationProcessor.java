@@ -121,7 +121,7 @@ public class AnnotationProcessor {
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
-                attributeName = annotation.value().isEmpty() ? field.getName() : annotation.value();
+                attributeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
                 ValueConverter valueConverter = lookupConverter(field.getType());
                 mapper.addAttributeConverter(attributeName, new ValueMapper(field, valueConverter));
 
@@ -157,7 +157,7 @@ public class AnnotationProcessor {
             mapper.setValueConnector(new ValueMapper(targetField, valueConverter));
 
             System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
-                        + " converter:" + valueConverter.getClass().getSimpleName());
+                    + " converter:" + valueConverter.getClass().getSimpleName());
         }
     }
 

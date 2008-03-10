@@ -62,7 +62,7 @@ public class SubTreeStore {
 
                     emptyElementIndex = last;
                     qName = reader.getName();
-                    name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                    name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     emptyElementIndex = addElement(START_ELEMENT, name, encoding);
                     emptyElement = true;
                     addAtributes(reader, encoding);
@@ -79,7 +79,7 @@ public class SubTreeStore {
                         replaceStartWithEmpty(emptyElementIndex);
                     } else {
                         qName = reader.getName();
-                        name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                        name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                         addElement(END_ELEMENT, name, encoding);
                     }
                     emptyElement = false;
@@ -113,7 +113,7 @@ public class SubTreeStore {
         String name;
         for (int i = 0, n = reader.getAttributeCount(); i < n; ++i) {
             qName = reader.getAttributeName(i);
-            name = qName.getPrefix().isEmpty() ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+            name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
             addElement(ATTR, name + "=" + reader.getAttributeValue(i), encoding);
         }
     }

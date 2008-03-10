@@ -76,7 +76,7 @@ public class AnnotatedClassMapper implements NodeConverter {
                     case XMLStreamConstants.START_ELEMENT:
                         depth++;
                         qname = reader.getName();
-                        name = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                        name = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
                         // find NodeMapper for converting XML node with given name
                         NodeMapper subMapper = nodeMappers.get(name);
@@ -100,7 +100,7 @@ public class AnnotatedClassMapper implements NodeConverter {
                         String attrName, attrValue;
                         for (int i = 0; i < count; i++) {
                             qname = reader.getAttributeName(i);
-                            attrName = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                            attrName = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
                             attrValue = reader.getAttributeValue(i);
                             ValueMapper attrMapper = attributeMappers.get(attrName);
                             System.out.println("ATTR: "+attrName+" d="+depth);

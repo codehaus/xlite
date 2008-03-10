@@ -31,7 +31,7 @@ public class RootMapper extends NodeMapper {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
                         qname = reader.getName();
-                        name = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                        name = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
                         if (name.equals(rootNodeName))
                             System.out.println("ROOT nodeName=" + rootNodeName + " nodeConverter=" + nodeConverter.toString());
 

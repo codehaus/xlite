@@ -10,8 +10,6 @@ import java.io.Writer;
 import java.util.List;
 import java.util.ArrayList;
 
-import si.ptb.xfast.converters.PrimitiveConverter;
-import si.ptb.xfast.converters.ConverterWrapper;
 
 /**
  * User: peter
@@ -26,8 +24,6 @@ public class Xfast {
     private AnnotationProcessor annotationProcessor;
 
     public Xfast(Class rootClass, String nodeName) {
-        // ValueConverters must be setup before NodeConverters
-        // because ConverterWrapper expects ValueConverters to already exist
         setupValueConverters();
         setupNodeConverters();
         annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
@@ -38,14 +34,12 @@ public class Xfast {
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
 
-        nodeConverters.add(new ConverterWrapper(valueConverters));
     }
 
     private void setupValueConverters() {
         valueConverters = new ArrayList<ValueConverter>();
 
         valueConverters.add(new StringConverter());
-        valueConverters.add(new PrimitiveConverter());
 
 
     }
