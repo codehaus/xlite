@@ -71,7 +71,7 @@ public class AnnotatedClassMapper implements NodeConverter {
         int depth = 1;
         boolean continueLoop = true;
         try {
-            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
+            for (int event = reader.next(); continueLoop; event = reader.next()) {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
                         depth++;
@@ -80,6 +80,9 @@ public class AnnotatedClassMapper implements NodeConverter {
 
                         // find NodeMapper for converting XML node with given name
                         NodeMapper subMapper = nodeMappers.get(name);
+
+                        System.out.println("START:"+name+" d="+depth+" thisConverter:"+this.toString()+
+                                " subMapper:"+subMapper);
                         if (subMapper != null) {  // converter is found
                             subMapper.setValue(currentObject, reader);
                         } else {  // unknown subMapper
@@ -87,8 +90,10 @@ public class AnnotatedClassMapper implements NodeConverter {
                         }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
-                        depth--;
-                        continueLoop = (depth != 0);
+//                        depth--;
+//                        continueLoop = (depth != 0);
+                        continueLoop = false;
+                        System.out.println("END: "+reader.getName().getLocalPart()+" d="+depth+" this:"+this.toString());
                         break;
                     case XMLStreamConstants.ATTRIBUTE:
                         int count = reader.getAttributeCount();
@@ -98,14 +103,17 @@ public class AnnotatedClassMapper implements NodeConverter {
                             attrName = qname.getPrefix().isEmpty() ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
                             attrValue = reader.getAttributeValue(i);
                             ValueMapper attrMapper = attributeMappers.get(attrName);
+                            System.out.println("ATTR: "+attrName+" d="+depth);
+
                         }
                         break;
                     case XMLStreamConstants.CHARACTERS:
                         String text = reader.getText();
-                        System.out.println("Text: "+text);
+                        System.out.println("TEXT: "+text+" d="+depth);
                         chars.append(text);
                         break;
                     case XMLStreamConstants.END_DOCUMENT:
+                        System.out.println("END DOCUMENT d="+depth);                        
                         continueLoop = false;
                         break;
                 }

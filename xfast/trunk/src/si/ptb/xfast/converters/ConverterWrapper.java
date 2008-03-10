@@ -1,6 +1,8 @@
 package si.ptb.xfast.converters;
 
 import si.ptb.xfast.XfastException;
+import si.ptb.xfast.converters.NodeConverter;
+import si.ptb.xfast.converters.ValueConverter;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
@@ -8,10 +10,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
-import java.lang.reflect.Field;
+
+import si.ptb.xfast.converters.PrimitiveConverter;
 
 /**
- * Wraps {@link ValueConverter} to make it behave as {@link si.ptb.xfast.converters.NodeConverter}. This is useful in situations
+ * Wraps {@link si.ptb.xfast.converters.ValueConverter} to make it behave like {@link si.ptb.xfast.converters.NodeConverter}. This is useful in situations
  * where xml subnode contains only a value and can be simply converted with one of the ValueConverters.
  * User: peter
  * Date: Mar 3, 2008
@@ -21,14 +24,17 @@ public class ConverterWrapper implements NodeConverter {
 
     private List<ValueConverter> valueConverters;
     private ValueConverter choosenValueConverter;
+    private PrimitiveConverter primitiveConverter;
+    private boolean isPrimitive;
+    private int primitiveType;
 
     public ConverterWrapper(List<ValueConverter> valueConverters) {
         this.valueConverters = valueConverters;
     }
 
     public ConverterWrapper(ConverterWrapper converterWrapper, ValueConverter valueConverter) {
-        this.valueConverters = converterWrapper.valueConverters;
         this.choosenValueConverter = valueConverter;
+        this.valueConverters = converterWrapper.valueConverters;
     }
 
     public NodeConverter getConverter(Class type) {
@@ -51,7 +57,7 @@ public class ConverterWrapper implements NodeConverter {
         int depth = 1;
         boolean continueLoop = true;
         try {
-            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
+            for (int event = reader.next(); continueLoop; event = reader.next()) {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
                         depth++;
@@ -61,7 +67,11 @@ public class ConverterWrapper implements NodeConverter {
                         continueLoop = (depth != 0);
                         break;
                     case XMLStreamConstants.CHARACTERS:
-                        chars.append(reader.getText());
+                        // Only collecting value of the top node.
+                        // Values of child nodes are ignored.
+                        if (depth == 1) {
+                            chars.append(reader.getText());
+                        }
                         break;
                 }
             }
@@ -69,7 +79,8 @@ public class ConverterWrapper implements NodeConverter {
             throw new XfastException(ex);
         }
 
-        return choosenValueConverter.fromValue(chars.toString());
+        String value = chars.toString();
+        return choosenValueConverter.fromValue(value);
     }
 
     public void toNode(Object object, XMLStreamWriter writer) {

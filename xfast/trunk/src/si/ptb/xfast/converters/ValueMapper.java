@@ -28,7 +28,7 @@ public class ValueMapper implements FieldConnector {
     public void setValue(Object object, String elementValue) {
         if (isPrimitive) {
             try {
-                primitiveConverter.setPrimitive(primitiveType, targetField, object, elementValue);
+                primitiveConverter.setPrimitive(targetField, object, elementValue);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();  //todo replace with custom exception
             }

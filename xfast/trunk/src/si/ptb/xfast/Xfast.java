@@ -10,6 +10,9 @@ import java.io.Writer;
 import java.util.List;
 import java.util.ArrayList;
 
+import si.ptb.xfast.converters.PrimitiveConverter;
+import si.ptb.xfast.converters.ConverterWrapper;
+
 /**
  * User: peter
  * Date: Feb 25, 2008
