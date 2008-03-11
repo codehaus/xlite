@@ -5,18 +5,19 @@ package si.ptb.xfast.converters;
  */
 public class CharConverter implements ValueConverter{
     public boolean canConvert(Class type) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return type.equals(char.class) || type.equals(Character.class);
     }
 
     public Object fromValue(String value) {
          if (value.length() == 0) {
-            return new Character('\0');
+            return null;
         } else {
-            return new Character(value.charAt(0));
+            return value.charAt(0);
         }
     }
 
     public String toValue(Object object) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return ((Character) object).toString();
+
     }
 }

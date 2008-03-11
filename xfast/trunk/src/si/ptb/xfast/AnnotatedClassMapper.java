@@ -35,7 +35,7 @@ public class AnnotatedClassMapper implements NodeConverter {
         this.valueMapper = valueMapper;
     }
 
-    public void addNodeConnector(String nodeName, NodeMapper nodeConverter) {
+    public void addNodeConverter(String nodeName, NodeMapper nodeConverter) {
         nodeMappers.put(nodeName, nodeConverter);
     }
 
@@ -68,52 +68,52 @@ public class AnnotatedClassMapper implements NodeConverter {
         StringBuilder chars = new StringBuilder();
         QName qname;
         String name;
-        int depth = 1;
+//        int depth = 1;
         boolean continueLoop = true;
         try {
-            for (int event = reader.next(); continueLoop; event = reader.next()) {
+            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
-                        depth++;
+//                        depth++;
                         qname = reader.getName();
-                        name = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                        name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
                         // find NodeMapper for converting XML node with given name
                         NodeMapper subMapper = nodeMappers.get(name);
 
-                        System.out.println("START:"+name+" d="+depth+" thisConverter:"+this.toString()+
-                                " subMapper:"+subMapper);
                         if (subMapper != null) {  // converter is found
+                            System.out.println("START:" + name + " thisConverter:" + this.toString() +
+                                    " subConverter:" + subMapper.nodeConverter);
                             subMapper.setValue(currentObject, reader);
                         } else {  // unknown subMapper
-                            System.out.println("unknown node: "+name);
+                            System.out.println("unknown node: " + name);
                         }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
 //                        depth--;
 //                        continueLoop = (depth != 0);
                         continueLoop = false;
-                        System.out.println("END: "+reader.getName().getLocalPart()+" d="+depth+" this:"+this.toString());
+                        System.out.println("END: " + reader.getName().getLocalPart() + " this:" + this.toString());
                         break;
                     case XMLStreamConstants.ATTRIBUTE:
                         int count = reader.getAttributeCount();
                         String attrName, attrValue;
                         for (int i = 0; i < count; i++) {
                             qname = reader.getAttributeName(i);
-                            attrName = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                            attrName = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
                             attrValue = reader.getAttributeValue(i);
                             ValueMapper attrMapper = attributeMappers.get(attrName);
-                            System.out.println("ATTR: "+attrName+" d="+depth);
+                            System.out.println("ATTR: " + attrName);
 
                         }
                         break;
                     case XMLStreamConstants.CHARACTERS:
                         String text = reader.getText();
-                        System.out.println("TEXT: "+text+" d="+depth);
+                        System.out.println("TEXT: " + text);
                         chars.append(text);
                         break;
                     case XMLStreamConstants.END_DOCUMENT:
-                        System.out.println("END DOCUMENT d="+depth);                        
+                        System.out.println("END DOCUMENT");
                         continueLoop = false;
                         break;
                 }

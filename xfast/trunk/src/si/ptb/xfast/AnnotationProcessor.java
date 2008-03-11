@@ -96,14 +96,18 @@ public class AnnotationProcessor {
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
             if (annotation != null) {
 
-                String nodeName = annotation.value();
+                String nodeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
 
                 // recursive call that builds a tree of Mappers
                 NodeMapper submapper = new NodeMapper(field, processClass(nodeName, field.getType()));
-                mapper.addNodeConnector(nodeName, submapper);
+                mapper.addNodeConverter(nodeName, submapper);
+
+                String conv = submapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
+                        ((ValueConverterWrapper) submapper.nodeConverter).choosenValueConverter.getClass().getSimpleName() :
+                        submapper.nodeConverter.getClass().getSimpleName();
 
                 System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodeName
-                        + " converter:" + submapper.nodeConverter.getClass().getSimpleName());
+                        + " converter:" + conv);
             }
         }
     }

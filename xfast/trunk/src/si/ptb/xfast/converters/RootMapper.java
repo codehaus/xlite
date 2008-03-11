@@ -24,19 +24,35 @@ public class RootMapper extends NodeMapper {
         // Traverses the XML data until first root node is found.
         // Root node is the node at the top of the mapping tree
         boolean continueLoop = true;
-        QName qname;
+        QName qname, startNode;
         String name;
+        boolean rootFound = false;
         try {
-            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
+            for (int event = reader.getEventType();reader.hasNext(); event = reader.next()) {
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
                         qname = reader.getName();
-                        name = qname.getPrefix().length()==0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
-                        if (name.equals(rootNodeName))
-                            System.out.println("ROOT nodeName=" + rootNodeName + " nodeConverter=" + nodeConverter.toString());
-
-//                        reader.next();
-                        return nodeConverter.fromNode(reader);
+                        name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+                        if (name.equals(rootNodeName)) {
+                            rootFound = true;
+                            System.out.println("ROOT START nodeName=" + rootNodeName + " nodeConverter=" + nodeConverter.toString());
+                            return nodeConverter.fromNode(reader);
+                        }
+                        break;
+//                    case XMLStreamConstants.END_ELEMENT:
+//                        qname = reader.getName();
+//                        name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+//                        System.out.println("ROOT END nodeName=" + name);
+//                        // root node not found yet - ignore other nodes
+//                        if (!rootFound) {
+//                            break;
+//                        }
+//                        if (name.equals(rootNodeName)) {
+//                            continueLoop = false;
+//                        } else {
+//                            throw new XfastException("END_ELEMENT event is not aligned with START_ELEMENT event!");
+//                        }
+//                        break;
                 }
             }
         } catch (XMLStreamException e) {

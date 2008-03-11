@@ -34,12 +34,22 @@ public class Xfast {
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
 
+        nodeConverters.add(new ValueConverterWrapper(valueConverters));
+
     }
 
     private void setupValueConverters() {
         valueConverters = new ArrayList<ValueConverter>();
 
         valueConverters.add(new StringConverter());
+        valueConverters.add(new IntConverter());
+        valueConverters.add(new DoubleConverter());
+        valueConverters.add(new FloatConverter());
+        valueConverters.add(new LongConverter());
+        valueConverters.add(new ShortConverter());
+        valueConverters.add(new BooleanConverter());
+        valueConverters.add(new ByteConverter());
+        valueConverters.add(new CharConverter());
 
 
     }
