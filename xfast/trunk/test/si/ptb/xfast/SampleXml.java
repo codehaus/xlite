@@ -33,26 +33,26 @@ public class SampleXml {
         @XMLtext
         public String textValue;
 
-        @XMLnode("firstname")
+        @XMLnode
         public String firstname;
 
-        @XMLnode("number")
+        @XMLnode
         public int number;
 
 //        @XMLnode("numbers")
 //        public List numbers = new ArrayList();
 
-        @XMLnode("phone")
+        @XMLnode
         public PhoneNumber phone;
 //    public PhoneNumber fax;
     }
 
     public static class PhoneNumber {
 
-        @XMLnode("code")
+        @XMLnode
         public int code;
 
-        @XMLnode("number")
+        @XMLnode
         public String number;
     }
 }

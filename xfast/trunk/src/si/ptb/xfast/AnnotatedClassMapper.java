@@ -102,7 +102,7 @@ public class AnnotatedClassMapper implements NodeConverter {
                             qname = reader.getAttributeName(i);
                             attrName = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
                             attrValue = reader.getAttributeValue(i);
-                            ValueMapper attrMapper = attributeMappers.get(attrName);
+                            ValueMapper attrMapper = attributeMappers.get(attrName); //todo finish this 
                             System.out.println("ATTR: " + attrName);
 
                         }
