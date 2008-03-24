@@ -18,7 +18,7 @@ import java.util.Stack;
 public class XMLSimpleReader {
 
     private XMLStreamReader reader;
-    private Stack<Node> nodeStack = new Stack<Node>(); ;    //todo replace this with NodeQueue (stack with cursor)
+    private Stack<Node> nodeStack = new Stack<Node>();    //todo replace this with NodeQueue (stack with cursor)
 
     public XMLSimpleReader(XMLStreamReader reader) {
         this.reader = reader;
@@ -34,25 +34,27 @@ public class XMLSimpleReader {
         }
     }
 
-    private void move() {
+    /**
+     * Finds next START or END of a XML node.
+     *
+     * @return True if START, false if END.
+     */
+    public boolean nextNodeBoundary() {
         for (int event = nextEvent(); true; event = nextEvent()) {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
-                case XMLStreamConstants.START_DOCUMENT:
-                    Node node = new Node();
-                    node.name = reader.getName();
-                    System.out.println("push:"+node.name.getLocalPart());
-                    nodeStack.push(node);
-                    return;
-                case XMLStreamConstants.END_ELEMENT:
+//                case XMLStreamConstants.START_DOCUMENT:
+                    System.out.println("start: " + reader.getName());
+                    return true;
                 case XMLStreamConstants.END_DOCUMENT:
-                    Node poped = nodeStack.pop();
-                    System.out.println(" pop:"+poped.name.getLocalPart());
-                    nodeStack.pop();
-                    return;
+                    System.out.println("end document ");
+                    return false;
+                case XMLStreamConstants.END_ELEMENT:
+                    System.out.println("end: " + reader.getName());
+                    return false;
                 case XMLStreamConstants.CHARACTERS:
-                   nodeStack.peek().text.append(reader.getText());
-                    System.out.println(" text:"+nodeStack.peek().name.getLocalPart()+" - "+nodeStack.peek().text);
+                    nodeStack.peek().text.append(reader.getText());
+                    System.out.println(" text:" + nodeStack.peek().name.getLocalPart() + " - " + nodeStack.peek().text);
                     break;
             }
         }
@@ -66,13 +68,29 @@ public class XMLSimpleReader {
      * @return True if next child node exists, otherwise false.
      */
     public boolean moveDown() {
-        int size = nodeStack.size();
-        while(size <= nodeStack.size()){
-             move();
+        System.out.println("-moveDown()");
+        int event = reader.getEventType();
+        if (event == XMLStreamConstants.START_ELEMENT) {
+            Node node = new Node();
+            node.name = reader.getName();
+            int attrCount = reader.getAttributeCount();
+            node.attributes = new String[attrCount][2];
+            for (int i = 0; i < attrCount; i++) {
+                node.attributes[i][0] = reader.getAttributeName(i).getLocalPart();  //todo fix this to support QNames
+                node.attributes[i][1] = reader.getAttributeValue(i);
+            }
+            System.out.println("push:" + node.name.getLocalPart());
+            nodeStack.push(node);
+        } else {
+            if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
+                throw new XfastException("ERROR: this should be a node END. Instead it's a event=" + event);
+            }
+            System.out.println("false");
+            return false;
         }
-
-
-        return false;
+        nextNodeBoundary();
+        System.out.println("true");
+        return true;
     }
 
     /**
@@ -80,80 +98,53 @@ public class XMLSimpleReader {
      * Postions the underlying xml stream to the closing element of the child node.
      */
     public void moveUp() {
+        System.out.println("-moveUp()");
+        if(reader.getEventType() == XMLStreamConstants.END_ELEMENT){
+            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
+            nodeStack.pop();
+            nextNodeBoundary();
+            return;
+        }
         int depth = 1;
-        for (int event = reader.getEventType(); true; event = nextEvent()) {
-            switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
-                    System.out.println("up: start " + reader.getName().getLocalPart());
-                    depth++;
-                    break;
-                case XMLStreamConstants.END_ELEMENT:
-                    depth--;
-                    if (depth == 0) {
-                        System.out.println("up: end " + reader.getName().getLocalPart());
-                        nextEvent();
-                        return;
-                    }
-                    break;
-                case XMLStreamConstants.END_DOCUMENT:
-                    System.out.println("up: end document");
-                    return;
+        boolean continueLooping = true;
+        while (continueLooping) {
+            if (nextNodeBoundary()) {  // node START
+                depth++;
+            } else {      // node END
+                depth--;
+                if (depth == 0) {
+                    continueLooping = false;
+                }
             }
         }
+        System.out.println("pop:" + nodeStack.peek().name.getLocalPart());        
+        nodeStack.pop();
     }
 
     public String getText() {
-        String text = null;
-        StringBuilder textBuilder = null;
-        for (int event = reader.getEventType(); true; event = nextEvent()) {
-            switch (event) {
-                case XMLStreamConstants.CHARACTERS:
-                    System.out.println("text: (characters) " + event);
-
-                    if (text == null) { // first text element
-                        text = reader.getText();
-
-                    } else if (textBuilder == null) {  // second text element
-                        textBuilder = new StringBuilder();
-                        textBuilder.append(text).append(reader.getText());
-
-                    } else {  // all other text elements
-                        textBuilder.append(reader.getText());
-                    }
-                    break;
-                case XMLStreamConstants.COMMENT: // let the comments pass
-                    System.out.println("text: (comment) " + event);
-                    break;
-                default:
-                    System.out.println("text: (other) " + event);
-                    return textBuilder != null ? textBuilder.toString() : (text != null ? text : "");
-            }
-        }
+        return nodeStack.peek().text.toString();
     }
 
     public QName getName() {
-        return reader.getName();
-    }
-
-    public int getEventType() {
-        return reader.getEventType();
+        return nodeStack.peek().name;
     }
 
     public int getAttributeCount() {
-        return reader.getAttributeCount();
+        return nodeStack.peek().attributes.length;
     }
 
-    public QName getAttributeName(int index) {
-        return reader.getAttributeName(index);
+    public String getAttributeName(int index) {
+        return nodeStack.peek().attributes[index][0];
     }
 
     public String getAttributeValue(int index) {
-        return reader.getAttributeValue(index);
+        return nodeStack.peek().attributes[index][1];       
     }
 
     public static class Node {
         public QName name;
         public StringBuilder text = new StringBuilder();
+        public String[][] attributes;
     }
 
 }
