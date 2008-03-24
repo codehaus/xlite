@@ -1,6 +1,7 @@
 package si.ptb.xfast.converters;
 
 import si.ptb.xfast.XfastException;
+import si.ptb.xfast.XMLSimpleReader;
 
 import javax.xml.stream.XMLStreamReader;
 import java.lang.reflect.Field;
@@ -13,7 +14,7 @@ public class NodeMapper {
     private Field targetField;
     public NodeConverter nodeConverter;    //todo make private
 
-    public void setValue(Object targetObject, XMLStreamReader reader) {
+    public void setValue(Object targetObject, XMLSimpleReader reader) {
         try {
             Object value = nodeConverter.fromNode(reader);
             targetField.set(targetObject, value);

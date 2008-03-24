@@ -1,5 +1,8 @@
 package si.ptb.xfast.converters;
 
+import si.ptb.xfast.XMLSimpleReader;
+import si.ptb.xfast.XMLSimpleWriter;
+
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.lang.reflect.Field;
@@ -30,9 +33,9 @@ public interface NodeConverter {
      * @param reader
      * @return
      */
-    public Object fromNode(XMLStreamReader reader);
+    public Object fromNode(XMLSimpleReader reader);
 
-    public void toNode(Object object, XMLStreamWriter writer);
+    public void toNode(Object object, XMLSimpleWriter writer);
 
 
 //    void setParentField(Field parentField);

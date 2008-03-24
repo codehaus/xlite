@@ -1,6 +1,8 @@
 package si.ptb.xfast.converters;
 
 import si.ptb.xfast.XfastException;
+import si.ptb.xfast.XMLSimpleReader;
+import si.ptb.xfast.XMLSimpleWriter;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
@@ -35,41 +37,11 @@ public class ValueConverterWrapper implements NodeConverter {
         return null;
     }
 
-    public Object fromNode(XMLStreamReader reader) {
-        StringBuilder chars = new StringBuilder();
-        QName qname;
-        String name;
-
-        // we are already inside first child node
-        int depth = 1;
-        boolean continueLoop = true;
-        try {
-            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
-                switch (event) {
-                    case XMLStreamConstants.START_ELEMENT:
-                        depth++;
-                        break;
-                    case XMLStreamConstants.END_ELEMENT:
-                        depth--;
-                        continueLoop = (depth != 0);
-                        break;
-                    case XMLStreamConstants.CHARACTERS:
-                        // Only collecting value of the top node.
-                        // Values of child nodes are ignored.
-                        if (depth == 1) {
-                            chars.append(reader.getText());
-                        }
-                        break;
-                }
-            }
-        } catch (XMLStreamException ex) {
-            throw new XfastException(ex);
-        }
-
-        return choosenValueConverter.fromValue(chars.toString());
+    public Object fromNode(XMLSimpleReader reader) {
+        return choosenValueConverter.fromValue(reader.getText());
     }
 
-    public void toNode(Object object, XMLStreamWriter writer) {
+    public void toNode(Object object, XMLSimpleWriter writer) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

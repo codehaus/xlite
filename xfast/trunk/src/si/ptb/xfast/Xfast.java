@@ -7,6 +7,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -56,6 +57,7 @@ public class Xfast {
 
 
     public Object fromXML(Reader reader) {
+
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xmlreader = null;
         try {
@@ -63,8 +65,9 @@ public class Xfast {
         } catch (XMLStreamException e) {
             throw new XfastException("Error reading XML data from Reader", e);
         }
+        XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader);
 
-        return rootNodeMapper.getRootObject(xmlreader);
+        return rootNodeMapper.getRootObject(simpleReader);
     }
 
     public void toXML(Object source, Writer writer) {

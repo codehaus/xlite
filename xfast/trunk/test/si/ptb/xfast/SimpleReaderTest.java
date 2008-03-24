@@ -20,7 +20,7 @@ public class SimpleReaderTest {
     private XMLSimpleReader getReader(String xmlString) throws XMLStreamException {
         StringReader sreader = new StringReader(xmlString);
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader parser = factory.createXMLStreamReader(sreader);
+        XMLStreamReader parser = factory.createXMLStreamReader(sreader);  // todo make this a part of SimpleReader.getInstance()
         return new XMLSimpleReader(parser);
     }
 

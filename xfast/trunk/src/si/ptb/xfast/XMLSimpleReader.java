@@ -19,6 +19,7 @@ public class XMLSimpleReader {
 
     private XMLStreamReader reader;
     private Stack<Node> nodeStack = new Stack<Node>();    //todo replace this with NodeQueue (stack with cursor)
+    private boolean isEnd = false;
 
     public XMLSimpleReader(XMLStreamReader reader) {
         this.reader = reader;
@@ -54,6 +55,7 @@ public class XMLSimpleReader {
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
 //                    System.out.println("end document ");
+                    isEnd = true;
                     return false;
                 case XMLStreamConstants.END_ELEMENT:
 //                    System.out.println("end: " + reader.getName());
@@ -139,7 +141,7 @@ public class XMLSimpleReader {
         return nodeStack.peek().attributes.length;
     }
 
-    public String getAttributeName(int index) {
+    public String getAttributeName(int index) {     //todo should return QName
         return nodeStack.peek().attributes[index][0];
     }
 
@@ -151,6 +153,21 @@ public class XMLSimpleReader {
         public QName name;
         public StringBuilder text;
         public String[][] attributes;
+    }
+
+    public boolean findNode(String nodeName) {
+        while (true) {
+            if (nextNodeBoundary()) {
+                if (reader.getName().getLocalPart().equals(nodeName)) {
+                    moveDown();
+                    return true;
+                }
+            } else {
+                if (isEnd) {
+                    return false;
+                }
+            }
+        }
     }
 
 }

@@ -5,10 +5,6 @@ import si.ptb.xfast.converters.NodeMapper;
 import si.ptb.xfast.converters.ValueMapper;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +49,7 @@ public class AnnotatedClassMapper implements NodeConverter {
         return null;  //todo implement this - How?
     }
 
-    public Object fromNode(XMLStreamReader reader) {
+    public Object fromNode(XMLSimpleReader reader) {
 
         // instantiate object that maps to the current XML node
         Object currentObject = null;
@@ -65,71 +61,46 @@ public class AnnotatedClassMapper implements NodeConverter {
             e.printStackTrace();
         }
 
-        StringBuilder chars = new StringBuilder();
+        // XML node value
+        if (valueMapper != null) {
+            valueMapper.setValue(currentObject, reader.getText());
+        }
+
+        // XML node attributes
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            String attrName = reader.getAttributeName(i);     //todo refactor to QName
+            String attrValue = reader.getAttributeValue(i);
+            // find the attribute mapper
+            ValueMapper attrMapper = attributeMappers.get(attrName);
+            // if mapper exists, use it to set field to attribute value
+            if (attrMapper != null) {
+                attrMapper.setValue(currentObject, attrValue);
+            }
+            System.out.println("ATTR: " + attrName);
+        }
+
         QName qname;
         String name;
-//        int depth = 1;
-        boolean continueLoop = true;
-        try {
-            for (int event = reader.getEventType(); continueLoop; event = reader.next()) {
-                switch (event) {
-                    case XMLStreamConstants.START_ELEMENT:
-//                        depth++;
-                        qname = reader.getName();
-                        name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+        while (reader.moveDown()) {
+            qname = reader.getName();  // todo refactor NameSpaces!!
+            name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
-                        // find NodeMapper for converting XML node with given name
-                        NodeMapper subMapper = nodeMappers.get(name);
-
-                        if (subMapper != null) {  // converter is found
-                            System.out.println("START:" + name + " thisConverter:" + this.toString() +
-                                    " subConverter:" + subMapper.nodeConverter);
-                            subMapper.setValue(currentObject, reader);
-                        } else {  // unknown subMapper
-                            System.out.println("unknown node: " + name);
-                        }
-                        break;
-                    case XMLStreamConstants.END_ELEMENT:
-//                        depth--;
-//                        continueLoop = (depth != 0);
-                        continueLoop = false;
-                        System.out.println("END: " + reader.getName().getLocalPart() + " this:" + this.toString());
-                        break;
-                    case XMLStreamConstants.ATTRIBUTE:
-                        int count = reader.getAttributeCount();
-                        String attrName, attrValue;
-                        for (int i = 0; i < count; i++) {
-                            qname = reader.getAttributeName(i);
-                            attrName = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
-                            attrValue = reader.getAttributeValue(i);
-                            ValueMapper attrMapper = attributeMappers.get(attrName); //todo finish this 
-                            System.out.println("ATTR: " + attrName);
-
-                        }
-                        break;
-                    case XMLStreamConstants.CHARACTERS:
-                        String text = reader.getText();
-                        System.out.println("TEXT: " + text);
-                        chars.append(text);
-                        break;
-                    case XMLStreamConstants.END_DOCUMENT:
-                        System.out.println("END DOCUMENT");
-                        continueLoop = false;
-                        break;
-                }
+            // find NodeMapper for converting XML node with given name
+            NodeMapper subMapper = nodeMappers.get(name);
+            if (subMapper != null) {  // converter is found
+                System.out.println("START:" + name + " thisConverter:" + this.toString() +
+                        " subConverter:" + subMapper.nodeConverter);
+                subMapper.setValue(currentObject, reader);
+            } else {  // unknown subMapper
+                System.out.println("UNKNOWN node: " + name);
             }
-
-            // XML node value
-            valueMapper.setValue(currentObject, chars.toString());
-
-        } catch (XMLStreamException e) {
-            throw new XfastException("Error getting next xml element.", e);
+            reader.moveUp();
         }
 
         return currentObject;
     }
 
-    public void toNode(Object object, XMLStreamWriter writer) {
+    public void toNode(Object object, XMLSimpleWriter writer) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
