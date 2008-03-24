@@ -18,12 +18,21 @@ public class SimpleReaderTest {
     static String xml0 = "<a>A Value</a>";
     static String xml1 = "<a><b><c><d></d></c></b></a>";
     static String xml2 = "<a><b></b><c></c><d></d></a>";
+    static String xml3 = "<a>1<b>2</b>3</a>";
 
-    static String xml5 = "<root r=\"2\">RRR<sub1>SSS</sub1>S1S1<sub2>S2S2<subsub1 s=\"5\">SS1SS1</subsub1>L2L2</sub2>L1L1</root>";
+    static String xml5 = "<root r=\"2\">" +
+                                "RR" +
+                                "<sub>SS</sub>" +
+                                "R1R1" +
+                                "<sub2>" +
+                                "S1S1" +
+                                "<subsub1 s=\"5\">SS1SS1</subsub1>" +
+                                "S2S2</sub2>" +
+                                "R3R3</root>";
 
     @org.testng.annotations.Test
     public void testSimple() throws XMLStreamException {
-        StringReader sreader = new StringReader(xml5);
+        StringReader sreader = new StringReader(xml3);
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader parser = factory.createXMLStreamReader(sreader);
         XMLSimpleReader reader = new XMLSimpleReader(parser);
@@ -47,12 +56,12 @@ public class SimpleReaderTest {
             for (int i = 0; i < reader.getAttributeCount(); i++) {
                 node.attributes.put(reader.getAttributeName(i), reader.getAttributeValue(i));
             }
-            node.value = reader.getText();
-            System.out.println("NODE-"+node.name.getLocalPart());
+//            System.out.println("NODE-"+node.name.getLocalPart());
             List<Node> subNodes = processSubNodes(reader);
             if (!subNodes.isEmpty()) {
                 node.subnodes.addAll(subNodes);
             }
+            node.value = reader.getText();
             reader.moveUp();
         }
         return nodes;
