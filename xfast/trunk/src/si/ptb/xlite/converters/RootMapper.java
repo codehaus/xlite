@@ -16,7 +16,7 @@ public class RootMapper extends NodeMapper {
     }
 
     public Object getRootObject(XMLSimpleReader reader) {
-        if(reader.findNode(rootNodeName)){
+        if(reader.findFirstNode(rootNodeName)){
             return nodeConverter.fromNode(reader);
         } else {
             throw new XLiteException("Root node \""+rootNodeName+"\" could not be found in XML data");

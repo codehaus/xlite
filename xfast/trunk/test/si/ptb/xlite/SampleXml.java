@@ -6,53 +6,64 @@ package si.ptb.xlite;
 public class SampleXml {
 
     static String xml =
-             "<person personAttribute=\"justPerson\">"
-            + "just some text"
-            +   "<number lastattr=\"AAA\">42</number>"
-            +   "<firstname>"
-            +       "Joe"
-            +   "</firstname>"
-//            +   "<fax unknownAttrib=\"xxx\">"
-//            +       "justAValue"
-//            +       "<code>321</code>"
-//            +       "anotherText"
-//            +       "<number>9999-999</number>"
-//            +   "</fax>"
-            +   "<phone newAttrib=\"unknown??\">"
-            +       "<code>123</code>"
-            +       "<number>1234-456</number>"
-            +   "</phone>"
-            + "</person>";
+            "<one attr1=\"text1\" attr2=\"1111\" attr3=\"1.1\">" +
+                    "textOne" +
+                    "<two attr4=\"true\" attr5=\"x\" >" +
+                    "textTwo"+
+                    "<three1 val=\"42\">" +
+                    "textThree"+
+                    "</three1>" +
+                    "<three2 val=\"43\">" +
+                    "</three2>" +
+                    "</two>" +
+                    "</one>";
 
 
-    public static class Person {
+    public static class One {
 
-        @XMLattribute("personAttribute")
-        public String pa;
+        @XMLattribute("attr1")
+        public String attr;
+
+        @XMLattribute
+        public int attr2;
+
+        @XMLattribute
+        public float attr3;
 
         @XMLtext
-        public String textValue;
+        public String text;
 
         @XMLnode
-        public String firstname;
+        public Two two;
 
-        @XMLnode
-        public int number;
-
-//        @XMLnode("numbers")
-//        public List numbers = new ArrayList();
-
-        @XMLnode
-        public PhoneNumber phone;
-//    public PhoneNumber fax;
+        @XMLnode("three")
+        public Three otherNode;
     }
 
-    public static class PhoneNumber {
+    public static class Two {
+
+        @XMLattribute
+        public boolean attr4;
+
+        @XMLattribute("attr5")
+        public char character;
+
+        @XMLtext
+        public String text;
 
         @XMLnode
-        public int code;
+        public Three three1;
 
-        @XMLnode
-        public String number;
+        @XMLnode("three2")
+        public Three threeTwo;
+    }
+
+    public static class Three {
+
+        @XMLattribute("val")
+        public int attr;
+
+        @XMLtext
+        public String textField;
     }
 }

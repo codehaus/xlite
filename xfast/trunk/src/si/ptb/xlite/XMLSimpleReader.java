@@ -42,6 +42,10 @@ public class XMLSimpleReader {
      * @return True if START, false if END.
      */
     public boolean nextNodeBoundary() {
+        return nextNodeBoundary(true);
+    }
+
+    public boolean nextNodeBoundary(boolean processText) {
 
         // reset the accumulated Text
         if (!nodeStack.isEmpty()) {
@@ -61,7 +65,9 @@ public class XMLSimpleReader {
 //                    System.out.println("end: " + reader.getName());
                     return false;
                 case XMLStreamConstants.CHARACTERS:
-                    nodeStack.peek().text.append(reader.getText());
+                    if (processText) {
+                        nodeStack.peek().text.append(reader.getText());
+                    }
 //                    System.out.println(" text:" + nodeStack.peek().name.getLocalPart() + " - " + nodeStack.peek().text);
                     break;
             }
@@ -155,9 +161,9 @@ public class XMLSimpleReader {
         public String[][] attributes;
     }
 
-    public boolean findNode(String nodeName) {
+    public boolean findFirstNode(String nodeName) {
         while (true) {
-            if (nextNodeBoundary()) {
+            if (nextNodeBoundary(false)) {
                 if (reader.getName().getLocalPart().equals(nodeName)) {
                     moveDown();
                     return true;

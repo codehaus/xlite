@@ -100,6 +100,13 @@ public class SimpleReaderTest {
 
     }
 
+     @org.testng.annotations.Test
+    public void anotherTest() throws XMLStreamException {
+        XMLSimpleReader reader = getReader(SampleXml.xml);
+         reader.findFirstNode("one"); // first node we start with
+         Node rootNode = processSubNodes(reader).get(0);
+    }
+
     public static List<Node> processSubNodes(XMLSimpleReader reader) {
         List<Node> nodes = new ArrayList<Node>();
         while (reader.moveDown()) {
