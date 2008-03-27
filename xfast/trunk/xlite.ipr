@@ -231,7 +231,7 @@
   <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Xfast.iml" filepath="$PROJECT_DIR$/Xfast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Xlite.iml" filepath="$PROJECT_DIR$/Xlite.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK">
