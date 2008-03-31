@@ -21,12 +21,11 @@ public class Xlite {
     RootMapper rootNodeMapper;
     private List<NodeConverter> nodeConverters;
     private List<ValueConverter> valueConverters;
-    private AnnotationProcessor annotationProcessor;
 
     public Xlite(Class rootClass, String nodeName) {
         setupValueConverters();
         setupNodeConverters();
-        annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
 
         rootNodeMapper = annotationProcessor.processClassTree(nodeName, rootClass);
     }
@@ -34,6 +33,7 @@ public class Xlite {
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
 
+        // wraps all ValueConverters so that they can be used as NodeConverters
         nodeConverters.add(new ValueConverterWrapper(valueConverters));
 
     }

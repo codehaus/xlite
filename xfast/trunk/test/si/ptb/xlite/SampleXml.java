@@ -7,14 +7,19 @@ public class SampleXml {
 
     static String xml =
             "<one attr1=\"text1\" attr2=\"1111\" attr3=\"1.1\">" +
-                    "textOne" +
+                    "just a <!-- comment should be ignored -->text" +
+                    "<emptyNode attrEmpty=\"-1.6\"/>" +
                     "<two attr4=\"true\" attr5=\"x\" >" +
-                    "textTwo"+
+                    "textTwo" +
                     "<three1 val=\"42\">" +
-                    "textThree"+
+                    "textThree" +
                     "</three1>" +
-                    "<three2 val=\"43\">" +
-                    "</three2>" +
+                    "<nodeWithSubnodes>" +
+                    "<integer>2008</integer>" +
+                    "<bool>true</bool>" +
+                    "<char>f</char>" +
+                    "<float>-15.555</float>" +
+                    "</nodeWithSubnodes>" +
                     "</two>" +
                     "</one>";
 
@@ -34,10 +39,11 @@ public class SampleXml {
         public String text;
 
         @XMLnode
+        public Empty emptyNode;
+
+        @XMLnode
         public Two two;
 
-        @XMLnode("three")
-        public Three otherNode;
     }
 
     public static class Two {
@@ -54,8 +60,8 @@ public class SampleXml {
         @XMLnode
         public Three three1;
 
-        @XMLnode("three2")
-        public Three threeTwo;
+        @XMLnode("nodeWithSubnodes")
+        public Four four;
     }
 
     public static class Three {
@@ -65,5 +71,26 @@ public class SampleXml {
 
         @XMLtext
         public String textField;
+    }
+
+    public static class Four {
+
+        @XMLnode("integer")
+        public int i;
+
+        @XMLnode("bool")
+        public boolean b;
+
+        @XMLnode("char")
+        public char c;
+
+        @XMLnode("float")
+        public float f;
+
+    }
+
+    public static class Empty {
+        @XMLattribute
+        public double attrEmpty;
     }
 }

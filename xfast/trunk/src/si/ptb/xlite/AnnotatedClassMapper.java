@@ -57,6 +57,7 @@ public class AnnotatedClassMapper implements NodeConverter {
             currentObject = targetClass.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
+            
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

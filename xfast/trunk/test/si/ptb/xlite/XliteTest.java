@@ -25,7 +25,9 @@ public class XliteTest {
         Assert.assertEquals(one.attr, "text1");
         Assert.assertEquals(one.attr2, 1111);
         Assert.assertEquals(one.attr3, 1.1f, 0.0f);
-        Assert.assertEquals(one.text, "textOne");
+        Assert.assertEquals(one.text, "just a text");
+
+        Assert.assertEquals(one.emptyNode.attrEmpty, -1.6d, 0.0d);
 
         Assert.assertTrue(one.two.attr4);
         Assert.assertEquals(one.two.character, 'x');        
@@ -34,9 +36,10 @@ public class XliteTest {
         Assert.assertEquals(one.two.three1.attr, 42);
         Assert.assertEquals(one.two.three1.textField, "textThree");
 
-        Assert.assertEquals(one.two.threeTwo.attr, 43);
-        Assert.assertEquals(one.two.threeTwo.textField, "");
-
+        Assert.assertEquals(one.two.four.i, 2008);
+        Assert.assertTrue(one.two.four.b);
+        Assert.assertEquals(one.two.four.c, 'f');
+        Assert.assertEquals(one.two.four.f, -15.555f, 0.0f);
 
     }
 

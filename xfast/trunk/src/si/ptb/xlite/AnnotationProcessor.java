@@ -39,12 +39,12 @@ public class AnnotationProcessor {
      *
      * @param nodeName
      * @param currentClass
+     * @return
      */
-    private NodeConverter processClass(String nodeName, Class currentClass) {
+    public NodeConverter processClass(String nodeName, Class currentClass) {
 
         NodeConverter nodeConverter = lookupMapper(currentClass);
 
-        //todo change such that ACM is part of mappers hierarchy - list in setupMappers(), implement 
         // Was appropriate NodeConverter found for given class?
         if (nodeConverter != null) {
 
@@ -85,10 +85,10 @@ public class AnnotationProcessor {
     }
 
     /**
-     * Searches class for fields that have @XMLnode annotation.
+     * Searches given class for fields that have @XMLnode annotation.
      *
-     * @param currentClass
-     * @return Map of XML node names to {@link si.ptb.xlite.converters.ValueMapper} objects.
+     * @param currentClass A class to be inspected for @XMLnode annotations.
+     * @param mapper AnnotatedClassMapper that coresponds in  
      */
     private void processNodes(Class currentClass, AnnotatedClassMapper mapper) {
         XMLnode annotation = null;

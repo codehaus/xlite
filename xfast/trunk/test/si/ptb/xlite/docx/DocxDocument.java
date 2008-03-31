@@ -1,10 +1,12 @@
 package si.ptb.xlite.docx;
 
-import com.thoughtworks.xstream.XStream;
+import si.ptb.xlite.SampleXml;
 import si.ptb.xlite.XMLnode;
+import si.ptb.xlite.Xlite;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.FileReader;
 
 /**
  * User: peter
@@ -17,27 +19,17 @@ public class DocxDocument {
     private static String mainPartName = "word/document.xml";
     private static String settingsPartName = "word/settings.xml";
 
-    private XStream xstream;
-
     @XMLnode("w:body")
     public Body body;
 
-    public static DocxDocument open(InputStream inStream) throws IllegalArgumentException, FileNotFoundException {
 
-        XStream xstream = new XStream();
-        xstream.alias("w:document", DocxDocument.class);
-        xstream.aliasField("w:body", DocxDocument.class, "body");
+    public static void main(String[] args) throws FileNotFoundException {
+           Xlite xlite = new Xlite(DocxDocument.class, "document");
 
-//        xstream.addImplicitCollection(Body.class, "paragraphs");
-        xstream.alias("w:p", Paragraph.class);
+        FileReader reader = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document.xml");
+        DocxDocument document = (DocxDocument) xlite.fromXML(reader);
 
-//        xstream.addImplicitCollection(Paragraph.class, "runs");
-        xstream.alias("w:r", Run.class);
-        xstream.aliasField("w:t", Run.class, "text");
-
-        DocxDocument document = (DocxDocument) xstream.fromXML(inStream);
-        return document;
+        System.out.println("end!");
     }
-
 
 }
