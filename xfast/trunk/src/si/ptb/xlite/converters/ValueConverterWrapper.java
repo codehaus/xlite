@@ -2,6 +2,7 @@ package si.ptb.xlite.converters;
 
 import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
+import si.ptb.xlite.MappingContext;
 
 import java.util.List;
 
@@ -10,32 +11,21 @@ import java.util.List;
  */
 public class ValueConverterWrapper implements NodeConverter {
 
-    private List<ValueConverter> valueConverters;
-    public ValueConverter choosenValueConverter;    //todo change to private
+    public ValueConverter valueConverter;
 
-    public ValueConverterWrapper(List<ValueConverter> valueConverters) {
-        this.valueConverters = valueConverters;
+    public ValueConverterWrapper(ValueConverter valueConverter) {
+        this.valueConverter = valueConverter;
     }
 
-    public ValueConverterWrapper(ValueConverterWrapper converterWrapper, ValueConverter valueConverter) {
-        this.choosenValueConverter = valueConverter;
-        this.valueConverters = converterWrapper.valueConverters;
+    public boolean canConvert(Class type) {
+        return valueConverter.canConvert(type);
     }
 
-    public NodeConverter getConverter(Class type) {
-        for (ValueConverter valueConverter : valueConverters) {
-            if (valueConverter.canConvert(type)) {
-                return new ValueConverterWrapper(this, valueConverter);
-            }
-        }
-        return null;
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+        return valueConverter.fromValue(reader.getText());
     }
 
-    public Object fromNode(XMLSimpleReader reader) {
-        return choosenValueConverter.fromValue(reader.getText());
-    }
-
-    public void toNode(Object object, XMLSimpleWriter writer) {
+    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

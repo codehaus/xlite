@@ -21,21 +21,22 @@ public class Xlite {
     RootMapper rootNodeMapper;
     private List<NodeConverter> nodeConverters;
     private List<ValueConverter> valueConverters;
+    private MappingContext mappingContext;
 
     public Xlite(Class rootClass, String nodeName) {
         setupValueConverters();
         setupNodeConverters();
-        AnnotationProcessor annotationProcessor = new AnnotationProcessor(valueConverters, nodeConverters);
-
-        rootNodeMapper = annotationProcessor.processClassTree(nodeName, rootClass);
+        mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
+        this.rootNodeMapper = new RootMapper(nodeName, mappingContext.lookupNodeConverter(rootClass), mappingContext);
     }
 
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
 
-        // wraps all ValueConverters so that they can be used as NodeConverters
-        nodeConverters.add(new ValueConverterWrapper(valueConverters));
-
+        // wraps every ValueConverters so that it can be used as a NodeConverter
+        for (ValueConverter valueConverter : valueConverters) {
+            nodeConverters.add(new ValueConverterWrapper(valueConverter));
+        }
     }
 
     private void setupValueConverters() {

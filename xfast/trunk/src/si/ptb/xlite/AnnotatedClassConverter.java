@@ -13,22 +13,24 @@ import java.util.Map;
  * Date: Feb 28, 2008
  * Time: 10:19:19 PM
  */
-public class AnnotatedClassMapper implements NodeConverter {
+public class AnnotatedClassConverter implements NodeConverter {
 
-    public String nodeName;
-    public Class targetClass;
-    public ValueMapper valueMapper;
+    private SubTreeStore unknownNodeStorage;
+    private Class targetClass;
+    private ValueMapper valueMapper;
     private Map<String, NodeMapper> nodeMappers = new HashMap<String, NodeMapper>();
     private Map<String, ValueMapper> attributeMappers = new HashMap<String, ValueMapper>();
-    private SubTreeStore unknownNodeStorage;
 
-    public AnnotatedClassMapper(Class targetClass, String nodeName) {
+    public AnnotatedClassConverter(Class targetClass) {
         this.targetClass = targetClass;
-        this.nodeName = nodeName;
     }
 
-    public void setValueConnector(ValueMapper valueMapper) {
+    public void setValueMapper(ValueMapper valueMapper) {
         this.valueMapper = valueMapper;
+    }
+
+    public ValueMapper getValueMapper() {
+        return valueMapper;
     }
 
     public void addNodeConverter(String nodeName, NodeMapper nodeConverter) {
@@ -39,17 +41,25 @@ public class AnnotatedClassMapper implements NodeConverter {
         attributeMappers.put(attributeName, valueMapper);
     }
 
+    public Class getTargetClass() {
+        return targetClass;
+    }
+
+    public void setTargetClass(Class targetClass) {
+        this.targetClass = targetClass;
+    }
+
     /**
      * This is a default NodeConverter that tries to convert all classes.
      *
      * @param type
      * @return
      */
-    public NodeConverter getConverter(Class type) {
-        return null;  //todo implement this - How?
+    public boolean canConvert(Class type) {
+        return targetClass.equals(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader) {
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
 
         // instantiate object that maps to the current XML node
         Object currentObject = null;
@@ -57,7 +67,7 @@ public class AnnotatedClassMapper implements NodeConverter {
             currentObject = targetClass.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
-            
+
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -80,6 +90,7 @@ public class AnnotatedClassMapper implements NodeConverter {
             System.out.println("ATTR: " + attrName);
         }
 
+        // XML subnodes
         QName qname;
         String name;
         while (reader.moveDown()) {
@@ -101,7 +112,7 @@ public class AnnotatedClassMapper implements NodeConverter {
         return currentObject;
     }
 
-    public void toNode(Object object, XMLSimpleWriter writer) {
+    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

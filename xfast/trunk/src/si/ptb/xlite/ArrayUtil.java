@@ -1,6 +1,6 @@
 package si.ptb.xlite;
 
-import si.ptb.xlite.AnnotatedClassMapper;
+import si.ptb.xlite.AnnotatedClassConverter;
 
 /**
  * Utility methods for copying arrays. Needed because they are not present in Java 1.5
@@ -22,8 +22,8 @@ public class ArrayUtil {
         return copy;
     }
 
-    public static AnnotatedClassMapper[] arrayCopy(AnnotatedClassMapper[] original, int newLength) {
-        AnnotatedClassMapper[] copy = new AnnotatedClassMapper[newLength];
+    public static AnnotatedClassConverter[] arrayCopy(AnnotatedClassConverter[] original, int newLength) {
+        AnnotatedClassConverter[] copy = new AnnotatedClassConverter[newLength];
         System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }

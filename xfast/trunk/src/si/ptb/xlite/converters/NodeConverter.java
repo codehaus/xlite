@@ -2,6 +2,7 @@ package si.ptb.xlite.converters;
 
 import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
+import si.ptb.xlite.MappingContext;
 
 /**
  * Classes implementing NodeConverter interface are used for serializing/deserializing xml
@@ -17,7 +18,7 @@ public interface NodeConverter {
      * @param type
      * @return
      */
-    public NodeConverter getConverter(Class type);
+    public boolean canConvert(Class type);
 
     /**
      * Method responsible for reading a complete xml node from XMLStreamReader  and returning deserialized Object
@@ -29,12 +30,8 @@ public interface NodeConverter {
      * @param reader
      * @return
      */
-    public Object fromNode(XMLSimpleReader reader);
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext);
 
-    public void toNode(Object object, XMLSimpleWriter writer);
+    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext);
 
-
-//    void setParentField(Field parentField);
-//
-//    Field getParentField();
 }
