@@ -12,11 +12,12 @@ public class MappingContext {
 
     public List<NodeConverter> nodeConverters;
     public List<ValueConverter> valueConverters;
+    private AnnotationProcessor annotationProcessor;
 
     public MappingContext(List<NodeConverter> nodeConverters, List<ValueConverter> valueConverters, Class rootClass) {
         this.nodeConverters = nodeConverters;
-        this.valueConverters =valueConverters;
-        AnnotationProcessor annotationProcessor = new AnnotationProcessor(this);
+        this.valueConverters = valueConverters;
+        annotationProcessor = new AnnotationProcessor(this);
         annotationProcessor.processClass(rootClass);
     }
 
@@ -45,6 +46,6 @@ public class MappingContext {
                 return nodeConverter;
             }
         }
-        return null;
+        return annotationProcessor.processClass(type);
     }
 }

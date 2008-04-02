@@ -3,7 +3,6 @@ package si.ptb.xlite;
 import si.ptb.xlite.converters.*;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * User: peter
@@ -73,7 +72,7 @@ public class AnnotationProcessor {
      * Searches given class for fields that have @XMLnode annotation.
      *
      * @param currentClass A class to be inspected for @XMLnode annotations.
-     * @param converter AnnotatedClassMapper that coresponds in
+     * @param converter    AnnotatedClassMapper that coresponds in
      */
     private void processNodes(Class currentClass, AnnotatedClassConverter converter) {
         XMLnode annotation = null;
@@ -83,8 +82,21 @@ public class AnnotationProcessor {
 
                 String nodeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
 
+                NodeConverter subConverter;
+                if (annotation.converter().equals(NodeConverter.class)) { // default converter
+                    subConverter = processClass(field.getType());
+
+                } else { // custom converter assigned via annotation
+                    try {
+                        subConverter = annotation.converter().newInstance();
+                    } catch (InstantiationException e) {
+                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                    } catch (IllegalAccessException e) {
+                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                    }
+                }
                 // recursive call that builds a tree of Mappers
-                NodeMapper submapper = new NodeMapper(field, processClass(field.getType()), mappingContext);
+                NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
                 converter.addNodeConverter(nodeName, submapper);
 
                 String conv = submapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
@@ -100,7 +112,7 @@ public class AnnotationProcessor {
     /**
      * Searches class for fields that have @XMLattribute annotation and creates a ValueMapper for that field
      *
-     * @param converter       AnnotatedClassMapper to which the ValueMapper is referenced
+     * @param converter    AnnotatedClassMapper to which the ValueMapper is referenced
      * @param currentClass Class being inspected for @XMLattribute annotations
      * @return Map of XML attribute names to {@link si.ptb.xlite.converters.ValueMapper} objects.
      */
@@ -111,7 +123,22 @@ public class AnnotationProcessor {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
                 attributeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
-                ValueConverter valueConverter = lookupValueConverter(field.getType());
+
+                // find the appropriate converter
+                ValueConverter valueConverter;
+                if (annotation.converter().equals(ValueConverter.class)) {  // default converter
+                    valueConverter = lookupValueConverter(field.getType());
+
+                } else {  // custom converter assigned via annotation
+                    try {
+                        valueConverter = annotation.converter().newInstance();
+                    } catch (InstantiationException e) {
+                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                    } catch (IllegalAccessException e) {
+                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                    }
+                }
+
                 converter.addAttributeConverter(attributeName, new ValueMapper(field, valueConverter));
 
                 System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
@@ -129,12 +156,13 @@ public class AnnotationProcessor {
     private void processValue(Class currentClass, AnnotatedClassConverter converter) {
         Field targetField = null;
         int found = 0;
-        XMLtext annotation = null;
+        XMLtext annotation = null, targetAnnotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLtext) field.getAnnotation(XMLtext.class);
             if (annotation != null) {
                 found++;
                 targetField = field;
+                targetAnnotation = annotation;
             }
         }
         if (found > 1) {
@@ -142,7 +170,22 @@ public class AnnotationProcessor {
                     + currentClass.getName() + ". Max one @XMLtext annotation can be present in a class.");
         }
         if (found == 1) {
-            ValueConverter valueConverter = lookupValueConverter(targetField.getType());
+
+            // find the appropriate converter
+            ValueConverter valueConverter;
+            if (targetAnnotation.converter().equals(ValueConverter.class)) {  // default converter
+                valueConverter = lookupValueConverter(targetField.getType());
+
+            } else {  // custom converter assigned via annotation
+                try {
+                    valueConverter = targetAnnotation.converter().newInstance();
+                } catch (InstantiationException e) {
+                    throw new XLiteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
+                } catch (IllegalAccessException e) {
+                    throw new XLiteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
+                }
+            }
+            
             converter.setValueMapper(new ValueMapper(targetField, valueConverter));
 
             System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "

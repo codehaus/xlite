@@ -1,5 +1,8 @@
 package si.ptb.xlite;
 
+import si.ptb.xlite.converters.NodeConverter;
+import si.ptb.xlite.converters.ValueConverter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Retention;
@@ -15,4 +18,5 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface XMLattribute {
     String value() default "";
+    Class<? extends ValueConverter> converter() default ValueConverter.class;
 }
