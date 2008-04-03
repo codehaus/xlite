@@ -8,7 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="xstream-1.2.2" level="application" />
     <orderEntry type="library" name="TestNG" level="application" />
     <orderEntry type="library" name="xpp3" level="application" />
     <orderEntry type="library" name="StaX" level="application" />

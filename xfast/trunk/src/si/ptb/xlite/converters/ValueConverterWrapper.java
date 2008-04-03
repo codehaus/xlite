@@ -4,8 +4,6 @@ import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
 import si.ptb.xlite.MappingContext;
 
-import java.util.List;
-
 /**
  * @author peter
  */
@@ -21,7 +19,7 @@ public class ValueConverterWrapper implements NodeConverter {
         return valueConverter.canConvert(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext) {
         return valueConverter.fromValue(reader.getText());
     }
 

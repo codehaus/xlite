@@ -104,7 +104,7 @@ public class AnnotationProcessor {
                         throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     }
                 }
-                // recursive call that builds a tree of Mappers
+                
                 NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
                 converter.addNodeConverter(nodeName, submapper);
 

@@ -27,11 +27,13 @@ public class Xlite {
         setupValueConverters();
         setupNodeConverters();
         mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
-        this.rootNodeMapper = new RootMapper(nodeName, mappingContext.lookupNodeConverter(rootClass), mappingContext);
+        this.rootNodeMapper = new RootMapper(nodeName, rootClass, mappingContext);
     }
 
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
+
+        nodeConverters.add(new CollectionConverter());
 
         // wraps every ValueConverters so that it can be used as a NodeConverter
         for (ValueConverter valueConverter : valueConverters) {

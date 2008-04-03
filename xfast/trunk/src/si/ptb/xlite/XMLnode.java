@@ -18,5 +18,5 @@ import java.lang.annotation.Target;
 public @interface XMLnode {
     String value() default "";
     Class targetClass() default Object.class;
-    Class<? extends NodeConverter> converter() default NodeConverter.class;    
+    Class<? extends NodeConverter> converter() default NodeConverter.class;
 }

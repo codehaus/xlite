@@ -24,11 +24,7 @@ public class MappingContext {
     public Object processNextNode(Class targetType, XMLSimpleReader reader) {
         // find the converter for given Class
         NodeConverter converter = lookupNodeConverter(targetType);
-        return converter.fromNode(reader, this);
-    }
-
-    public Object processNextNode(NodeConverter converter, XMLSimpleReader reader) {
-        return converter.fromNode(reader, this);
+        return converter.fromNode(reader, targetType, this);
     }
 
     public ValueConverter lookupValueConverter(Class type) {

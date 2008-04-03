@@ -45,7 +45,7 @@ public class CustomConverterTest {
         }
 
 
-        public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+        public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext) {
             Custom custom = new Custom();
             custom.value = reader.getText();
             while (reader.moveDown()) {

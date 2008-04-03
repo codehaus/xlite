@@ -28,9 +28,10 @@ public interface NodeConverter {
      * event that corresponds to first node.
 //     * @param parentObject
      * @param reader
-     * @return
+     * @param targetType
+     *@param mappingContext @return
      */
-    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext);
+    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext);
 
     public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext);
 

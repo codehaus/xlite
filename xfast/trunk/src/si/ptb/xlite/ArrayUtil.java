@@ -1,6 +1,6 @@
 package si.ptb.xlite;
 
-import si.ptb.xlite.AnnotatedClassConverter;
+import si.ptb.xlite.converters.AnnotatedClassConverter;
 
 /**
  * Utility methods for copying arrays. Needed because they are not present in Java 1.5
