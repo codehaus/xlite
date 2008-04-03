@@ -1,6 +1,6 @@
 package si.ptb.xlite.converters;
 
-import si.ptb.xlite.XLiteException;
+import si.ptb.xlite.XliteException;
 import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.MappingContext;
 
@@ -20,7 +20,7 @@ public class NodeMapper {
             Object value = nodeConverter.fromNode(reader, mappingContext);
             targetField.set(targetObject, value);
         } catch (IllegalAccessException e) {
-            throw new XLiteException("Field could not be set!", e);
+            throw new XliteException("Field could not be set!", e);
         }
     }
 

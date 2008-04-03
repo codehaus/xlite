@@ -92,16 +92,16 @@ public class AnnotationProcessor {
 
                         // check that assigned converter can actually converto to the target field type
                         if (!subConverter.canConvert(field.getType())) {
-                            throw new XLiteException("Error: assigned converter type does not match field type.\n" +
+                            throw new XliteException("Error: assigned converter type does not match field type.\n" +
                                     "Converter " + subConverter.getClass().getName() + " can not be used to convert " +
                                     "data of type " + field.getType() + ".\n" +
                                     "Please check XML annotations on field '" + field.getName() +
                                     "' in class " + field.getDeclaringClass().getName() + ".");
                         }
                     } catch (InstantiationException e) {
-                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     } catch (IllegalAccessException e) {
-                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     }
                 }
                 // recursive call that builds a tree of Mappers
@@ -144,16 +144,16 @@ public class AnnotationProcessor {
 
                         // check that assigned converter can actually converto to the target field type
                         if (!valueConverter.canConvert(field.getType())) {
-                            throw new XLiteException("Error: assigned converter type does not match field type.\n" +
+                            throw new XliteException("Error: assigned converter type does not match field type.\n" +
                                     "Converter " + valueConverter.getClass().getName() + " can not be used to convert " +
                                     "data of type " + field.getType() + ".\n" +
                                     "Please check XML annotations on field '" + field.getName() +
                                     "' in class " + field.getDeclaringClass().getName() + ".");
                         }
                     } catch (InstantiationException e) {
-                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     } catch (IllegalAccessException e) {
-                        throw new XLiteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     }
                 }
 
@@ -184,7 +184,7 @@ public class AnnotationProcessor {
             }
         }
         if (found > 1) {
-            throw new XLiteException("Error: Multiple @XMLtext annotations in class "
+            throw new XliteException("Error: Multiple @XMLtext annotations in class "
                     + currentClass.getName() + ". Max one @XMLtext annotation can be present in a class.");
         }
         if (found == 1) {
@@ -196,7 +196,7 @@ public class AnnotationProcessor {
 
                 // check that assigned converter can actually converto to the target field type
                 if (!valueConverter.canConvert(targetField.getType())) {
-                    throw new XLiteException("Error: assigned converter type does not match field type.\n" +
+                    throw new XliteException("Error: assigned converter type does not match field type.\n" +
                             "Converter " + valueConverter.getClass().getName() + " can not be used to convert " +
                             "data of type " + targetField.getType() + ".\n" +
                             "Please check XML annotations on field '" + targetField.getName() +
@@ -206,9 +206,9 @@ public class AnnotationProcessor {
                 try {
                     valueConverter = targetAnnotation.converter().newInstance();
                 } catch (InstantiationException e) {
-                    throw new XLiteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
+                    throw new XliteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
                 } catch (IllegalAccessException e) {
-                    throw new XLiteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
+                    throw new XliteException("Could not instantiate converter " + targetAnnotation.converter().getName() + ". ", e);
                 }
             }
 

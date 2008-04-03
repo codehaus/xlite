@@ -63,7 +63,7 @@ public class Xlite {
         try {
             xmlreader = factory.createXMLStreamReader(reader);
         } catch (XMLStreamException e) {
-            throw new XLiteException("Error reading XML data from Reader", e);
+            throw new XliteException("Error reading XML data from Reader", e);
         }
         XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader);
 

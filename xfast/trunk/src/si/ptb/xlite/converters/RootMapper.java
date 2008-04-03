@@ -1,7 +1,7 @@
 package si.ptb.xlite.converters;
 
 import si.ptb.xlite.MappingContext;
-import si.ptb.xlite.XLiteException;
+import si.ptb.xlite.XliteException;
 import si.ptb.xlite.XMLSimpleReader;
 
 /**
@@ -22,7 +22,7 @@ public class RootMapper extends NodeMapper {
         if (reader.findFirstNode(rootNodeName)) {
             return nodeConverter.fromNode(reader, mappingContext);
         } else {
-            throw new XLiteException("Root node <" + rootNodeName + "> could not be found in XML data");
+            throw new XliteException("Root node <" + rootNodeName + "> could not be found in XML data");
         }
 
     }

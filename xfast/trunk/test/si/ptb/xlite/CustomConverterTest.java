@@ -16,14 +16,14 @@ public class CustomConverterTest {
                     "should be upper case" +
                     "<custom>" +
                     "this is a text of a custom field" +
-                    "<three val=\"SHOULD BE LOWER CASE\">" +
+                    "<three val=\"SHOULD BE LOWER CASE\" attr2=\"42\">" +
                     "textThree" +
                     "</three>" +
                     "<ignored>this node is ignored</ignored>" +
                     "</custom>" +
                     "</one>";
 
-    @org.testng.annotations.Test
+    @org.testng.annotations.Test(expectedExceptions = XliteException.class)
     public void customConverterTest() {
 
         StringReader reader = new StringReader(xml);
@@ -66,7 +66,7 @@ public class CustomConverterTest {
     public static class UpperCaseConverter implements ValueConverter {
 
         public boolean canConvert(Class type) {
-            return Custom.class.equals(type);
+            return String.class.equals(type);
         }
 
         public Object fromValue(String value) {
@@ -81,7 +81,7 @@ public class CustomConverterTest {
      public static class LowerCaseConverter implements ValueConverter {
 
         public boolean canConvert(Class type) {
-            return Custom.class.equals(type);
+            return String.class.equals(type);
         }
 
         public Object fromValue(String value) {
@@ -112,7 +112,10 @@ public class CustomConverterTest {
     public static class Three {
 
         @XMLattribute(value = "val", converter = LowerCaseConverter.class)
-        public int attr;
+        public String attr;
+
+        @XMLattribute(converter = LowerCaseConverter.class)   // should throw an exception
+        public int attr2;
 
         @XMLtext
         public String textField;

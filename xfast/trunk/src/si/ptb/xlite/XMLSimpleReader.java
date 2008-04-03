@@ -31,7 +31,7 @@ public class XMLSimpleReader {
 //            System.out.println("event:" + i);
             return i;
         } catch (XMLStreamException e) {
-            throw new XLiteException("Error reading XML stream.", e);
+            throw new XliteException("Error reading XML stream.", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class XMLSimpleReader {
             nodeStack.push(node);
         } else {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
-                throw new XLiteException("ERROR: this should be a node END. Instead it's a event=" + event);
+                throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
 //            System.out.println("false");
             return false;
