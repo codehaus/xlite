@@ -112,7 +112,7 @@ public class CustomConverterTest {
     public static class Three {
 
         @XMLattribute(value = "val", converter = LowerCaseConverter.class)
-        public String attr;
+        public int attr;
 
         @XMLtext
         public String textField;
