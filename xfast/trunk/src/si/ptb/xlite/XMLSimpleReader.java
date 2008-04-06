@@ -82,7 +82,6 @@ public class XMLSimpleReader {
      * @return True if next child node exists, otherwise false.
      */
     public boolean moveDown() {
-//        System.out.println("-moveDown()");
         int event = reader.getEventType();
         if (event == XMLStreamConstants.START_ELEMENT) {
             Node node = new Node();
@@ -99,11 +98,11 @@ public class XMLSimpleReader {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
                 throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
-//            System.out.println("false");
+//            System.out.println("-moveDown() false "+reader.getName());
             return false;
         }
+//        System.out.println("-moveDown() true "+reader.getName());
         nextNodeBoundary();
-//        System.out.println("true");
         return true;
     }
 
@@ -112,11 +111,11 @@ public class XMLSimpleReader {
      * Postions the underlying xml stream to the closing element of the child node.
      */
     public void moveUp() {
-//        System.out.println("-moveUp()");
         if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
 //            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
             nodeStack.pop();
             nextNodeBoundary();
+//            System.out.println("-moveUp() "+reader.getName());
             return;
         }
         int depth = 1;
@@ -125,13 +124,14 @@ public class XMLSimpleReader {
             if (nextNodeBoundary()) {  // node START
                 depth++;
             } else {      // node END
-                depth--;
-                if (depth == 0) {
+                if (depth-- == 0) {
                     continueLooping = false;
+                    nextNodeBoundary();
                 }
             }
         }
 //        System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
+//        System.out.println("-moveUp() "+reader.getName());
         nodeStack.pop();
     }
 

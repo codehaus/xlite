@@ -5,7 +5,9 @@ package si.ptb.xlite;
  * Date: Feb 17, 2008
  * Time: 10:15:47 PM
  */
-public class XliteException extends RuntimeException {    //todo FIX THIS EXCEPTION CLASS - IT DOES NOT SHOW PROPER MESSAGES
+public class XliteException extends RuntimeException {
+
+//todo Extend this class with more fine-graind classes: ConfigurationException, XmlException
 
     private Throwable cause;
 

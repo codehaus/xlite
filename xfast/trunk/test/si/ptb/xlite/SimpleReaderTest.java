@@ -88,7 +88,6 @@ public class SimpleReaderTest {
 
     }
 
-
     //todo FINISH this test!!!   This test should ignore "other" nodes - CDATA, comments, DTD, Entity Reference, Processing Instruction
     static String xml5 = "";
 
@@ -97,6 +96,42 @@ public class SimpleReaderTest {
         XMLSimpleReader reader = getReader(xml4);
         reader.nextNodeBoundary();
         reader.moveDown();
+
+    }
+
+    static String xml6 = "<a><b1>B1</b1><c><d/></c><b2>B2</b2></a>";
+
+    @org.testng.annotations.Test
+    public void skippedNodesTest() throws XMLStreamException {
+        XMLSimpleReader reader = getReader(xml6);
+        reader.nextNodeBoundary();
+
+        // inside a
+        Assert.assertTrue(reader.moveDown());
+        Assert.assertEquals(reader.getName().getLocalPart(), "a");
+
+        // inside b1
+        Assert.assertTrue(reader.moveDown());
+        Assert.assertEquals(reader.getName().getLocalPart(), "b1");
+        Assert.assertEquals(reader.getText(), "B1");
+        reader.moveUp();
+
+        // inside c
+        Assert.assertTrue(reader.moveDown());
+        Assert.assertEquals(reader.getName().getLocalPart(), "c");
+        // skip d entirelly
+        reader.moveUp();
+
+        // inside b2
+        Assert.assertTrue(reader.moveDown());
+        Assert.assertEquals(reader.getName().getLocalPart(), "b2");
+        Assert.assertEquals(reader.getText(), "B2");
+        reader.moveUp();
+
+        // back to a
+        Assert.assertEquals(reader.getName().getLocalPart(), "a");
+        reader.moveUp();
+
 
     }
 

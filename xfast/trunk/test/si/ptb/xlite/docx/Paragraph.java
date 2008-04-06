@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Paragraph {
 
-    @XMLnode("w:r")
-    public List<Run> runs = new ArrayList<Run>();
+    @XMLnode(value = "wr", itemType = Run.class)
+    public List<Run> runs;
 
 }

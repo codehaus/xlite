@@ -1,6 +1,7 @@
 package si.ptb.xlite.docx;
 
 import si.ptb.xlite.XMLtext;
+import si.ptb.xlite.XMLnode;
 
 
 /**
@@ -11,7 +12,7 @@ import si.ptb.xlite.XMLtext;
 
 public class Run {
 
-    @XMLtext()
-    public String text;
+    @XMLnode("wt")
+    public Text textnode;
 
 }

@@ -14,8 +14,8 @@ import java.util.List;
 
 public class Body {
 
-    @XMLnode("w:p")
-    public List<Paragraph> paragraphs = new ArrayList<Paragraph>();
+    @XMLnode(value = "wp", itemType = Paragraph.class)
+    public List<Paragraph> paragraphs;
 
 
 }

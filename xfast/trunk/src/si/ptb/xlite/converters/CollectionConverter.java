@@ -5,8 +5,10 @@ import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
 import si.ptb.xlite.XliteException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author peter
@@ -26,13 +28,28 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
     }
 
     public Collection initializeCollection(Class targetType) {
+        if (!isCollectionType(targetType)) {
+            throw new XliteException("Error: Target class " + targetType.getName() + " is can not be cast to java.util.Collection!");
+        }
+        Class<? extends Collection> concreteType = getConcreteCollectionType(targetType);
         try {
-            return (Collection) targetType.newInstance();
+            return concreteType.newInstance();
         } catch (InstantiationException e) {
             throw new XliteException("Could not instantiate collection " + targetType.getName() + ". ", e);
         } catch (IllegalAccessException e) {
             throw new XliteException("Could not instantiate collection " + targetType.getName() + ". ", e);
         }
+    }
+
+    private Class<? extends Collection> getConcreteCollectionType(Class<? extends Collection> targetType) {
+        if (targetType == List.class || targetType == Collection.class) {
+            return ArrayList.class;
+        }
+        return targetType;
+    }
+
+    private boolean isCollectionType(Class type) {
+        return Collection.class.isAssignableFrom(type);
     }
 
     public void addItem(Collection collection, Object object) {

@@ -2,8 +2,8 @@ package si.ptb.xlite.converters;
 
 import si.ptb.xlite.MappingContext;
 import si.ptb.xlite.XMLSimpleReader;
-import si.ptb.xlite.XliteException;
 import si.ptb.xlite.XMLnode;
+import si.ptb.xlite.XliteException;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -29,23 +29,17 @@ public class NodeMapper {
     }
 
     public void collectionAddItem(Object targetObject, XMLSimpleReader reader) {
-        if (collectionNotInitialized) {
-            try {
-                Collection collection = collectionConverter.initializeCollection(targetField.getType());
-                targetField.set(targetObject, collection);
-            } catch (IllegalAccessException e) {
-                throw new XliteException("Field could not be set! ", e);
-            }
-            collectionNotInitialized = false;
-        }
-
+        
         try {
-            Object value = nodeConverter.fromNode(reader, itemType, mappingContext);
             Collection collection = (Collection) targetField.get(targetObject);
+            if (collection == null) {
+                collection = collectionConverter.initializeCollection(targetField.getType());
+                targetField.set(targetObject, collection);
+            }
+            Object value = nodeConverter.fromNode(reader, itemType, mappingContext);
             collectionConverter.addItem(collection, value);
         } catch (IllegalAccessException e) {
             throw new XliteException("Field could not be read! ", e);
-
         }
     }
 
@@ -70,9 +64,9 @@ public class NodeMapper {
         if (CollectionConverting.class.isAssignableFrom(nodeConverter.getClass())) {
             this.collectionConverter = (CollectionConverting) nodeConverter;
             XMLnode annotation = (XMLnode) targetField.getAnnotation(XMLnode.class);
-            this.itemType = annotation.targetClass();
-            if(this.itemType == Object.class){
-                throw new XliteException("Error: collection in class "+targetField.getDeclaringClass().getSimpleName()+
+            this.itemType = annotation.itemType();
+            if (this.itemType == Object.class) {
+                throw new XliteException("Error: collection in class " + targetField.getDeclaringClass().getSimpleName() +
                         " does not have a target type defined. " +
                         "When @XMLnode annotation is used on collection, a 'targetType' value must be defined.");
             }

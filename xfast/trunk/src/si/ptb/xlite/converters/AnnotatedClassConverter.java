@@ -91,7 +91,7 @@ public class AnnotatedClassConverter implements NodeConverter {
             if (attrMapper != null) {
                 attrMapper.setValue(currentObject, attrValue);
             }
-            System.out.println("ATTR: " + attrName);
+//            System.out.println("ATTR: " + attrName);
         }
 
         // XML subnodes
@@ -104,13 +104,14 @@ public class AnnotatedClassConverter implements NodeConverter {
             // find NodeMapper for converting XML node with given name
             NodeMapper subMapper = nodeMappers.get(name);
             if (subMapper != null) {  // converter is found
-                System.out.println("START:" + name + " thisConverter:" + this.toString() +
-                        " subConverter:" + subMapper.nodeConverter);
+//                System.out.println("START:" + name + " thisConverter:" + this.toString() +
+//                        " subConverter:" + subMapper.nodeConverter);
                 subMapper.setValue(currentObject, reader);
             } else {  // unknown subMapper
-                System.out.println("UNKNOWN node: " + name);
+//                System.out.println("UNKNOWN node: " + name);
             }
             reader.moveUp();
+//            System.out.println("#### POSITION: "+reader.getName());
         }
 
         return currentObject;

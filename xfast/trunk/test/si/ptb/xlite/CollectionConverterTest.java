@@ -3,7 +3,7 @@ package si.ptb.xlite;
 import org.testng.Assert;
 
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author peter
@@ -15,9 +15,15 @@ public class CollectionConverterTest {
                     "just some text" +
                     "<item>" +
                     "first item text" +
+                    "<subitem>sub11</subitem>" +
+                    "<subitem>sub12</subitem>" +
                     "</item>" +
+                    "<ignored>Ignored<subignored/></ignored>" +
+//                    "<ignored>Ignored</ignored>" +
                     "<item>" +
                     "second item text" +
+                    "<subitem>sub21<ignored>Ignored</ignored></subitem>" +
+                    "<subitem>sub22</subitem>" +
                     "</item>" +
                     "</one>";
 
@@ -37,11 +43,20 @@ public class CollectionConverterTest {
         @XMLtext
         public String text;
 
-        @XMLnode(value = "item", targetClass = Item.class)
-        public ArrayList list;
+        @XMLnode(value = "item", itemType = Item.class)
+        public List list;
     }
 
     public static class Item {
+
+//        @XMLtext
+//        public String text;
+
+        @XMLnode(value = "subitem", itemType = SubItem.class)
+        public List subs;
+    }
+
+    public static class SubItem {
 
         @XMLtext
         public String text;
