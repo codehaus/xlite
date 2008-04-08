@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface XMLnode {
     String value() default "";
+    String name() default "";    
     Class concreteType() default Object.class;
     Class itemType() default Object.class;
     Class<? extends NodeConverter> converter() default NodeConverter.class;

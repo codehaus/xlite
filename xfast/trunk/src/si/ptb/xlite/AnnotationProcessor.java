@@ -2,7 +2,10 @@ package si.ptb.xlite;
 
 import si.ptb.xlite.converters.*;
 
+import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: peter
@@ -26,15 +29,6 @@ public class AnnotationProcessor {
      */
     public NodeConverter processClass(Class currentClass) {
 
-        NodeConverter nodeConverter = lookupNodeConverter(currentClass);
-
-        // Was appropriate NodeConverter found for given class?
-        if (nodeConverter != null) {
-
-            return nodeConverter;
-
-        } else {  // default NodeConverter is used -> AnnotatedClassMapper
-
             AnnotatedClassConverter annotatedClassConverter = new AnnotatedClassConverter(currentClass);
 
             // find and process @XMLattribute annotations
@@ -47,7 +41,6 @@ public class AnnotationProcessor {
             mappingContext.nodeConverters.add(annotatedClassConverter);
 
             return annotatedClassConverter;
-        }
     }
 
     private NodeConverter lookupNodeConverter(Class type) {
@@ -60,12 +53,7 @@ public class AnnotationProcessor {
     }
 
     private ValueConverter lookupValueConverter(Class type) {
-        for (ValueConverter valueConverter : mappingContext.valueConverters) {
-            if (valueConverter.canConvert(type)) {
-                return valueConverter;
-            }
-        }
-        return null;
+        return mappingContext.lookupValueConverter(type);
     }
 
     /**
@@ -75,16 +63,60 @@ public class AnnotationProcessor {
      * @param converter    AnnotatedClassMapper that coresponds in
      */
     private void processNodes(Class currentClass, AnnotatedClassConverter converter) {
+
+        // namespaces defined by @XMLnamespaces annotation
+        Map<String, String> namespaceURIs = new HashMap<String, String>();
+        XMLnamespaces nsAnnotation = (XMLnamespaces) currentClass.getAnnotation(XMLnamespaces.class);
+        if (nsAnnotation != null && nsAnnotation.value().length != 0) {
+            boolean defaultFound = false;
+            for (int i = 0; i < nsAnnotation.value().length; i++) {
+                String ns = nsAnnotation.value()[i];
+                int index = ns.indexOf(':');
+                String nsURI, prefix;
+
+                // no prefix means default namespace
+                if (index == -1) {
+                    if (defaultFound) {
+                        throw new XliteException("ANNOTATION ERROR: " +
+                                "Class: " + currentClass.getName() + " contains two default namespaces (without prefix)." +
+                                "Only one default namespace may be defined via each @XMLnamespace annotation.");
+                    }
+                    namespaceURIs.put("", ns);
+                    defaultFound = true;
+
+                } else { // namespace with prefix
+                    prefix = ns.substring(0, index);
+                    nsURI = ns.substring(index, ns.length());
+                    if (namespaceURIs.containsKey(prefix)) {
+                        throw new XliteException("ANNOTATION ERROR: " +
+                                "Class: " + currentClass.getName() + " contains two namespaces with same prefix." +
+                                "Each namespace defined via @XMLnamespace annotation must have unique prefix.");
+                    }
+                    namespaceURIs.put(prefix, nsURI);
+                }
+            }
+        }
+
         XMLnode annotation = null;
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
             if (annotation != null) {
 
-                String nodeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
+                // XML node name via annotation
+                String localPart;
+                QName nodeName;
+                if (annotation.name().length() != 0) {
+                    localPart = annotation.name();
+                } else if (annotation.value().length() != 0) {
+                    localPart = annotation.value();
+                } else {
+                    localPart = field.getName();
+                }
+
 
                 NodeConverter subConverter;
                 if (annotation.converter().equals(NodeConverter.class)) { // default converter
-                    subConverter = processClass(field.getType());
+                    subConverter = mappingContext.lookupNodeConverter(field.getType());
 
                 } else { // custom converter assigned via annotation
                     try {
@@ -104,16 +136,16 @@ public class AnnotationProcessor {
                         throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                     }
                 }
-                
+
                 NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
-                converter.addNodeConverter(nodeName, submapper);
+                converter.addNodeConverter(localPart, submapper);
 
                 String conv = submapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
                         ((ValueConverterWrapper) submapper.nodeConverter).valueConverter.getClass().getSimpleName() :
                         submapper.nodeConverter.getClass().getSimpleName();
 
-                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodeName
-                        + " converter:" + conv);
+//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodeName
+//                        + " converter:" + conv);
             }
         }
     }
@@ -131,7 +163,15 @@ public class AnnotationProcessor {
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
-                attributeName = annotation.value().length() == 0 ? field.getName() : annotation.value();
+
+                // XML attribute name via annotation
+                if (annotation.name().length() != 0) {
+                    attributeName = annotation.name();
+                } else if (annotation.value().length() != 0) {
+                    attributeName = annotation.value();
+                } else {
+                    attributeName = field.getName();
+                }
 
                 // find the appropriate converter
                 ValueConverter valueConverter;
@@ -159,8 +199,8 @@ public class AnnotationProcessor {
 
                 converter.addAttributeConverter(attributeName, new ValueMapper(field, valueConverter));
 
-                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
-                        + " converter:" + valueConverter.getClass().getSimpleName());
+//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
+//                        + " converter:" + valueConverter.getClass().getSimpleName());
             }
         }
     }
@@ -214,8 +254,8 @@ public class AnnotationProcessor {
 
             converter.setValueMapper(new ValueMapper(targetField, valueConverter));
 
-            System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
-                    + " converter:" + valueConverter.getClass().getSimpleName());
+//            System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
+//                    + " converter:" + valueConverter.getClass().getSimpleName());
         }
     }
 

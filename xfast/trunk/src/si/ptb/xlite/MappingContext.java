@@ -18,6 +18,8 @@ public class MappingContext {
         this.nodeConverters = nodeConverters;
         this.valueConverters = valueConverters;
         annotationProcessor = new AnnotationProcessor(this);
+
+        // start of annotation processing
         annotationProcessor.processClass(rootClass);
     }
 

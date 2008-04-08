@@ -98,11 +98,11 @@ public class XMLSimpleReader {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
                 throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
-//            System.out.println("-moveDown() false "+reader.getName());
+//            System.out.println("-moveDown() false "+getName());
             return false;
         }
-//        System.out.println("-moveDown() true "+reader.getName());
         nextNodeBoundary();
+//        System.out.println("-moveDown() true "+getName());
         return true;
     }
 
@@ -115,7 +115,7 @@ public class XMLSimpleReader {
 //            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
             nodeStack.pop();
             nextNodeBoundary();
-//            System.out.println("-moveUp() "+reader.getName());
+//            System.out.println("-moveUp() "+getName());
             return;
         }
         int depth = 1;
@@ -131,15 +131,21 @@ public class XMLSimpleReader {
             }
         }
 //        System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
-//        System.out.println("-moveUp() "+reader.getName());
         nodeStack.pop();
+//        System.out.println("-moveUp() "+getName());
     }
 
     public String getText() {
+        if(nodeStack.isEmpty()){
+            return null;
+        }
         return nodeStack.peek().text.toString();
     }
 
     public QName getName() {
+        if(nodeStack.isEmpty()){
+            return null;
+        }
         return nodeStack.peek().name;
     }
 

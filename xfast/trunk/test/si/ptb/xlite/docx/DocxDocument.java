@@ -3,6 +3,7 @@ package si.ptb.xlite.docx;
 import si.ptb.xlite.SampleXml;
 import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
+import si.ptb.xlite.XMLnamespaces;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.io.FileReader;
  * Time: 2:52:22 PM
  */
 
+@XMLnamespaces("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
 public class DocxDocument {
 
     private static String mainPartName = "word/document.xml";

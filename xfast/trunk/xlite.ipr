@@ -261,7 +261,7 @@
     <option name="calculateMetrics" value="true" />
     <option name="includeTestClasses" value="false" />
     <option name="flattenInnerClasses" value="true" />
-    <option name="cycleTableSpecificationString" value="" />
+    <option name="cycleTableSpecificationString" value="203,203,203,203,203,202,203,202" />
     <option name="shortCycleTableSpecificationString" value="" />
   </component>
 </project>

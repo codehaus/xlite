@@ -21,12 +21,10 @@ public interface NodeConverter {
     public boolean canConvert(Class type);
 
     /**
-     * Method responsible for reading a complete xml node from XMLStreamReader  and returning deserialized Object
-     * that corresponds to this node. When XMLStreamReader instance is passed to this method it is already
-     * positioned on the xml node that is to be converted. Method should use reader.next() to traverse through
-     * all node's attributes, value and subnodes. It should stop reading the stream when it encounters an END_ELEMENT
-     * event that corresponds to first node.
-//     * @param parentObject
+     * Method responsible for reading a complete xml node from XMLSimpleReader and returning deserialized Object
+     * that corresponds to this node. When XMLSimpleReader instance is passed to this method it is already
+     * positioned on the xml node that is to be converted. Method can inspect all node's attributes, value and subnodes.
+     * When method returns, the stream should be positioned on the same node that 
      * @param reader
      * @param targetType
      *@param mappingContext @return

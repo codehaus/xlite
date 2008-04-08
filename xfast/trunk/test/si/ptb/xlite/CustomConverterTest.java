@@ -111,7 +111,7 @@ public class CustomConverterTest {
 
     public static class Three {
 
-        @XMLattribute(value = "val", converter = LowerCaseConverter.class)
+        @XMLattribute(name = "val", converter = LowerCaseConverter.class)
         public String attr;
 
         @XMLattribute(converter = LowerCaseConverter.class)   // should throw an exception

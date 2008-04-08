@@ -18,5 +18,6 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface XMLattribute {
     String value() default "";
+    String name() default "";
     Class<? extends ValueConverter> converter() default ValueConverter.class;
 }

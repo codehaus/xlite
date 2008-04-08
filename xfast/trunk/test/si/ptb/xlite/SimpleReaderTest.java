@@ -99,7 +99,7 @@ public class SimpleReaderTest {
 
     }
 
-    static String xml6 = "<a><b1>B1</b1><c><d/></c><b2>B2</b2></a>";
+    static String xml6 = "<a><b1>B1</b1><c><d><e/></d></c><b2>B2</b2></a>";
 
     @org.testng.annotations.Test
     public void skippedNodesTest() throws XMLStreamException {
@@ -119,7 +119,7 @@ public class SimpleReaderTest {
         // inside c
         Assert.assertTrue(reader.moveDown());
         Assert.assertEquals(reader.getName().getLocalPart(), "c");
-        // skip d entirelly
+        // skip d and e entirelly
         reader.moveUp();
 
         // inside b2
