@@ -7,10 +7,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author peter
@@ -148,8 +145,10 @@ public class SimpleReaderTest {
             Node node = new Node();
             nodes.add(node);
             node.name = reader.getName();
-            for (int i = 0; i < reader.getAttributeCount(); i++) {
-                node.attributes.put(reader.getAttributeName(i), reader.getAttributeValue(i));
+            Iterator<Map.Entry<QName, String>> attrIterator = reader.getAttributeIterator();
+            while(attrIterator.hasNext()){
+                Map.Entry<QName, String> entry = attrIterator.next();
+                node.attributes.put(entry.getKey(), entry.getValue());
             }
 //            System.out.println("NODE-"+node.name.getLocalPart());
             List<Node> subNodes = processSubNodes(reader);
@@ -164,14 +163,14 @@ public class SimpleReaderTest {
 
     public static class Node {
         public QName name;
-        public Map<String, String> attributes = new HashMap<String, String>();
+        public Map<QName, String> attributes = new HashMap<QName, String>();
         public String value;
         List<Node> subnodes = new ArrayList<Node>();
     }
 
     public static void printNodes(Node node, String prefix) {
         System.out.print(prefix + "<" + node.name.getLocalPart());
-        for (String qName : node.attributes.keySet()) {
+        for (QName qName : node.attributes.keySet()) {
             System.out.print(" " + qName + "=\"" + node.attributes.get(qName) + "\"");
         }
         System.out.println(">");

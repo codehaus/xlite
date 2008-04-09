@@ -1,15 +1,10 @@
 package si.ptb.xlite.converters;
 
-import si.ptb.xlite.converters.NodeConverter;
-import si.ptb.xlite.converters.NodeMapper;
-import si.ptb.xlite.converters.ValueMapper;
-import si.ptb.xlite.SubTreeStore;
-import si.ptb.xlite.XMLSimpleReader;
-import si.ptb.xlite.MappingContext;
-import si.ptb.xlite.XMLSimpleWriter;
+import si.ptb.xlite.*;
 
 import javax.xml.namespace.QName;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -22,11 +17,20 @@ public class AnnotatedClassConverter implements NodeConverter {
     private SubTreeStore unknownNodeStorage;
     private Class targetClass;
     private ValueMapper valueMapper;
-    private Map<String, NodeMapper> nodeMappers = new HashMap<String, NodeMapper>();
-    private Map<String, ValueMapper> attributeMappers = new HashMap<String, ValueMapper>();
+    private Map<QName, NodeMapper> nodeMappers = new HashMap<QName, NodeMapper>();
+    private Map<QName, ValueMapper> attributeMappers = new HashMap<QName, ValueMapper>();
+    private NsContext classNamespaces;
 
     public AnnotatedClassConverter(Class targetClass) {
         this.targetClass = targetClass;
+    }
+
+    public NsContext getClassNamespaces() {
+        return classNamespaces;
+    }
+
+    public void setClassNamespaces(NsContext classNamespaces) {
+        this.classNamespaces = classNamespaces;
     }
 
     public void setValueMapper(ValueMapper valueMapper) {
@@ -37,12 +41,12 @@ public class AnnotatedClassConverter implements NodeConverter {
         return valueMapper;
     }
 
-    public void addNodeConverter(String nodeName, NodeMapper nodeConverter) {
-        nodeMappers.put(nodeName, nodeConverter);
+    public void addNodeConverter(QName qName, NodeMapper nodeConverter) {
+        nodeMappers.put(qName, nodeConverter);
     }
 
-    public void addAttributeConverter(String attributeName, ValueMapper valueMapper) {
-        attributeMappers.put(attributeName, valueMapper);
+    public void addAttributeConverter(QName attributeQName, ValueMapper valueMapper) {
+        attributeMappers.put(attributeQName, valueMapper);
     }
 
     public Class getTargetClass() {
@@ -82,27 +86,29 @@ public class AnnotatedClassConverter implements NodeConverter {
         }
 
         // XML node attributes
-        for (int i = 0; i < reader.getAttributeCount(); i++) {
-            String attrName = reader.getAttributeName(i);     //todo refactor to QName
-            String attrValue = reader.getAttributeValue(i);
-            // find the attribute mapper
-            ValueMapper attrMapper = attributeMappers.get(attrName);
+        Iterator<Map.Entry<QName, String>> attributeSet = reader.getAttributeIterator();
+        while (attributeSet.hasNext()) {
+            Map.Entry<QName, String> entry = attributeSet.next();
+            QName attrQName = entry.getKey();
+            String attrValue = entry.getValue();
+             // find the attribute mapper
+            ValueMapper attrMapper = attributeMappers.get(attrQName);
             // if mapper exists, use it to set field to attribute value
             if (attrMapper != null) {
                 attrMapper.setValue(currentObject, attrValue);
             }
-//            System.out.println("ATTR: " + attrName);
-        }
+            System.out.println("ATTR: " + attrQName);
+        }        
 
         // XML subnodes
         QName qname;
         String name;
         while (reader.moveDown()) {
-            qname = reader.getName();  // todo refactor NameSpaces!!
-            name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+            qname = reader.getName();
+//            name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
             // find NodeMapper for converting XML node with given name
-            NodeMapper subMapper = nodeMappers.get(name);
+            NodeMapper subMapper = nodeMappers.get(qname);
             if (subMapper != null) {  // converter is found
 //                System.out.println("START:" + name + " thisConverter:" + this.toString() +
 //                        " subConverter:" + subMapper.nodeConverter);
@@ -123,12 +129,12 @@ public class AnnotatedClassConverter implements NodeConverter {
 
     public void printContents(String prefix) {
         prefix += " ";
-        for (Map.Entry<String, ValueMapper> attrEntry : attributeMappers.entrySet()) {
+        for (Map.Entry<QName, ValueMapper> attrEntry : attributeMappers.entrySet()) {
             System.out.println(prefix + "attribute:" + attrEntry.getKey()
                     + " field:" + attrEntry.getValue().targetField.getName() + "(" + attrEntry.getValue().targetField.getType() + ")");
         }
 
-        for (Map.Entry<String, NodeMapper> nodeEntry : nodeMappers.entrySet()) {
+        for (Map.Entry<QName, NodeMapper> nodeEntry : nodeMappers.entrySet()) {
             System.out.println(prefix + "node:" + nodeEntry.getKey());
         }
 

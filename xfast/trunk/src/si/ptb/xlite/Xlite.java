@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -22,6 +23,7 @@ public class Xlite {
     private List<NodeConverter> nodeConverters;
     private List<ValueConverter> valueConverters;
     private MappingContext mappingContext;
+    Map<String, String> predefinedNamespaces;
 
     public Xlite(Class rootClass, String nodeName) {
         setupValueConverters();
@@ -55,6 +57,10 @@ public class Xlite {
         valueConverters.add(new CharConverter());
 
 
+    }
+
+    public void addNamespace(String namespace){
+        mappingContext.addNamespace(namespace);
     }
 
 

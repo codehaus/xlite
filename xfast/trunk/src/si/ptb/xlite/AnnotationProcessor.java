@@ -2,10 +2,9 @@ package si.ptb.xlite;
 
 import si.ptb.xlite.converters.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: peter
@@ -29,18 +28,32 @@ public class AnnotationProcessor {
      */
     public NodeConverter processClass(Class currentClass) {
 
-            AnnotatedClassConverter annotatedClassConverter = new AnnotatedClassConverter(currentClass);
+        AnnotatedClassConverter annotatedClassConverter = new AnnotatedClassConverter(currentClass);
 
-            // find and process @XMLattribute annotations
-            processAttributes(currentClass, annotatedClassConverter);
-            // find and process @XMLvalue annotation
-            processValue(currentClass, annotatedClassConverter);
-            // find and process @XMLnode annotations
-            processNodes(currentClass, annotatedClassConverter);
+        // find and process @XMLnamespaces annotation
+        processClassNamespaces(currentClass, annotatedClassConverter);
+        // find and process @XMLattribute annotations
+        processAttributes(currentClass, annotatedClassConverter);
+        // find and process @XMLvalue annotation
+        processValue(currentClass, annotatedClassConverter);
+        // find and process @XMLnode annotations
+        processNodes(currentClass, annotatedClassConverter);
 
-            mappingContext.nodeConverters.add(annotatedClassConverter);
+        mappingContext.nodeConverters.add(annotatedClassConverter);
 
-            return annotatedClassConverter;
+        return annotatedClassConverter;
+    }
+
+    private void processClassNamespaces(Class currentClass, AnnotatedClassConverter annotatedClassConverter) {
+        NsContext classNS = new NsContext();
+        XMLnamespaces nsAnnotation = (XMLnamespaces) currentClass.getAnnotation(XMLnamespaces.class);
+        if (nsAnnotation != null && nsAnnotation.value().length != 0) {
+            boolean defaultFound = false;
+            for (int i = 0; i < nsAnnotation.value().length; i++) {
+                classNS.addNamespace(nsAnnotation.value()[i]);
+            }
+        }
+        annotatedClassConverter.setClassNamespaces(classNS);
     }
 
     private NodeConverter lookupNodeConverter(Class type) {
@@ -64,58 +77,16 @@ public class AnnotationProcessor {
      */
     private void processNodes(Class currentClass, AnnotatedClassConverter converter) {
 
-        // namespaces defined by @XMLnamespaces annotation
-        Map<String, String> namespaceURIs = new HashMap<String, String>();
-        XMLnamespaces nsAnnotation = (XMLnamespaces) currentClass.getAnnotation(XMLnamespaces.class);
-        if (nsAnnotation != null && nsAnnotation.value().length != 0) {
-            boolean defaultFound = false;
-            for (int i = 0; i < nsAnnotation.value().length; i++) {
-                String ns = nsAnnotation.value()[i];
-                int index = ns.indexOf(':');
-                String nsURI, prefix;
-
-                // no prefix means default namespace
-                if (index == -1) {
-                    if (defaultFound) {
-                        throw new XliteException("ANNOTATION ERROR: " +
-                                "Class: " + currentClass.getName() + " contains two default namespaces (without prefix)." +
-                                "Only one default namespace may be defined via each @XMLnamespace annotation.");
-                    }
-                    namespaceURIs.put("", ns);
-                    defaultFound = true;
-
-                } else { // namespace with prefix
-                    prefix = ns.substring(0, index);
-                    nsURI = ns.substring(index, ns.length());
-                    if (namespaceURIs.containsKey(prefix)) {
-                        throw new XliteException("ANNOTATION ERROR: " +
-                                "Class: " + currentClass.getName() + " contains two namespaces with same prefix." +
-                                "Each namespace defined via @XMLnamespace annotation must have unique prefix.");
-                    }
-                    namespaceURIs.put(prefix, nsURI);
-                }
-            }
-        }
-
         XMLnode annotation = null;
+
         for (Field field : currentClass.getDeclaredFields()) {
+
             annotation = (XMLnode) field.getAnnotation(XMLnode.class);
             if (annotation != null) {
 
-                // XML node name via annotation
-                String localPart;
-                QName nodeName;
-                if (annotation.name().length() != 0) {
-                    localPart = annotation.name();
-                } else if (annotation.value().length() != 0) {
-                    localPart = annotation.value();
-                } else {
-                    localPart = field.getName();
-                }
-
-
+                // get converter for the class that the field references
                 NodeConverter subConverter;
-                if (annotation.converter().equals(NodeConverter.class)) { // default converter
+                if (annotation.converter().equals(NodeConverter.class)) { // default - converter choosen by type
                     subConverter = mappingContext.lookupNodeConverter(field.getType());
 
                 } else { // custom converter assigned via annotation
@@ -137,8 +108,13 @@ public class AnnotationProcessor {
                     }
                 }
 
+                // get QName that field maps to
+                String nodename = annotation.value().length() != 0 ? annotation.value() :
+                        (annotation.name().length() != 0 ? annotation.name() : field.getName());
+                QName qname = getQName(nodename, getFieldNamespaces(field), converter.getClassNamespaces());
+
                 NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
-                converter.addNodeConverter(localPart, submapper);
+                converter.addNodeConverter(qname, submapper);
 
                 String conv = submapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
                         ((ValueConverterWrapper) submapper.nodeConverter).valueConverter.getClass().getSimpleName() :
@@ -148,6 +124,51 @@ public class AnnotationProcessor {
 //                        + " converter:" + conv);
             }
         }
+    }
+
+    private QName getQName(String nodeName, NsContext fieldNS, NsContext classNS) {
+
+        // split xml node name into prefix and local part
+        int index = nodeName.indexOf(':');
+        String prefix, localPart;
+        if (index > 0) {  // with prefix ("prefix:localpart")
+            prefix = nodeName.substring(0, index);
+            localPart = nodeName.substring(index + 1, nodeName.length());
+
+        } else if (index == 0) { // empty prefix (no prefix defined - e.g ":nodeName")
+            prefix = XMLConstants.DEFAULT_NS_PREFIX;
+            localPart = nodeName.substring(1, nodeName.length());
+
+        } else { // no prefix given
+            prefix = XMLConstants.DEFAULT_NS_PREFIX;
+            localPart = nodeName;
+        }
+
+        String fieldNsURI = fieldNS.getNamespaceURI(prefix);
+        String classNsURI = classNS.getNamespaceURI(prefix);
+        String predefinedNsURI = mappingContext.getPredefinedNamespaces().getNamespaceURI(prefix);
+
+        // choose the namespaceURI that is not null from field, class, predefined or
+        // finally DEFAULT_NS_PREFIX (in that order)
+        String theURI = fieldNsURI != null ? fieldNsURI :
+                (classNsURI != null ? classNsURI :
+                        (predefinedNsURI != null ? predefinedNsURI : XMLConstants.DEFAULT_NS_PREFIX));
+
+        return new QName(theURI, localPart, prefix);
+    }
+
+
+    private NsContext getFieldNamespaces(Field field) {
+
+        NsContext fieldNS = new NsContext();
+        XMLnamespaces nsAnnotation = (XMLnamespaces) field.getAnnotation(XMLnamespaces.class);
+        if (nsAnnotation != null && nsAnnotation.value().length != 0) {
+            boolean defaultFound = false;
+            for (int i = 0; i < nsAnnotation.value().length; i++) {
+                fieldNS.addNamespace(nsAnnotation.value()[i]);
+            }
+        }
+        return fieldNS;
     }
 
     /**
@@ -163,15 +184,6 @@ public class AnnotationProcessor {
         for (Field field : currentClass.getDeclaredFields()) {
             annotation = (XMLattribute) field.getAnnotation(XMLattribute.class);
             if (annotation != null) {
-
-                // XML attribute name via annotation
-                if (annotation.name().length() != 0) {
-                    attributeName = annotation.name();
-                } else if (annotation.value().length() != 0) {
-                    attributeName = annotation.value();
-                } else {
-                    attributeName = field.getName();
-                }
 
                 // find the appropriate converter
                 ValueConverter valueConverter;
@@ -197,7 +209,12 @@ public class AnnotationProcessor {
                     }
                 }
 
-                converter.addAttributeConverter(attributeName, new ValueMapper(field, valueConverter));
+                // get QName that field maps to
+                String nodename = annotation.value().length() != 0 ? annotation.value() :
+                        (annotation.name().length() != 0 ? annotation.name() : field.getName());
+                QName qname = getQName(nodename, getFieldNamespaces(field), converter.getClassNamespaces());
+
+                converter.addAttributeConverter(qname, new ValueMapper(field, valueConverter));
 
 //                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
 //                        + " converter:" + valueConverter.getClass().getSimpleName());

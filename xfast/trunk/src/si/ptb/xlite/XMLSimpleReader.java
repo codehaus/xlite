@@ -4,7 +4,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * A wrapper around {@link javax.xml.stream.XMLStreamReader}, that simplifies usage. It's no longer necessary to create
@@ -87,10 +87,8 @@ public class XMLSimpleReader {
             Node node = new Node();
             node.name = reader.getName();
             int attrCount = reader.getAttributeCount();
-            node.attributes = new String[attrCount][2];
             for (int i = 0; i < attrCount; i++) {
-                node.attributes[i][0] = reader.getAttributeName(i).getLocalPart();  //todo fix this to support QNames
-                node.attributes[i][1] = reader.getAttributeValue(i);
+                node.putAttribute(reader.getAttributeName(i),reader.getAttributeValue(i) );
             }
 //            System.out.println("push:" + node.name.getLocalPart());
             nodeStack.push(node);
@@ -149,22 +147,42 @@ public class XMLSimpleReader {
         return nodeStack.peek().name;
     }
 
-    public int getAttributeCount() {
-        return nodeStack.peek().attributes.length;
+    public Iterator<Map.Entry<QName, String>> getAttributeIterator() {
+        return nodeStack.peek().iterator();
     }
 
-    public String getAttributeName(int index) {     //todo should return QName
-        return nodeStack.peek().attributes[index][0];
-    }
-
-    public String getAttributeValue(int index) {
-        return nodeStack.peek().attributes[index][1];
-    }
-
-    public static class Node {
+    public static class Node implements Iterable{
         public QName name;
         public StringBuilder text;
-        public String[][] attributes;
+        private Map<QName, String> attributes = new HashMap<QName, String>();
+
+        public void putAttribute(QName qname, String value){
+            attributes.put(qname, value);
+        }
+
+        public Iterator<Map.Entry<QName, String>>iterator() {
+            return new AttributeIterator(attributes.entrySet());
+        }
+    }
+
+    public static class AttributeIterator implements Iterator<Map.Entry<QName, String>>{
+        private Iterator<Map.Entry<QName, String>> iterator;
+
+        public AttributeIterator(Set<Map.Entry<QName, String>> entries) {
+            this.iterator = entries.iterator();
+        }
+
+        public boolean hasNext() {
+          return iterator.hasNext();
+        }
+
+        public Map.Entry<QName, String> next() {
+             return iterator.next();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("AttributeIterator does not implement method remove().");
+        }
     }
 
     public boolean findFirstNode(String nodeName) {
