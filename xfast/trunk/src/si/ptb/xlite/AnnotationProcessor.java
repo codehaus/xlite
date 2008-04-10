@@ -216,6 +216,13 @@ public class AnnotationProcessor {
                         (annotation.name().length() != 0 ? annotation.name() : field.getName());
                 QName qname = getQName(nodename, getFieldNamespaces(field), converter.getClassNamespaces());
 
+                // SPECIAL CASE!!!
+                // XML attributes with empty prefix DO NOT belong to default namespace
+                if (qname.getPrefix().equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                    String localPart = qname.getLocalPart();
+                    qname = new QName(localPart);
+                }
+
                 converter.addAttributeConverter(qname, new ValueMapper(field, valueConverter));
 
 //                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName

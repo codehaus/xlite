@@ -15,12 +15,12 @@ import org.testng.Assert;
 public class AttributeNsTest {
 
       static String xml = "<lower:aaa xmlns:lower = \"lowercase\" xmlns:upper = \"uppercase\"\n" +
-              "          xmlns:xnumber = \"xnumber\" >\n" +
+              "          xmlns:xnumber = \"xnumber\" xmlns=\"defaultNS\" >\n" +
               "          <lower:bbb lower:zz = \"11\" >\n" +
               "               <lower:ccc upper:WW = \"22\" />\n" +
               "          </lower:bbb>\n" +
               "          <upper:BBB lower:sss = \"***\" xnumber:S111 = \"???\" />\n" +
-              "          <xnumber:x111 />\n" +
+              "          <xnumber:x111 RRR=\"rrrdata\" />\n" +
               "     </lower:aaa>";
 
     @org.testng.annotations.Test
@@ -32,6 +32,7 @@ public class AttributeNsTest {
         xlite.addNamespace("l=lowercase");
         xlite.addNamespace("u=uppercase");
         xlite.addNamespace("xn=xnumber");
+        xlite.addNamespace("defaultNS");      // default namespace
         aaa a = (aaa) xlite.fromXML(reader);
 
         Assert.assertEquals(a.node_bbb.zz, 11);
@@ -39,8 +40,7 @@ public class AttributeNsTest {
         Assert.assertEquals(a.node_BBB.sss, "***");
         Assert.assertEquals(a.node_BBB.S111, "???");
         Assert.assertNotNull(a.node_x111);
-
-
+        Assert.assertEquals(a.node_x111.rrr, "rrrdata");
     }
 
     public static class aaa {
@@ -76,6 +76,8 @@ public class AttributeNsTest {
     }
 
     public static class x111 {
+        @XMLattribute("RRR")   // no NS defined, but this does NOT mean default ns
+        public String rrr;
     }
 
 }
