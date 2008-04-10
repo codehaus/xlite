@@ -60,7 +60,8 @@ public class NodeMapper {
         this.targetField = targetField;
         this.nodeConverter = nodeConverter;
         this.mappingContext = mappingContext;
-        // is this a CollectionConverting?
+
+        // is this a CollectionConverter?
         if (CollectionConverting.class.isAssignableFrom(nodeConverter.getClass())) {
             this.collectionConverter = (CollectionConverting) nodeConverter;
             XMLnode annotation = (XMLnode) targetField.getAnnotation(XMLnode.class);
