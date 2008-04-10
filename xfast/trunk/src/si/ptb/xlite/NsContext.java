@@ -15,11 +15,6 @@ public class NsContext implements NamespaceContext {
 
     public void addNamespace(String namespace) {
 
-        // default namespace is already by definition empty - so no need to redefine it
-        if (namespace.length() == 0) {
-            return;
-        }
-
         int index = namespace.indexOf('=');
         String prefix, nsURI;
         if (index > 0) {  // with prefix

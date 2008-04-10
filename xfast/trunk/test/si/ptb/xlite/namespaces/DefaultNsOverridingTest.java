@@ -8,6 +8,7 @@ import si.ptb.xlite.Xlite;
 import java.io.StringReader;
 
 /**
+ * Test where default namespaces are used, but namespaces for chosen elements can still be explicitly stated.
  * @author peter
  */
 public class DefaultNsOverridingTest {
