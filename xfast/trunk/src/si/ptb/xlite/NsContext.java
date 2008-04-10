@@ -34,28 +34,12 @@ public class NsContext implements NamespaceContext {
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
             nsURI = namespace;
         }
+//        System.out.println("namespace nsURi=" + nsURI + " prefix=" + prefix);
         namespaces.put(prefix, nsURI);
     }
 
     public String getNamespaceURI(String prefix) {
-
-        // default values need to be handled
-        if (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix)) {  // "" (empty prefix)
-            return XMLConstants.NULL_NS_URI; // "" (default namespace)
-
-        } else if (XMLConstants.XML_NS_PREFIX.equals(prefix)) {  // "xml"
-            return XMLConstants.XML_NS_URI; // "http://www.w3.org/XML/1998/namespace"
-
-        } else if (XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) {  // "xmlns"
-            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI; // "http://www.w3.org/2000/xmlns/"
-        }
-
-        String nsURI = namespaces.get(prefix);
-//        // sanity check
-//        if(nsURI == null){
-//            throw new RuntimeException("ERROR: namespaceURI shuld not be null!!!");
-//        }
-        return nsURI;
+        return namespaces.get(prefix);
     }
 
     public String getPrefix(String namespaceURI) {
