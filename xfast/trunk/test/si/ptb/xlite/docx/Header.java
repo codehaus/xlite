@@ -7,6 +7,5 @@ import si.ptb.xlite.XMLnamespaces;
  * Date: Dec 30, 2007
  * Time: 11:08:28 PM
  */
-@XMLnamespaces("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
 public class Header {
 }

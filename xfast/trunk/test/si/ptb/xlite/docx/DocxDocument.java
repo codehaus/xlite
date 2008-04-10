@@ -1,13 +1,11 @@
 package si.ptb.xlite.docx;
 
-import si.ptb.xlite.SampleXml;
 import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
-import si.ptb.xlite.XMLnamespaces;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * User: peter
@@ -15,27 +13,36 @@ import java.io.FileReader;
  * Time: 2:52:22 PM
  */
 
-@XMLnamespaces("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
 public class DocxDocument {
 
     private static String mainPartName = "word/document.xml";
     private static String settingsPartName = "word/settings.xml";
 
-    @XMLnode("wbody")
+    @XMLnode("w:body")
     public Body body;
 
-
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
-           Xlite xlite = new Xlite(DocxDocument.class, "wdocument");
+        Xlite xlite = new Xlite(DocxDocument.class, "w:document");
+        xlite.addNamespace("w=http://schemas.openxmlformats.org/wordprocessingml/2006/main");
 
-        FileReader reader = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document2_pp.xml");
+        FileReader reader3 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document_pp.xml");
         FileReader reader4 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
-        FileReader reader2 = new FileReader("/home/peter/test2.xml");
-        FileReader reader3 = new FileReader("/home/peter/test3.xml");
-        DocxDocument document = (DocxDocument) xlite.fromXML(reader);
+        DocxDocument document = (DocxDocument) xlite.fromXML(reader4);
 
-        System.out.println("duration: "+(System.currentTimeMillis() - start));
+        System.out.println("duration: " + (System.currentTimeMillis() - start));
+
+        FileWriter writer = new FileWriter("/home/peter/doc.html", false);
+        for (Paragraph paragraph : document.body.paragraphs) {
+            if (paragraph.runs != null) {
+                writer.append("\n");
+                for (Run run : paragraph.runs) {
+                    if (run.textnode != null) {
+                        writer.append(run.textnode.text);
+                    }
+                }
+            }
+        }
     }
 
 }

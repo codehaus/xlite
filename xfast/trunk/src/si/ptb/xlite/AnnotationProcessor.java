@@ -111,7 +111,9 @@ public class AnnotationProcessor {
                 // get QName that field maps to
                 String nodename = annotation.value().length() != 0 ? annotation.value() :
                         (annotation.name().length() != 0 ? annotation.name() : field.getName());
-                QName qname = getQName(nodename, getFieldNamespaces(field), converter.getClassNamespaces());
+                NsContext fieldNS = getFieldNamespaces(field);
+                NsContext classNS = converter.getClassNamespaces();
+                QName qname = getQName(nodename, fieldNS, classNS);
 
                 NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
                 converter.addNodeConverter(qname, submapper);
@@ -153,7 +155,7 @@ public class AnnotationProcessor {
         String theURI = fieldNsURI != null ? fieldNsURI :
                 (classNsURI != null ? classNsURI :
                         (predefinedNsURI != null ? predefinedNsURI : XMLConstants.DEFAULT_NS_PREFIX));
-
+        System.out.println("namespace URI=" + theURI + " local=" + localPart + " prefix=" + prefix);
         return new QName(theURI, localPart, prefix);
     }
 
@@ -275,5 +277,6 @@ public class AnnotationProcessor {
 //                    + " converter:" + valueConverter.getClass().getSimpleName());
         }
     }
+
 
 }

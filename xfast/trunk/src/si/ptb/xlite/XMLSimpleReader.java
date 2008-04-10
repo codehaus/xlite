@@ -185,10 +185,10 @@ public class XMLSimpleReader {
         }
     }
 
-    public boolean findFirstNode(String nodeName) {
+    public boolean findFirstNode(QName qName) {
         while (true) {
             if (nextNodeBoundary(false)) {
-                if (reader.getName().getLocalPart().equals(nodeName)) {
+                if (reader.getName().equals(qName)) {
                     moveDown();
                     return true;
                 }

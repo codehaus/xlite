@@ -14,7 +14,7 @@ import java.io.StringReader;
 public class XliteTest {
 
     @Test
-    public void basicTest() throws XMLStreamException {
+    public void basicTest() {
 
         StringReader reader = new StringReader(SampleXml.xml);
         Xlite xlite = new Xlite(SampleXml.One.class, "one");

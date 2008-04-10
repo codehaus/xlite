@@ -135,7 +135,7 @@ public class SimpleReaderTest {
      @org.testng.annotations.Test
     public void anotherTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(SampleXml.xml);
-         reader.findFirstNode("one"); // first node we start with
+         reader.findFirstNode(new QName("one")); // first node we start with
          Node rootNode = processSubNodes(reader).get(0);
     }
 

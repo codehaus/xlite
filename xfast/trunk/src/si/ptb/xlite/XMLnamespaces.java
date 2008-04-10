@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * @author peter
  */
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.TYPE, ElementType.FIELD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface XMLnamespaces {
     String[] value() default {};

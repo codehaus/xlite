@@ -20,7 +20,7 @@ public class NsContext implements NamespaceContext {
             return;
         }
 
-        int index = namespace.indexOf(':');
+        int index = namespace.indexOf('=');
         String prefix, nsURI;
         if (index > 0) {  // with prefix
             prefix = namespace.substring(0, index);
@@ -51,10 +51,10 @@ public class NsContext implements NamespaceContext {
         }
 
         String nsURI = namespaces.get(prefix);
-        // sanity check
-        if(nsURI == null){
-            throw new RuntimeException("ERROR: namespaceURI shuld not be null!!!");
-        }
+//        // sanity check
+//        if(nsURI == null){
+//            throw new RuntimeException("ERROR: namespaceURI shuld not be null!!!");
+//        }
         return nsURI;
     }
 

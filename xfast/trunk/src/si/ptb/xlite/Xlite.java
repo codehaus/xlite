@@ -2,14 +2,15 @@ package si.ptb.xlite;
 
 import si.ptb.xlite.converters.*;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 
 /**
@@ -23,21 +24,58 @@ public class Xlite {
     private List<NodeConverter> nodeConverters;
     private List<ValueConverter> valueConverters;
     private MappingContext mappingContext;
-    Map<String, String> predefinedNamespaces;
+
+    private boolean initialized = false;
+    private Class rootClass;
+    private String rootNodeName;
+    private String rootNodeNS = XMLConstants.NULL_NS_URI;
 
     public Xlite(Class rootClass, String nodeName) {
+        this(rootClass, nodeName, null);
+    }
+
+    public Xlite(Class rootClass, String nodeName, String namespaceURI) {
         setupValueConverters();
         setupNodeConverters();
-        mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
-        this.rootNodeMapper = new RootMapper(nodeName, rootClass, mappingContext);
+        this.rootClass = rootClass;
+        this.rootNodeName = nodeName;
+        this.rootNodeNS = namespaceURI;
+        this.mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
+    }
+
+    private void initialize() {
+        if (!initialized) {
+            // split xml node name into prefix and local part
+            int index = rootNodeName.indexOf(':');
+            String rootNodeLocalpart;
+            String rootNodePrefix;
+            if (index > 0) {  // with prefix ("prefix:localpart")
+                rootNodePrefix = rootNodeName.substring(0, index);
+                rootNodeLocalpart = rootNodeName.substring(index + 1, rootNodeName.length());
+
+            } else if (index == 0) { // empty prefix (no prefix defined - e.g ":nodeName")
+                rootNodePrefix = XMLConstants.DEFAULT_NS_PREFIX;
+                rootNodeLocalpart = rootNodeName.substring(1, rootNodeName.length());
+
+            } else { // no prefix given
+                rootNodePrefix = XMLConstants.DEFAULT_NS_PREFIX;
+                rootNodeLocalpart = rootNodeName;
+            }
+
+            // namespace  of root element is not defined
+            if (rootNodeNS == null) {
+                rootNodeNS = mappingContext.getPredefinedNamespaces().getNamespaceURI(rootNodePrefix);
+            }
+            this.rootNodeMapper = new RootMapper(new QName(rootNodeNS, rootNodeLocalpart, rootNodePrefix), rootClass, mappingContext);
+            initialized = true;
+        }
     }
 
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
-
         nodeConverters.add(new CollectionConverter());
 
-        // wraps every ValueConverters so that it can be used as a NodeConverter
+        // wraps every ValueConverter so that it can be used as a NodeConverter
         for (ValueConverter valueConverter : valueConverters) {
             nodeConverters.add(new ValueConverterWrapper(valueConverter));
         }
@@ -59,12 +97,13 @@ public class Xlite {
 
     }
 
-    public void addNamespace(String namespace){
+    public void addNamespace(String namespace) {
         mappingContext.addNamespace(namespace);
     }
 
 
     public Object fromXML(Reader reader) {
+        initialize();
 
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xmlreader = null;
@@ -79,7 +118,9 @@ public class Xlite {
     }
 
     public void toXML(Object source, Writer writer) {
+        initialize();
 
     }
+
 
 }

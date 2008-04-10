@@ -11,10 +11,9 @@ import java.util.List;
  * Date: Dec 27, 2007
  * Time: 3:07:49 PM
  */
-@XMLnamespaces("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
 public class Paragraph {
 
-    @XMLnode(value = "r", itemType = Run.class)
+    @XMLnode(value = "w:r", itemType = Run.class)
     public List<Run> runs;
 
 }

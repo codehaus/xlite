@@ -10,10 +10,9 @@ import si.ptb.xlite.XMLnamespaces;
  * Date: Jan 11, 2008
  * Time: 1:04:13 PM
  */
-@XMLnamespaces("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
 public class Run {
 
-    @XMLnode("t")
+    @XMLnode("w:t")
     public Text textnode;
 
 }

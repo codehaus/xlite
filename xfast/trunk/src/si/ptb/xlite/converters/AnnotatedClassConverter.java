@@ -97,7 +97,7 @@ public class AnnotatedClassConverter implements NodeConverter {
             if (attrMapper != null) {
                 attrMapper.setValue(currentObject, attrValue);
             }
-            System.out.println("ATTR: " + attrQName);
+//            System.out.println("ATTR: " + attrQName);
         }        
 
         // XML subnodes

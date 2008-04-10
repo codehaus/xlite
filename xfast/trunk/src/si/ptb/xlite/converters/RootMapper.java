@@ -4,18 +4,20 @@ import si.ptb.xlite.MappingContext;
 import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XliteException;
 
+import javax.xml.namespace.QName;
+
 /**
  * @author peter
  */
 public class RootMapper {
 
-    private String rootNodeName;
+    private QName rootNodeName;
     private Class rootClass;
     private MappingContext mappingContext;
     private NodeConverter nodeConverter;
 
 
-    public RootMapper(String rootNodeName, Class rootClass, MappingContext mappingContext) {
+    public RootMapper(QName rootNodeName, Class rootClass, MappingContext mappingContext) {
         nodeConverter = mappingContext.lookupNodeConverter(rootClass);
         NodeMapper mapper = new NodeMapper(null, nodeConverter, mappingContext);
         this.rootNodeName = rootNodeName;
