@@ -30,8 +30,6 @@ public class DefaultNSEachSubnode {
     public void test() {
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(aaa.class, "aaa");
-
-        // predefined namespaces
         aaa a = (aaa) xlite.fromXML(reader);
 
         Assert.assertTrue(a.node_bbb.node_ccc != null);
