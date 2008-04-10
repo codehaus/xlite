@@ -155,7 +155,7 @@ public class AnnotationProcessor {
         String theURI = fieldNsURI != null ? fieldNsURI :
                 (classNsURI != null ? classNsURI :
                         (predefinedNsURI != null ? predefinedNsURI : XMLConstants.DEFAULT_NS_PREFIX));
-        System.out.println("namespace URI=" + theURI + " local=" + localPart + " prefix=" + prefix);
+//        System.out.println("namespace URI=" + theURI + " local=" + localPart + " prefix=" + prefix);
         return new QName(theURI, localPart, prefix);
     }
 

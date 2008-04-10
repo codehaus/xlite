@@ -18,7 +18,7 @@ import java.util.*;
 public class XMLSimpleReader {
 
     private XMLStreamReader reader;
-    private Stack<Node> nodeStack = new Stack<Node>();    //todo replace this with NodeQueue (stack with cursor)
+    private Stack<Node> nodeStack = new Stack<Node>();
     private boolean isEnd = false;
 
     public XMLSimpleReader(XMLStreamReader reader) {
