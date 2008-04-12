@@ -31,7 +31,7 @@ public class DocxDocument {
         FileReader reader3 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document_pp.xml");
         for (int i = 0; i < 1; i++) {
             long start = System.currentTimeMillis();
-            document = (DocxDocument) xlite.fromXML(reader3);
+            document = (DocxDocument) xlite.fromXML(reader4);
 
             System.out.println("duration: " + (System.currentTimeMillis() - start));
 

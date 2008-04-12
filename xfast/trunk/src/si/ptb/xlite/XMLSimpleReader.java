@@ -211,12 +211,19 @@ public class XMLSimpleReader {
 
     public int saveSubTree(SubTreeStore store){
         int pos = store.getPosition();
+        int event = reader.getEventType();
+        int depth = 0;
+        boolean continueLoop = true;
+//        if(event == XMLStreamConstants.START_ELEMENT){
+//            depth = 1;
+//        } else if(event == XMLStreamConstants.END_ELEMENT){
+//            depth = 0;
+//        } else{
+//           continueLoop = false;
+//        }
         QName qName;
-        boolean emptyElement = false;
-        int emptyElementIndex = 0;
         String name;
-        StringBuffer elementText = new StringBuffer();
-        for (int event = reader.getEventType(); event != XMLStreamConstants.END_DOCUMENT; event = nextEvent()) {
+        while (true) {
             switch (event) {
                 case XMLStreamConstants.START_DOCUMENT:
 //                    settings.encoding = reader.getCharacterEncodingScheme();
@@ -226,6 +233,7 @@ public class XMLSimpleReader {
                     store.addElement(XMLStreamConstants.END_DOCUMENT);
                     break;
                 case XMLStreamConstants.START_ELEMENT:
+                    depth++;
                     qName = reader.getName();
                     name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
@@ -236,6 +244,11 @@ public class XMLSimpleReader {
                     qName = reader.getName();
                     name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
+                    if(depth == 0){
+                        return pos;
+                    }
+                    depth--;
+                    break;
                 case XMLStreamConstants.CHARACTERS:
                     store.addElement(XMLStreamConstants.CHARACTERS, reader.getText(), settings.encoding);
                     break;
@@ -248,8 +261,8 @@ public class XMLSimpleReader {
                 default:
                     System.out.println("other tag: " + reader.getEventType());
             }
+            event = nextEvent();
         }
-        return pos;
     }
 
 
