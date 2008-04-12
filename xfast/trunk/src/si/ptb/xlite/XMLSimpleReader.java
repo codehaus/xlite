@@ -18,6 +18,8 @@ import java.util.*;
 public class XMLSimpleReader {
 
     private XMLStreamReader reader;
+    private XmlStreamSettings settings;
+
     private Stack<Node> nodeStack = new Stack<Node>();
     private boolean isEnd = false;
 
@@ -49,7 +51,13 @@ public class XMLSimpleReader {
 
         // reset the accumulated Text
         if (!nodeStack.isEmpty()) {
-            nodeStack.peek().text = new StringBuilder();
+//            nodeStack.peek().text = new StringBuilder();
+            StringBuilder sb = nodeStack.peek().text;
+            if (sb == null) {
+                nodeStack.peek().text = new StringBuilder();
+            } else {
+                sb.delete(0, sb.length());
+            }
         }
 
         for (int event = nextEvent(); true; event = nextEvent()) {
@@ -88,7 +96,7 @@ public class XMLSimpleReader {
             node.name = reader.getName();
             int attrCount = reader.getAttributeCount();
             for (int i = 0; i < attrCount; i++) {
-                node.putAttribute(reader.getAttributeName(i),reader.getAttributeValue(i) );
+                node.putAttribute(reader.getAttributeName(i), reader.getAttributeValue(i));
             }
 //            System.out.println("push:" + node.name.getLocalPart());
             nodeStack.push(node);
@@ -134,14 +142,14 @@ public class XMLSimpleReader {
     }
 
     public String getText() {
-        if(nodeStack.isEmpty()){
+        if (nodeStack.isEmpty()) {
             return null;
         }
         return nodeStack.peek().text.toString();
     }
 
     public QName getName() {
-        if(nodeStack.isEmpty()){
+        if (nodeStack.isEmpty()) {
             return null;
         }
         return nodeStack.peek().name;
@@ -151,21 +159,21 @@ public class XMLSimpleReader {
         return nodeStack.peek().iterator();
     }
 
-    public static class Node implements Iterable{
+    public static class Node implements Iterable {
         public QName name;
         public StringBuilder text;
         private Map<QName, String> attributes = new HashMap<QName, String>();
 
-        public void putAttribute(QName qname, String value){
+        public void putAttribute(QName qname, String value) {
             attributes.put(qname, value);
         }
 
-        public Iterator<Map.Entry<QName, String>>iterator() {
+        public Iterator<Map.Entry<QName, String>> iterator() {
             return new AttributeIterator(attributes.entrySet());
         }
     }
 
-    public static class AttributeIterator implements Iterator<Map.Entry<QName, String>>{
+    public static class AttributeIterator implements Iterator<Map.Entry<QName, String>> {
         private Iterator<Map.Entry<QName, String>> iterator;
 
         public AttributeIterator(Set<Map.Entry<QName, String>> entries) {
@@ -173,11 +181,11 @@ public class XMLSimpleReader {
         }
 
         public boolean hasNext() {
-          return iterator.hasNext();
+            return iterator.hasNext();
         }
 
         public Map.Entry<QName, String> next() {
-             return iterator.next();
+            return iterator.next();
         }
 
         public void remove() {
@@ -199,5 +207,50 @@ public class XMLSimpleReader {
             }
         }
     }
+
+
+    public int saveSubTree(SubTreeStore store) throws XMLStreamException {
+        int pos = store.getPosition();
+        QName qName;
+        boolean emptyElement = false;
+        int emptyElementIndex = 0;
+        String name;
+        StringBuffer elementText = new StringBuffer();
+        for (int event = reader.getEventType(); event != XMLStreamConstants.END_DOCUMENT; event = reader.next()) {
+            switch (event) {
+                case XMLStreamConstants.START_DOCUMENT:
+                    settings.encoding = reader.getCharacterEncodingScheme();
+                    store.addElement(XMLStreamConstants.START_DOCUMENT);
+                    break;
+                case XMLStreamConstants.END_DOCUMENT:
+                    store.addElement(XMLStreamConstants.END_DOCUMENT);
+                    break;
+                case XMLStreamConstants.START_ELEMENT:
+                    qName = reader.getName();
+                    name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                    store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
+                    store.addAtributes(reader, settings.encoding);
+                    store.addNamespaces(reader, settings.encoding);
+                    break;
+                case XMLStreamConstants.END_ELEMENT:
+                    qName = reader.getName();
+                    name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                    store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
+                case XMLStreamConstants.CHARACTERS:
+                    store.addElement(XMLStreamConstants.CHARACTERS, reader.getText(), settings.encoding);
+                    break;
+                case XMLStreamConstants.CDATA:
+                    store.addElement(XMLStreamConstants.CDATA, reader.getText(), settings.encoding);
+                    break;
+                case XMLStreamConstants.SPACE:
+                    store.addElement(XMLStreamConstants.SPACE, reader.getText(), settings.encoding);
+                    break;
+                default:
+                    System.out.println("other tag: " + reader.getEventType());
+            }
+        }
+        return pos;
+    }
+
 
 }

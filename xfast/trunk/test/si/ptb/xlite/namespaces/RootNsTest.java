@@ -38,7 +38,6 @@ public class RootNsTest {
         Assert.assertTrue(a.node_bbb.node_ccc != null);
         Assert.assertTrue(a.node_BBB.node_CCC != null);
         Assert.assertTrue(a.node_x111.node_x222 != null);
-
     }
 
     public static class aaa {

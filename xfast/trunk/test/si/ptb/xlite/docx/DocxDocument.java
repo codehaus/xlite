@@ -22,15 +22,20 @@ public class DocxDocument {
     public Body body;
 
     public static void main(String[] args) throws IOException {
-        long start = System.currentTimeMillis();
-        Xlite xlite = new Xlite(DocxDocument.class, "w:document");
-        xlite.addNamespace("w=http://schemas.openxmlformats.org/wordprocessingml/2006/main");
 
-        FileReader reader3 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document_pp.xml");
-        FileReader reader4 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
-        DocxDocument document = (DocxDocument) xlite.fromXML(reader4);
+        DocxDocument document = null;
+            Xlite xlite = new Xlite(DocxDocument.class, "w:document");
+            xlite.addNamespace("w=http://schemas.openxmlformats.org/wordprocessingml/2006/main");
 
-        System.out.println("duration: " + (System.currentTimeMillis() - start));
+            FileReader reader3 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 3 - Primer/word/document_pp.xml");
+        for (int i = 0; i < 1; i++) {
+            long start = System.currentTimeMillis();
+            FileReader reader4 = new FileReader("/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml");
+            document = (DocxDocument) xlite.fromXML(reader4);
+
+            System.out.println("duration: " + (System.currentTimeMillis() - start));
+
+        }
 
         FileWriter writer = new FileWriter("/home/peter/doc.html", false);
         for (Paragraph paragraph : document.body.paragraphs) {

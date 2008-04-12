@@ -1,17 +1,18 @@
 package si.ptb.xlite;
 
-import si.ptb.xlite.ArrayUtil;
-
 import javax.xml.namespace.QName;
-import javax.xml.stream.*;
-import java.io.*;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 /**
  * User: peter
  * Date: Feb 21, 2008
  * Time: 3:49:11 PM
  */
-public class SubTreeStore {      // todo refactor to use SimpleReader
+public class SubTreeStore {
 
     private static final byte START_ELEMENT = 1;
     private static final byte END_ELEMENT = 2;
@@ -22,6 +23,7 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
     private static final byte END_DOCUMENT = 7;
     private static final byte NAMESPACE = 8;
     private static final byte EMPTY_ELEMENT = 9;
+    private static final byte COMMENT = 10;
 
 
     public byte[] data;
@@ -29,13 +31,22 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
     private int last = 0;
     private int increment = 1000000;
     private boolean writingFinished = false;
+    private XmlStreamSettings xmlStreamSettings;
 
     public SubTreeStore(int size) {
         data = new byte[size];
     }
 
+    public int getPosition() {
+        return last;
+    }
+
+    public void addSetings(XmlStreamSettings settings){
+        this.xmlStreamSettings = settings;
+    }
+
     public int saveSubTree(XMLStreamReader reader) throws XMLStreamException {
-        int pos = last;
+        int pos = getPosition();
         QName qName;
         boolean emptyElement = false;
         int emptyElementIndex = 0;
@@ -62,7 +73,7 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
 
                     emptyElementIndex = last;
                     qName = reader.getName();
-                    name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                    name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     emptyElementIndex = addElement(START_ELEMENT, name, encoding);
                     emptyElement = true;
                     addAtributes(reader, encoding);
@@ -79,7 +90,7 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
                         replaceStartWithEmpty(emptyElementIndex);
                     } else {
                         qName = reader.getName();
-                        name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                        name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                         addElement(END_ELEMENT, name, encoding);
                     }
                     emptyElement = false;
@@ -108,23 +119,23 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
         data[index] = EMPTY_ELEMENT;
     }
 
-    private void addAtributes(XMLStreamReader reader, String encoding) {
+    public void addAtributes(XMLStreamReader reader, String encoding) {
         QName qName;
         String name;
         for (int i = 0, n = reader.getAttributeCount(); i < n; ++i) {
             qName = reader.getAttributeName(i);
-            name = qName.getPrefix().length()==0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-            addElement(ATTR, name + "=" + reader.getAttributeValue(i), encoding);
+            name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+            addElement(XMLStreamConstants.ATTRIBUTE, name + "=" + reader.getAttributeValue(i), encoding);
         }
     }
 
-    private void addNamespaces(XMLStreamReader reader, String encoding) {
+    public void addNamespaces(XMLStreamReader reader, String encoding) {
         String uri;
         String prefix;
         for (int i = 0, n = reader.getNamespaceCount(); i < n; ++i) {
             uri = reader.getNamespaceURI(i);
             prefix = reader.getNamespacePrefix(i);
-            addElement(NAMESPACE, prefix + "=" + uri, encoding);
+            addElement(XMLStreamConstants.NAMESPACE, prefix + "=" + uri, encoding);
         }
     }
 
@@ -163,7 +174,7 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
                     attrName = data.substring(0, index);
                     attrValue = data.substring(index + 1, data.length());
                     if (index == -1) {
-                        throw new XliteException("Error in attribute syntax!");
+                        throw new XliteException("SubTreeStore: Error in attribute syntax!");
                     }
                     writer.writeAttribute(attrName, attrValue);
                     break;
@@ -189,11 +200,12 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
         }
     }
 
-    private int addElement(byte command) {
+    public int addElement(int command) {
         return addElement(command, (byte[]) null);
     }
 
-    private int addElement(byte command, String source, String encoding) {
+    public int addElement(int command, String source, String encoding) {
+        encoding = encoding == null ? "UTF-8" : encoding;
         try {
             return addElement(command, source.getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
@@ -202,7 +214,7 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
         return -1;
     }
 
-    private int addElement(byte command, byte[] source) {
+    public int addElement(int commandID, byte[] source) {
 
         if (writingFinished) {
             throw new XliteException("Writing has finished for this SubTreeStore instance. " +
@@ -214,6 +226,13 @@ public class SubTreeStore {      // todo refactor to use SimpleReader
             throw new XliteException("Data too long: addElement() can only save byte arrays of max" +
                     " 65533 bytes long. Current length :" + len);
         }
+
+        byte command = (byte) commandID;
+        // sanity check
+        if (command != commandID) {
+            throw new XliteException("ERROR: SubTreeStore.addElement() received a commandID parameter that does not cast to byte!");
+        }
+
         needsResize(len + 3);
         last++;
         int start = last;
