@@ -3,9 +3,7 @@ package si.ptb.xlite;
 import si.ptb.xlite.converters.NodeConverter;
 import si.ptb.xlite.converters.ValueConverter;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author peter
@@ -17,18 +15,28 @@ public class MappingContext {
     private AnnotationProcessor annotationProcessor;
     private NsContext predefinedNamespaces = new NsContext();
 
+    private SubTreeStore nodeStore;
+
+    public MappingContext(List<NodeConverter> nodeConverters, List<ValueConverter> valueConverters, Class rootClass) {
+        this.nodeConverters = nodeConverters;
+        this.valueConverters = valueConverters;
+        annotationProcessor = new AnnotationProcessor(this);
+    }
+
+    public SubTreeStore getNodeStore() {
+        return nodeStore;
+    }
+
+    public void setNodeStore(SubTreeStore nodeStore) {
+        this.nodeStore = nodeStore;
+    }
+
     public NsContext getPredefinedNamespaces() {
         return predefinedNamespaces;
     }
 
     public void addNamespace(String namespace){
         predefinedNamespaces.addNamespace(namespace);
-    }
-
-    public MappingContext(List<NodeConverter> nodeConverters, List<ValueConverter> valueConverters, Class rootClass) {
-        this.nodeConverters = nodeConverters;
-        this.valueConverters = valueConverters;
-        annotationProcessor = new AnnotationProcessor(this);
     }
 
     public Object processNextNode(Class targetType, XMLSimpleReader reader) {

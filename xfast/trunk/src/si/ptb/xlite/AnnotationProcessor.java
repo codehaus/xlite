@@ -29,6 +29,7 @@ public class AnnotationProcessor {
     public NodeConverter processClass(Class currentClass) {
 
         AnnotatedClassConverter annotatedClassConverter = new AnnotatedClassConverter(currentClass);
+        annotatedClassConverter.setNodeStorage(mappingContext.getNodeStore());
 
         // find and process @XMLnamespaces annotation
         processClassNamespaces(currentClass, annotatedClassConverter);

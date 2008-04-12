@@ -18,7 +18,7 @@ import java.util.*;
 public class XMLSimpleReader {
 
     private XMLStreamReader reader;
-    private XmlStreamSettings settings;
+    private XmlStreamSettings settings = new XmlStreamSettings();
 
     private Stack<Node> nodeStack = new Stack<Node>();
     private boolean isEnd = false;
@@ -51,7 +51,6 @@ public class XMLSimpleReader {
 
         // reset the accumulated Text
         if (!nodeStack.isEmpty()) {
-//            nodeStack.peek().text = new StringBuilder();
             StringBuilder sb = nodeStack.peek().text;
             if (sb == null) {
                 nodeStack.peek().text = new StringBuilder();
@@ -64,6 +63,7 @@ public class XMLSimpleReader {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
 //                    System.out.println("start: " + reader.getName());
+                    settings.encoding = reader.getEncoding();
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
 //                    System.out.println("end document ");
@@ -209,17 +209,17 @@ public class XMLSimpleReader {
     }
 
 
-    public int saveSubTree(SubTreeStore store) throws XMLStreamException {
+    public int saveSubTree(SubTreeStore store){
         int pos = store.getPosition();
         QName qName;
         boolean emptyElement = false;
         int emptyElementIndex = 0;
         String name;
         StringBuffer elementText = new StringBuffer();
-        for (int event = reader.getEventType(); event != XMLStreamConstants.END_DOCUMENT; event = reader.next()) {
+        for (int event = reader.getEventType(); event != XMLStreamConstants.END_DOCUMENT; event = nextEvent()) {
             switch (event) {
                 case XMLStreamConstants.START_DOCUMENT:
-                    settings.encoding = reader.getCharacterEncodingScheme();
+//                    settings.encoding = reader.getCharacterEncodingScheme();
                     store.addElement(XMLStreamConstants.START_DOCUMENT);
                     break;
                 case XMLStreamConstants.END_DOCUMENT:

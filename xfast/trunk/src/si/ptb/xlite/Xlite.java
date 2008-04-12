@@ -26,8 +26,10 @@ public class Xlite {
     private MappingContext mappingContext;
 
     private boolean initialized = false;
+    public boolean isStoringUnknownNodes;
     private Class rootClass;
     private String rootNodeName;
+
     private String rootNodeNS = XMLConstants.NULL_NS_URI;
 
     public Xlite(Class rootClass, String nodeName) {
@@ -44,7 +46,17 @@ public class Xlite {
     }
 
     private void initialize() {
+
+        // initialize storing unknown nodes
+        if (isStoringUnknownNodes) {
+            mappingContext.setNodeStore(new SubTreeStore(1000000));
+        } else {
+            mappingContext.setNodeStore(null);
+        }
+
+        // one-time initialization
         if (!initialized) {
+
             // split xml node name into prefix and local part
             int index = rootNodeName.indexOf(':');
             String rootNodeLocalpart;
@@ -93,7 +105,6 @@ public class Xlite {
         valueConverters.add(new BooleanConverter());
         valueConverters.add(new ByteConverter());
         valueConverters.add(new CharConverter());
-
 
     }
 

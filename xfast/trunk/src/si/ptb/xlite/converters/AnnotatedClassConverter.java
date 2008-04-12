@@ -14,15 +14,28 @@ import java.util.Map;
  */
 public class AnnotatedClassConverter implements NodeConverter {
 
-    private SubTreeStore unknownNodeStorage;
+    private SubTreeStore nodeStorage;
+
     private Class targetClass;
+
     private ValueMapper valueMapper;
+
     private Map<QName, NodeMapper> nodeMappers = new HashMap<QName, NodeMapper>();
+
     private Map<QName, ValueMapper> attributeMappers = new HashMap<QName, ValueMapper>();
+
     private NsContext classNamespaces;
 
     public AnnotatedClassConverter(Class targetClass) {
         this.targetClass = targetClass;
+    }
+
+    public SubTreeStore getNodeStorage() {
+        return nodeStorage;
+    }
+
+    public void setNodeStorage(SubTreeStore nodeStorage) {
+        this.nodeStorage = nodeStorage;
     }
 
     public NsContext getClassNamespaces() {
@@ -91,14 +104,14 @@ public class AnnotatedClassConverter implements NodeConverter {
             Map.Entry<QName, String> entry = attributeSet.next();
             QName attrQName = entry.getKey();
             String attrValue = entry.getValue();
-             // find the attribute mapper
+            // find the attribute mapper
             ValueMapper attrMapper = attributeMappers.get(attrQName);
             // if mapper exists, use it to set field to attribute value
             if (attrMapper != null) {
                 attrMapper.setValue(currentObject, attrValue);
             }
 //            System.out.println("ATTR: " + attrQName);
-        }        
+        }
 
         // XML subnodes
         QName qname;
@@ -114,7 +127,9 @@ public class AnnotatedClassConverter implements NodeConverter {
 //                        " subConverter:" + subMapper.nodeConverter);
                 subMapper.setValue(currentObject, reader);
             } else {  // unknown subMapper
-//                System.out.println("UNKNOWN node: " + name);
+                if (nodeStorage != null) {
+                    reader.saveSubTree(nodeStorage);
+                }
             }
             reader.moveUp();
 //            System.out.println("#### POSITION: "+reader.getName());
