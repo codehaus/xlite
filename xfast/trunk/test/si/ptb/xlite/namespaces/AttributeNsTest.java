@@ -6,8 +6,12 @@ import si.ptb.xlite.XMLnamespaces;
 import si.ptb.xlite.XMLattribute;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 
 import org.testng.Assert;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.xml.sax.SAXException;
 
 /**
  * @author peter
@@ -24,7 +28,7 @@ public class AttributeNsTest {
               "     </lower:aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(aaa.class, "l:aaa");
 
@@ -41,6 +45,14 @@ public class AttributeNsTest {
         Assert.assertEquals(a.node_BBB.S111, "???");
         Assert.assertNotNull(a.node_x111);
         Assert.assertEquals(a.node_x111.rrr, "rrrdata");
+
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+        System.out.println(xml);
+        System.out.println(sw.toString());
+        aaa a2 = (aaa) xlite.fromXML(new StringReader(sw.toString()));
+
+        XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
     public static class aaa {

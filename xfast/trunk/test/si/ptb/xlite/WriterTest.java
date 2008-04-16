@@ -1,6 +1,11 @@
 package si.ptb.xlite;
 
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.xml.sax.SAXException;
+
 import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -9,25 +14,38 @@ import java.io.StringWriter;
  */
 public class WriterTest {
 
-    static String xml1 = "<a xmlns=\"nsURI\"><b><c><d attr=\"DDD\" /></c></b></a>";
+    static String xml1 = "<a xmlns=\"ns1\" xmlns:sec=\"ns2\">\n" +
+            "<sec:b>\n" +
+            "<c>\n" +
+            "<d attr=\"DDD\" />\n" +
+            "</c>\n" +
+            "</sec:b>\n" +
+            "</a>";
 
     @org.testng.annotations.Test
-    public void test() throws XMLStreamException {
+    public void testEquality() throws XMLStreamException, IOException, SAXException {
         StringReader reader = new StringReader(xml1);
         StringWriter sw = new StringWriter();
 
-        Xlite xlite = new Xlite(A.class, "a", "nsURI");
+        Xlite xlite = new Xlite(A.class, "a", "ns1");
+        xlite.addNamespace("ns1");
+//        xlite.addNamespace("s=ns2");
         A a = (A) xlite.fromXML(reader);
-        System.out.println("");
+        System.out.println(xml1);
         xlite.toXML(a, sw);
-        System.out.println("");
+        System.out.println(sw);
+
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml1, sw.toString());
     }
 
     public static class A {
-        @XMLnode
+        @XMLnamespaces("s=ns2")
+        @XMLnode("s:b")
         public B b;
     }
 
+    //    @XMLnamespaces("ns2")
     public static class B {
         @XMLnode
         public C c;

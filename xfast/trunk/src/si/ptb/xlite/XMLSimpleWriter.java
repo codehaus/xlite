@@ -1,11 +1,9 @@
 package si.ptb.xlite;
 
 import javax.xml.namespace.QName;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Map;
-import java.util.Iterator;
 
 /**
  * @author peter
@@ -16,9 +14,35 @@ public class XMLSimpleWriter {
     private XmlStreamSettings settings = new XmlStreamSettings();
     private boolean firstNode = true;
 
-    public XMLSimpleWriter(XMLStreamWriter writer, XmlStreamSettings settings) {
+    public final boolean isPrettyPrinting;
+    private StringBuilder tabs = new StringBuilder("\n");
+
+    public XMLSimpleWriter(XMLStreamWriter writer, XmlStreamSettings settings, boolean preetyPrint) {
         this.settings = settings;
         this.writer = writer;
+        this.isPrettyPrinting = preetyPrint;
+    }
+
+    private void prettyPrint() {
+        if (isPrettyPrinting) {
+            try {
+                writer.writeCharacters(tabs.toString());
+            } catch (XMLStreamException e) {
+                throw new XliteException(e);
+            }
+        }
+    }
+
+    private void ppIncreaseDepth() {
+        if (isPrettyPrinting) {
+            tabs.insert(1, "  ");
+        }
+    }
+
+    private void ppDecreaseDepth() {
+        if (isPrettyPrinting) {
+            tabs.delete(1, 3);
+        }
     }
 
     public void startDocument() {
@@ -29,7 +53,7 @@ public class XMLSimpleWriter {
         }
     }
 
-    public void writeNamespaces(NsContext context){
+    public void writeNamespaces(NsContext context) {
         try {
             for (Map.Entry<String, String> nsEntry : context) {
                 writer.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
@@ -49,6 +73,8 @@ public class XMLSimpleWriter {
 
     public void startNode(QName qname) {
         try {
+            prettyPrint();
+            ppIncreaseDepth();
             String prefix = qname.getPrefix();
             String localName = qname.getLocalPart();
             String namespaceURI = qname.getNamespaceURI();
@@ -60,6 +86,8 @@ public class XMLSimpleWriter {
 
     public void endNode() {
         try {
+            ppDecreaseDepth();
+            prettyPrint();
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new XliteException(e);
@@ -80,6 +108,7 @@ public class XMLSimpleWriter {
 
     public void addText(String text) {
         try {
+            prettyPrint();
             writer.writeCharacters(text);
         } catch (XMLStreamException e) {
             throw new XliteException(e);
@@ -88,6 +117,7 @@ public class XMLSimpleWriter {
 
     public void addCDATA(String data) {
         try {
+            prettyPrint();
             writer.writeCData(data);
         } catch (XMLStreamException e) {
             throw new XliteException(e);
@@ -96,6 +126,7 @@ public class XMLSimpleWriter {
 
     public void addComment(String text) {
         try {
+            prettyPrint();
             writer.writeComment(text);
         } catch (XMLStreamException e) {
             throw new XliteException(e);

@@ -11,6 +11,8 @@
     <orderEntry type="library" name="TestNG" level="application" />
     <orderEntry type="library" name="xpp3" level="application" />
     <orderEntry type="library" name="StaX" level="application" />
+    <orderEntry type="library" name="XMLUnit 1.1" level="application" />
+    <orderEntry type="library" name="JUnit" level="application" />
     <orderEntryProperties />
   </component>
 </module>

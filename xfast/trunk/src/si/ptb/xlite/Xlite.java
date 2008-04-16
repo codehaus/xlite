@@ -29,6 +29,7 @@ public class Xlite {
     private String rootNodeName;
 
     private String rootNodeNS = XMLConstants.NULL_NS_URI;
+    private boolean isPrettyPrint = true;
 
     public Xlite(Class rootClass, String nodeName) {
         this(rootClass, nodeName, null);
@@ -41,6 +42,10 @@ public class Xlite {
         this.rootNodeName = nodeName;
         this.rootNodeNS = namespaceURI;
         this.mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
+    }
+
+    public void setPrettyPrint(boolean prettyPrint){
+        this.isPrettyPrint = prettyPrint;
     }
 
     private void initialize() {
@@ -137,7 +142,7 @@ public class Xlite {
         } catch (XMLStreamException e) {
             throw new XliteException("Error initalizing XMLStreamWriter", e);
         }
-        XMLSimpleWriter simpleWriter = new XMLSimpleWriter(parser, new XmlStreamSettings());
+        XMLSimpleWriter simpleWriter = new XMLSimpleWriter(parser, new XmlStreamSettings(), isPrettyPrint);
 
         rootNodeMapper.toXML(source, simpleWriter);
 
