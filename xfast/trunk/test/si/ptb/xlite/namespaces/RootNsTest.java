@@ -6,9 +6,11 @@ import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
 
 import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * Test where all namespaces are defined in root node
+ *
  * @author peter
  */
 public class RootNsTest {
@@ -28,6 +30,7 @@ public class RootNsTest {
     @org.testng.annotations.Test
     public void test() {
         StringReader reader = new StringReader(xml);
+        StringWriter writer = new StringWriter();
         Xlite xlite = new Xlite(aaa.class, "l:aaa");
 
         // predefined namespaces
@@ -38,6 +41,11 @@ public class RootNsTest {
         Assert.assertTrue(a.node_bbb.node_ccc != null);
         Assert.assertTrue(a.node_BBB.node_CCC != null);
         Assert.assertTrue(a.node_x111.node_x222 != null);
+
+        xlite.toXML(a, writer);
+
+        System.out.println(writer.toString());
+
     }
 
     public static class aaa {

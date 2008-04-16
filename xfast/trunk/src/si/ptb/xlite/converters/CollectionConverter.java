@@ -24,7 +24,7 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
     }
 
     public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
-        //todo finish this
+        throw new UnsupportedOperationException("method not implemented yet!!");
     }
 
     public Collection initializeCollection(Class targetType) {

@@ -2,6 +2,7 @@ package si.ptb.xlite.converters;
 
 import si.ptb.xlite.MappingContext;
 import si.ptb.xlite.XMLSimpleReader;
+import si.ptb.xlite.XMLSimpleWriter;
 import si.ptb.xlite.XliteException;
 
 import javax.xml.namespace.QName;
@@ -32,6 +33,13 @@ public class RootMapper {
             throw new XliteException("Root node <" + rootNodeName + "> could not be found in XML data");
         }
 
+    }
+
+    public void toXML(Object object, XMLSimpleWriter writer) {
+        writer.writeNamespaces(mappingContext.getPredefinedNamespaces());
+        writer.startNode(rootNodeName);
+        nodeConverter.toNode(object, writer, mappingContext);
+        writer.endNode();
     }
 
 }

@@ -139,7 +139,28 @@ public class AnnotatedClassConverter implements NodeConverter {
     }
 
     public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
+        // write attributes
+        for (QName attrName : attributeMappers.keySet()) {
+            ValueMapper mapper = attributeMappers.get(attrName);
+            String value = mapper.getValue(object);
+            writer.addAttribute(attrName, value);
+        }
+
+        // write node's value
+        if(valueMapper != null){
+            writer.addText(valueMapper.getValue(object));
+        }
+
+        // write subnodes
+        for (QName subName : nodeMappers.keySet()) {
+            writer.startNode(subName);
+            NodeMapper nodeMapper = nodeMappers.get(subName);
+            nodeMapper.writeNode(object, writer);
+            writer.endNode();
+        }
+
+
     }
 
     public void printContents(String prefix) {

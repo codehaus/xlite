@@ -4,9 +4,7 @@ import si.ptb.xlite.converters.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.*;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -121,7 +119,7 @@ public class Xlite {
         try {
             xmlreader = factory.createXMLStreamReader(reader);
         } catch (XMLStreamException e) {
-            throw new XliteException("Error reading XML data from Reader", e);
+            throw new XliteException("Error initalizing XMLStreamReader", e);
         }
         XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader);
 
@@ -130,6 +128,18 @@ public class Xlite {
 
     public void toXML(Object source, Writer writer) {
         initialize();
+
+        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
+        XMLStreamWriter parser = null;
+        try {
+            parser = factory.createXMLStreamWriter(writer);
+        } catch (XMLStreamException e) {
+            throw new XliteException("Error initalizing XMLStreamWriter", e);
+        }
+        XMLSimpleWriter simpleWriter = new XMLSimpleWriter(parser, new XmlStreamSettings());
+
+        rootNodeMapper.toXML(source, simpleWriter);
 
     }
 

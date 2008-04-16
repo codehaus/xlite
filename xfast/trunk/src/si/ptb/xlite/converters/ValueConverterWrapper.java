@@ -24,6 +24,6 @@ public class ValueConverterWrapper implements NodeConverter {
     }
 
     public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        writer.addText(valueConverter.toValue(object));
     }
 }

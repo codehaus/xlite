@@ -58,12 +58,16 @@ public class XMLSimpleReader {
                 sb.delete(0, sb.length());
             }
         }
+        if (reader.getEventType() == XMLStreamConstants.START_DOCUMENT) {
+            settings.encoding = reader.getEncoding();
+            settings.version = reader.getVersion();
+            settings.isStandalone = reader.isStandalone();
+        }
 
         for (int event = nextEvent(); true; event = nextEvent()) {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
 //                    System.out.println("start: " + reader.getName());
-                    settings.encoding = reader.getEncoding();
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
 //                    System.out.println("end document ");
@@ -209,7 +213,7 @@ public class XMLSimpleReader {
     }
 
 
-    public int saveSubTree(SubTreeStore store){
+    public int saveSubTree(SubTreeStore store) {
         int pos = store.getPosition();
         int event = reader.getEventType();
         int depth = 0;
@@ -244,7 +248,7 @@ public class XMLSimpleReader {
                     qName = reader.getName();
                     name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
-                    if(depth == 0){
+                    if (depth == 0) {
                         return pos;
                     }
                     depth--;

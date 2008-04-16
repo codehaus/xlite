@@ -3,10 +3,10 @@ package si.ptb.xlite;
 import org.testng.Assert;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.*;
 import java.io.StringReader;
+import java.io.Writer;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -17,8 +17,15 @@ public class SimpleReaderTest {
     private XMLSimpleReader getReader(String xmlString) throws XMLStreamException {
         StringReader sreader = new StringReader(xmlString);
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader parser = factory.createXMLStreamReader(sreader);  // todo make this a part of SimpleReader.getInstance()
+        XMLStreamReader parser = factory.createXMLStreamReader(sreader);  // todo make this a part of SimpleReader.newInstance()
         return new XMLSimpleReader(parser);
+    }
+
+    private XMLSimpleWriter getWriter(Writer writer) throws XMLStreamException {
+        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
+        XMLStreamWriter parser = factory.createXMLStreamWriter(writer);
+        return new XMLSimpleWriter(parser, new XmlStreamSettings());
     }
 
     static String xml1 = "<a><b><c><d attr=\"DDD\" /></c></b></a>";
@@ -26,6 +33,9 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void emptyElementWithAttributeTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml1);
+        StringWriter sw = new StringWriter();
+        XMLSimpleWriter writer = getWriter(sw);
+ 
         reader.nextNodeBoundary();
         Node rootNode = processSubNodes(reader).get(0);
 //        printNodes(rootNode, "");
@@ -33,6 +43,8 @@ public class SimpleReaderTest {
         Assert.assertEquals(rootNode.subnodes.get(0).name.getLocalPart(), "b");
         Assert.assertEquals(rootNode.subnodes.get(0).subnodes.get(0).name.getLocalPart(), "c");
         Assert.assertEquals(rootNode.subnodes.get(0).subnodes.get(0).subnodes.get(0).name.getLocalPart(), "d");
+
+
     }
 
     static String xml2 = "<a><b/><c/><d></d></a>";

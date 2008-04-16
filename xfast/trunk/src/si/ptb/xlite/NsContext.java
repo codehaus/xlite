@@ -9,9 +9,10 @@ import java.util.Map;
 /**
  * @author peter
  */
-public class NsContext implements NamespaceContext {
+public class NsContext implements NamespaceContext, Iterable<Map.Entry<String, String>> {
 
-    private Map<String, String> namespaces = new HashMap<String, String>();
+    private Map<String, String> prefixToNS = new HashMap<String, String>();
+    private Map<String, String> nsToPrefix = new HashMap<String, String>();
 
     public void addNamespace(String namespace) {
 
@@ -30,18 +31,23 @@ public class NsContext implements NamespaceContext {
             nsURI = namespace;
         }
 //        System.out.println("namespace nsURi=" + nsURI + " prefix=" + prefix);
-        namespaces.put(prefix, nsURI);
+        nsToPrefix.put(nsURI, prefix);
+        prefixToNS.put(prefix, nsURI);
+    }
+
+    public Iterator<Map.Entry<String, String>> iterator(){
+        return prefixToNS.entrySet().iterator();
     }
 
     public String getNamespaceURI(String prefix) {
-        return namespaces.get(prefix);
+        return prefixToNS.get(prefix);
     }
 
     public String getPrefix(String namespaceURI) {
-        throw new UnsupportedOperationException("Method getPrefix(String namespaceURI) in class NsContext is not implemented");
+        return nsToPrefix.get(namespaceURI);
     }
 
     public Iterator getPrefixes(String namespaceURI) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("Method getPrefixes(String namespaceURI) in class NsContext is not implemented");
     }
 }

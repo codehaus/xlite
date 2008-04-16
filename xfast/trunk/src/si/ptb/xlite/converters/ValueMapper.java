@@ -5,6 +5,8 @@
  */
 package si.ptb.xlite.converters;
 
+import si.ptb.xlite.XliteException;
+
 import java.lang.reflect.Field;
 
 /**
@@ -39,7 +41,13 @@ public class ValueMapper{
      * @return
      */
     public String getValue(Object object) {
-        return null;  //Todo implement this
+        Object targetObject = null;
+        try {
+            targetObject = targetField.get(object);
+            return valueConverter.toValue(targetObject);
+        } catch (IllegalAccessException e) {
+            throw new XliteException("Field could not be read! ", e);
+        }
     }
 
     public ValueMapper(Field targetField, ValueConverter valueConverter) {
