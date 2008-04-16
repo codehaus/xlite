@@ -5,8 +5,13 @@ import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.XMLnamespaces;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 
 import org.testng.Assert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.xml.sax.SAXException;
 
 /**
  * @author peter
@@ -24,7 +29,7 @@ public class NamespaceScopeTest {
               "     </aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(aaa.class, "aaa");
         aaa a = (aaa) xlite.fromXML(reader);
@@ -33,6 +38,12 @@ public class NamespaceScopeTest {
         Assert.assertNotNull(a.node_BBB.node_x111);
         Assert.assertNotNull(a.node_x111);
 
+                // writing back to XML
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+//        System.out.println(sw);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
     @XMLnamespaces("l=lowercase")

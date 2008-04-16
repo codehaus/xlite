@@ -1,12 +1,16 @@
 package si.ptb.xlite.namespaces;
 
 import org.testng.Assert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.xml.sax.SAXException;
 import si.ptb.xlite.XMLnamespaces;
 import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.IOException;
 
 /**
  * Test where all namespaces are defined in root node
@@ -28,7 +32,7 @@ public class RootNsTest {
             "     </lower:aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
         StringWriter writer = new StringWriter();
         Xlite xlite = new Xlite(aaa.class, "l:aaa");
@@ -43,9 +47,14 @@ public class RootNsTest {
         Assert.assertTrue(a.node_x111.node_x222 != null);
 
         xlite.toXML(a, writer);
-
         System.out.println(writer.toString());
 
+        // writing back to XML
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+        System.out.println(sw);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
     public static class aaa {

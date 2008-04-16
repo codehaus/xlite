@@ -1,14 +1,20 @@
 package si.ptb.xlite.namespaces;
 
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.Assert;
+import org.xml.sax.SAXException;
 import si.ptb.xlite.XMLnamespaces;
 import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 
 /**
  * Test where default namespaces are used, but namespaces for chosen elements can still be explicitly stated.
+ *
  * @author peter
  */
 public class DefaultNsOverridingTest {
@@ -32,9 +38,9 @@ public class DefaultNsOverridingTest {
             "     </aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
-        Xlite xlite = new Xlite(aaa.class, "l:aaa");
+        Xlite xlite = new Xlite(aaa.class, "aaa"); //todo THIS SHOULD BE AN ERROR <l:aaa> should not match <aaa>
 
         // predefined namespaces
         xlite.addNamespace("u=uppercase");
@@ -50,6 +56,14 @@ public class DefaultNsOverridingTest {
         Assert.assertTrue(a.node_x111.node_x222 != null);
         Assert.assertTrue(a.node_x111.node_WWW != null);
         Assert.assertTrue(a.node_x111.node_x666 != null);
+
+        // writing back to XML
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+        System.out.println(xml);
+        System.out.println(sw);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
     public static class aaa {

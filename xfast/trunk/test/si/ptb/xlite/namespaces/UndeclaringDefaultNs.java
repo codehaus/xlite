@@ -5,8 +5,13 @@ import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.XMLnamespaces;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 
 import org.testng.Assert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.xml.sax.SAXException;
 
 /**
  * @author peter
@@ -21,7 +26,7 @@ public class UndeclaringDefaultNs {
                "     </aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(aaa.class, "aaa");
 
@@ -30,6 +35,13 @@ public class UndeclaringDefaultNs {
         aaa a = (aaa) xlite.fromXML(reader);
 
         Assert.assertTrue(a.node_bbb.node_ccc.node_ddd != null);
+
+                // writing back to XML
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+//        System.out.println(sw);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, sw.toString());
 
     }
     public static class aaa {

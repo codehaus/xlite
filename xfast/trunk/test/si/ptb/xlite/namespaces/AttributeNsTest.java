@@ -1,31 +1,30 @@
 package si.ptb.xlite.namespaces;
 
-import si.ptb.xlite.Xlite;
-import si.ptb.xlite.XMLnode;
-import si.ptb.xlite.XMLnamespaces;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.testng.Assert;
+import org.xml.sax.SAXException;
 import si.ptb.xlite.XMLattribute;
+import si.ptb.xlite.XMLnode;
+import si.ptb.xlite.Xlite;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.IOException;
-
-import org.testng.Assert;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.xml.sax.SAXException;
 
 /**
  * @author peter
  */
 public class AttributeNsTest {
 
-      static String xml = "<lower:aaa xmlns:lower = \"lowercase\" xmlns:upper = \"uppercase\"\n" +
-              "          xmlns:xnumber = \"xnumber\" xmlns=\"defaultNS\" >\n" +
-              "          <lower:bbb lower:zz = \"11\" >\n" +
-              "               <lower:ccc upper:WW = \"22\" />\n" +
-              "          </lower:bbb>\n" +
-              "          <upper:BBB lower:sss = \"***\" xnumber:S111 = \"???\" />\n" +
-              "          <xnumber:x111 RRR=\"rrrdata\" />\n" +
-              "     </lower:aaa>";
+    static String xml = "<lower:aaa xmlns:lower = \"lowercase\" xmlns:upper = \"uppercase\"\n" +
+            "          xmlns:xnumber = \"xnumber\" xmlns=\"defaultNS\" >\n" +
+            "  <lower:bbb lower:zz = \"11\" >\n" +
+            "    <lower:ccc upper:WW = \"22\" />\n" +
+            "  </lower:bbb>\n" +
+            "    <upper:BBB lower:sss = \"***\" xnumber:S111 = \"???\" />\n" +
+            "    <xnumber:x111 RRR=\"rrrdata\" />\n" +
+            "</lower:aaa>";
 
     @org.testng.annotations.Test
     public void test() throws IOException, SAXException {
@@ -52,6 +51,8 @@ public class AttributeNsTest {
         System.out.println(sw.toString());
         aaa a2 = (aaa) xlite.fromXML(new StringReader(sw.toString()));
 
+        // writing back to XML
+        XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
@@ -88,7 +89,8 @@ public class AttributeNsTest {
     }
 
     public static class x111 {
-        @XMLattribute("RRR")   // no NS defined, but this does NOT mean default ns
+        @XMLattribute("RRR")
+        // no NS defined, but this does NOT mean default ns
         public String rrr;
     }
 

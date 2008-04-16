@@ -5,8 +5,13 @@ import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.XMLnamespaces;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 
 import org.testng.Assert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.xml.sax.SAXException;
 
 /**
  * Test where xml elements belong to different namespaces although they have the same prefixes.
@@ -24,10 +29,10 @@ public class DifferentNsSamePrefixesTest {
               "          <lower:x111 xmlns:lower = \"xnumber\" >\n" +
               "               <lower:x222 />\n" +
               "          </lower:x111>\n" +
-              "     </aaa>";
+              "</aaa>";
 
     @org.testng.annotations.Test
-    public void test() {
+    public void test() throws IOException, SAXException {
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(aaa.class, "aaa");
 
@@ -37,6 +42,13 @@ public class DifferentNsSamePrefixesTest {
         Assert.assertTrue(a.node_BBB.node_CCC != null);
         Assert.assertTrue(a.node_x111.node_x222 != null);
 
+                // writing back to XML
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+        System.out.println(xml);
+        System.out.println(sw);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, sw.toString());
     }
 
     // node aaa is in default namespace
