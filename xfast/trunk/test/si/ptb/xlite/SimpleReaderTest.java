@@ -25,7 +25,7 @@ public class SimpleReaderTest {
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
         XMLStreamWriter parser = factory.createXMLStreamWriter(writer);
-        return new XMLSimpleWriter(parser, new XmlStreamSettings());
+        return new XMLSimpleWriter(parser, new XmlStreamSettings(), true);
     }
 
     static String xml1 = "<a><b><c><d attr=\"DDD\" /></c></b></a>";
