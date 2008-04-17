@@ -217,17 +217,11 @@ public class XMLSimpleReader {
         int pos = store.getPosition();
         int event = reader.getEventType();
         int depth = 0;
-        boolean continueLoop = true;
-//        if(event == XMLStreamConstants.START_ELEMENT){
-//            depth = 1;
-//        } else if(event == XMLStreamConstants.END_ELEMENT){
-//            depth = 0;
-//        } else{
-//           continueLoop = false;
-//        }
         QName qName;
         String name;
-        while (true) {
+        boolean loop = true;
+        store.addElement(SubTreeStore.START_BLOCK);
+        while (loop) {
             switch (event) {
                 case XMLStreamConstants.START_DOCUMENT:
 //                    settings.encoding = reader.getCharacterEncodingScheme();
@@ -239,17 +233,17 @@ public class XMLSimpleReader {
                 case XMLStreamConstants.START_ELEMENT:
                     depth++;
                     qName = reader.getName();
-                    name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
+                    name = qName.getPrefix()+"="+qName.getLocalPart()+"="+qName.getNamespaceURI();
                     store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
-                    store.addAtributes(reader, settings.encoding);
                     store.addNamespaces(reader, settings.encoding);
+                    store.addAtributes(reader, settings.encoding);
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     qName = reader.getName();
                     name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
                     store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
                     if (depth == 0) {
-                        return pos;
+                        loop = false;
                     }
                     depth--;
                     break;
@@ -267,6 +261,8 @@ public class XMLSimpleReader {
             }
             event = nextEvent();
         }
+        store.addElement(SubTreeStore.END_BLOCK);
+        return pos;
     }
 
 
