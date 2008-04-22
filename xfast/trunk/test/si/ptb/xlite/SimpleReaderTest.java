@@ -36,7 +36,7 @@ public class SimpleReaderTest {
         StringWriter sw = new StringWriter();
         XMLSimpleWriter writer = getWriter(sw);
  
-        reader.nextNodeBoundary();
+        reader.findFirstNode();
         Node rootNode = processSubNodes(reader).get(0);
 //        printNodes(rootNode, "");
         Assert.assertEquals(rootNode.name.getLocalPart(), "a");
@@ -52,7 +52,7 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void simpleTest2() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml2);
-        reader.nextNodeBoundary();
+        reader.findFirstNode();
         Node rootNode = processSubNodes(reader).get(0);
         printNodes(rootNode, "");
         Assert.assertEquals(rootNode.name.getLocalPart(), "a");
@@ -66,8 +66,7 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void textTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml3);
-        reader.nextNodeBoundary();
-        reader.moveDown();
+        reader.findFirstNode("a");
         Assert.assertEquals(reader.getName().getLocalPart(), "a");  // inside <a>
         Assert.assertEquals(reader.getText(), "1");
         reader.moveDown();
@@ -85,7 +84,7 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void skippingChildNodesTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml4);
-        reader.nextNodeBoundary();
+        reader.findFirstNode();
         reader.moveDown();
         Assert.assertEquals(reader.getName().getLocalPart(), "a");  // inside <a>
         reader.moveDown();  // down two times
@@ -103,7 +102,7 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void ignoringOtherNodesTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml4);
-        reader.nextNodeBoundary();
+        reader.findFirstNode();
         reader.moveDown();
 
     }
@@ -113,10 +112,9 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void skippedNodesTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml6);
-        reader.nextNodeBoundary();
 
         // inside a
-        Assert.assertTrue(reader.moveDown());
+        reader.findFirstNode("a");
         Assert.assertEquals(reader.getName().getLocalPart(), "a");
 
         // inside b1

@@ -126,7 +126,7 @@ public class Xlite {
         } catch (XMLStreamException e) {
             throw new XliteException("Error initalizing XMLStreamReader", e);
         }
-        XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader);
+        XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader, isStoringUnknownNodes);
 
         return rootNodeMapper.getRootObject(simpleReader);
     }
@@ -149,4 +149,7 @@ public class Xlite {
     }
 
 
+    public SubTreeStore getNodeStore() {
+        return mappingContext.getNodeStore();
+    }
 }

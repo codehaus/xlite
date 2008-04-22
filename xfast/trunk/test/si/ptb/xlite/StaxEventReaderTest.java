@@ -15,23 +15,6 @@ import java.io.StringReader;
  */
 public class StaxEventReaderTest {
 
-    static String xml = "<person personAttribute=\"justPerson\">"
-            + "<number lastattr=\"AAA\">42</number>"
-            + "<firstname>"
-            + "Joe"
-            + "</firstname>"
-            + "<fax unknownAttrib=\"xxx\">"
-            + "justAValue"
-            + "<code>321</code>"
-            + "anotherText"
-            + "<number>9999-999</number>"
-            + "</fax>"
-            + "<phone newAttrib=\"unknown??\">"
-            + "    <code>123</code>"
-            + "<number>1234-456</number>"
-            + "</phone>"
-            + "</person>";
-
 
     public static void main(String[] args) {
 
@@ -47,7 +30,6 @@ public class StaxEventReaderTest {
             try {
                 String filename = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml";
                 FileReader reader = new FileReader(filename);
-                StringReader sreader = new StringReader(xml);
                 XMLInputFactory factory = XMLInputFactory.newInstance();
                 XMLEventReader parser = factory.createXMLEventReader(reader);
 
@@ -72,8 +54,9 @@ public class StaxEventReaderTest {
 //                            currentSubTree.subnodes.add(newSubTree);
 //                            newSubTree.parent = currentSubTree;
 //                            currentSubTree = newSubTree;
-
+                            if(qName.equals("w:r")){
                             count++;
+                            }
                             break;
                         case XMLStreamConstants.END_ELEMENT:
 
@@ -98,6 +81,7 @@ public class StaxEventReaderTest {
             }
 
             System.out.println("dur: " + (System.currentTimeMillis() - start));
+            System.out.println("count: "+count);
         }
 
 //        System.out.println("end "+ rootSubTree.name);

@@ -18,7 +18,7 @@ public class XliteTest {
 
         StringReader reader = new StringReader(SampleXml.xml);
         Xlite xlite = new Xlite(SampleXml.One.class, "one");
-        xlite.isStoringUnknownNodes = true;
+        xlite.isStoringUnknownNodes = false;
 
         SampleXml.One one = (SampleXml.One) xlite.fromXML(reader);
         Assert.assertEquals(one.attr, "text1");

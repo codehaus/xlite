@@ -1,4 +1,4 @@
-package si.ptb.xlite;
+package deprecated;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;

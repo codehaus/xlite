@@ -12,24 +12,8 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.util.*;
 
-public class StaxTest {
+public class StaxReaderTest {
 
-    static String xml = "<person personAttribute=\"justPerson\">"
-            + "<number lastattr=\"AAA\">42</number>"
-            + "<firstname>"
-            + "Joe"
-            + "</firstname>"
-            + "<fax unknownAttrib=\"xxx\">"
-            + "justAValue"
-            + "<code>321</code>"
-            + "anotherText"
-            + "<number>9999-999</number>"
-            + "</fax>"
-            + "<phone newAttrib=\"unknown??\">"
-            + "    <code>123</code>"
-            + "<number>1234-456</number>"
-            + "</phone>"
-            + "</person>";
 
     public static void main(String[] args) {
 
@@ -47,7 +31,6 @@ public class StaxTest {
             try {
                 String filename = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml";
                 FileReader reader = new FileReader(filename);
-                StringReader sreader = new StringReader(xml);
                 XMLInputFactory factory = XMLInputFactory.newInstance();
                 XMLStreamReader parser = factory.createXMLStreamReader(reader);
 
@@ -55,9 +38,9 @@ public class StaxTest {
                     switch (event) {
                         case XMLStreamConstants.START_ELEMENT:
 //                            SubTreeStore newSubTree = new SubTreeStore();
-//                            String lname = parser.getName().getLocalPart();
-//                            String pname = parser.getName().getPrefix();
-//                            String qName = pname + ":" + lname;
+                            String lname = parser.getName().getLocalPart();
+                            String pname = parser.getName().getPrefix();
+                            String qName = pname + ":" + lname;
 //                            newSubTree.name = qName.toCharArray();
 //                            for (int j = 0; j < parser.getAttributeCount(); j++) {
 //                                newSubTree.attributes.add(new SubTreeStore.Attrib(parser.getAttributeLocalName(j).toCharArray(),
@@ -66,7 +49,9 @@ public class StaxTest {
 //                            currentSubTree.subnodes.add(newSubTree);
 //                            newSubTree.parent = currentSubTree;
 //                            currentSubTree = newSubTree;
-//                            count++;
+                            if(qName.equals("w:r")){
+                            count++;
+                            }
                             break;
                         case XMLStreamConstants.END_ELEMENT:
 
@@ -89,6 +74,7 @@ public class StaxTest {
             }
 
             System.out.println("dur: " + (System.currentTimeMillis() - start));
+            System.out.println("count: "+count);
         }
 
         System.out.println("Count: " + count);

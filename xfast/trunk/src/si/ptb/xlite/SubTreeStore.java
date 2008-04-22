@@ -4,6 +4,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 /**
  * User: peter
@@ -13,18 +14,25 @@ import java.io.UnsupportedEncodingException;
 public class SubTreeStore {
 
 
-    public byte[] data;
+    private byte[] data;
+
     public int elementNumber = 0;
     private int position = 0;
-    private int increment = 1000000;
+    private int readPos = 0;
+    private int increment;
     private boolean writingFinished = false;
-    private XmlStreamSettings settings;
 
+    private XmlStreamSettings settings;
     public static final int START_BLOCK = 99;
     public static final int END_BLOCK = 98;
 
     public SubTreeStore(int size) {
+        this(size, 1000000);
+    }
+
+    public SubTreeStore(int size, int sizeIncrement) {
         data = new byte[size];
+        increment = sizeIncrement;
     }
 
     public int getPosition() {
@@ -33,6 +41,12 @@ public class SubTreeStore {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public void reset(){
+        Arrays.fill(data, (byte) 0);
+        writingFinished = false;
+        position = 0;
     }
 
 //    public String getEncoding() {
@@ -59,7 +73,6 @@ public class SubTreeStore {
         }
     }
 
-
     public int addElement(int command) {
         return addElement(command, (byte[]) null);
     }
@@ -67,6 +80,7 @@ public class SubTreeStore {
     public int addElement(int command, String source, String encoding) {
         encoding = encoding == null ? "UTF-8" : encoding;
         try {
+//            System.out.println("add:" + command + " " + source);
             return addElement(command, source.getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
             System.out.println(e.getMessage());
@@ -111,26 +125,36 @@ public class SubTreeStore {
     }
 
     public Element getNextElement() {
-        if (!writingFinished) {
-            writingFinished = true;
+        return getNextElement(-1);
+    }
+
+    public Element getNextElement(int location) {
+//        if (!writingFinished) {
+//            writingFinished = true;
+//        }
+
+
+        // set the location where reading will start
+        if (location != -1) {
+            readPos = location;
         }
-        if (!isNextCommand()) {
+        if (!isNextCommand(readPos)) {
             return null;
         }
-        position++;
-        byte comm = data[position++];
-        int len = data[position++] + (data[position++] << 7) + (data[position++] << 14);
+        readPos++;
+        byte comm = data[readPos++];
+        int len = data[readPos++] + (data[readPos++] << 7) + (data[readPos++] << 14);
 
         byte[] holder = new byte[len];
-        System.arraycopy(data, position, holder, 0, len);
-        position += holder.length - 1;
+        System.arraycopy(data, readPos, holder, 0, len);
+        readPos += holder.length - 1;
 
         return new Element(comm, holder);
     }
 
 
-    private boolean isNextCommand() {
-        byte d = data[position + 1];
+    private boolean isNextCommand(int readPosition) {
+        byte d = data[readPosition + 1];
         return d == XMLStreamConstants.START_ELEMENT ||
                 d == XMLStreamConstants.END_ELEMENT ||
                 d == XMLStreamConstants.CDATA ||
@@ -160,5 +184,6 @@ public class SubTreeStore {
             this.data = data == null ? (new byte[0]) : data;
         }
     }
+
 
 }

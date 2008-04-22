@@ -22,8 +22,8 @@ public class AttributeNsTest {
             "  <lower:bbb lower:zz = \"11\" >\n" +
             "    <lower:ccc upper:WW = \"22\" />\n" +
             "  </lower:bbb>\n" +
-            "    <upper:BBB lower:sss = \"***\" xnumber:S111 = \"???\" />\n" +
-            "    <xnumber:x111 RRR=\"rrrdata\" />\n" +
+            "  <upper:BBB lower:sss = \"***\" xnumber:S111 = \"???\" />\n" +
+            "  <xnumber:x111 RRR=\"rrrdata\" />\n" +
             "</lower:aaa>";
 
     @org.testng.annotations.Test
