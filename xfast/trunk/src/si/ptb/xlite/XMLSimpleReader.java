@@ -23,7 +23,8 @@ public class XMLSimpleReader {
     private Stack<Node> nodeStack = new Stack<Node>();
     private boolean isEnd = false;
     private boolean isStoringUnknownNodes;
-    private SubTreeStore lastNodeCache = new SubTreeStore(2000, 1000);
+    private SubTreeStore currentEventCache = new SubTreeStore(200,200);
+    private SubTreeStore lastEventCache;
 
     public XMLSimpleReader(XMLStreamReader reader) {
         this(reader, false);
@@ -36,8 +37,8 @@ public class XMLSimpleReader {
 
     private int nextEvent() {
         try {
-            int i = reader.next();
-//            System.out.println("event:" + i);
+            int i= reader.next();
+             System.out.println("event:" + i);
             return i;
         } catch (XMLStreamException e) {
             throw new XliteException("Error reading XML stream.", e);
@@ -54,9 +55,9 @@ public class XMLSimpleReader {
         return nextNodeBoundary(true);
     }
 
-    private boolean nextNodeBoundary(boolean processText) {
+    private boolean nextNodeBoundary(boolean processEvents) {
 
-        // reset the accumulated Text
+        // checkAndReset the accumulated Text
         if (!nodeStack.isEmpty()) {
             StringBuilder sb = nodeStack.peek().text;
             if (sb == null) {
@@ -75,28 +76,34 @@ public class XMLSimpleReader {
         for (int event = nextEvent(); true; event = nextEvent()) {
 
             // save the xml events in a cache
-            if (isStoringUnknownNodes) {
-                // if it's a new node - reset the cache contents
-                if (event == XMLStreamConstants.START_ELEMENT) {
-//                    System.out.println("cache reset");
-                    lastNodeCache.reset();
-                }
-                System.out.print("cache ");
-                processElement(lastNodeCache);
+            if (isStoringUnknownNodes && processEvents) {
+                // reset cache - only do it on node boundaries
+
+//                if (event == XMLStreamConstants.START_ELEMENT || event == XMLStreamConstants.END_ELEMENT) {
+//                    // if it's a new node - checkAndReset the cache contents
+//                    if (eventCache.checkAndReset()) {
+//                        System.out.println("cache RESET");
+//                    }
+//                    System.out.println("cache PENDING");
+//                    eventCache.resetPending();
+//                }
+                processElement(currentEventCache);
+                printStore(currentEventCache, "curent");
+                printStore(lastEventCache, "last");
             }
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
-//                    System.out.println("start: " + reader.getName());
+                    System.out.println("start: " + reader.getName());
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
-//                    System.out.println("end document ");
+                    System.out.println("end document ");
                     isEnd = true;
                     return false;
                 case XMLStreamConstants.END_ELEMENT:
-//                    System.out.println("end: " + reader.getName());
+                    System.out.println("end: " + reader.getName());
                     return false;
                 case XMLStreamConstants.CHARACTERS:
-                    if (processText) {
+                    if (processEvents) {
                         nodeStack.peek().text.append(reader.getText());
                     }
 //                    System.out.println(" text:" + nodeStack.peek().name.getLocalPart() + " - " + nodeStack.peek().text);
@@ -113,6 +120,9 @@ public class XMLSimpleReader {
      * @return True if next child node exists, otherwise false.
      */
     public boolean moveDown() {
+        System.out.println("SD---------------------");
+        lastEventCache = currentEventCache;
+        currentEventCache = new SubTreeStore(200,200);
         int event = reader.getEventType();
         if (event == XMLStreamConstants.START_ELEMENT) {
             Node node = new Node();
@@ -127,11 +137,13 @@ public class XMLSimpleReader {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
                 throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
-            System.out.println("-moveDown() false "+getName());
+            System.out.println("-moveDown() false " + getName());
+            System.out.println("ED---------------------");
             return false;
         }
         nextNodeBoundary();
-        System.out.println("-moveDown() true "+getName());
+        System.out.println("-moveDown() true " + getName());
+        System.out.println("ED---------------------");
         return true;
     }
 
@@ -140,11 +152,13 @@ public class XMLSimpleReader {
      * Postions the underlying xml stream to the closing element of the child node.
      */
     public void moveUp() {
+        System.out.println("SU---------------------");
         if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
 //            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
             nodeStack.pop();
             nextNodeBoundary();
-            System.out.println("-moveUp() "+getName());
+            System.out.println("-moveUp() " + getName());
+            System.out.println("EU---------------------");
             return;
         }
         int depth = 1;
@@ -161,7 +175,8 @@ public class XMLSimpleReader {
         }
 //        System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
         nodeStack.pop();
-        System.out.println("-moveUp() "+getName());
+        System.out.println("-moveUp() " + getName());
+        System.out.println("EU---------------------");
     }
 
     public String getText() {
@@ -177,6 +192,7 @@ public class XMLSimpleReader {
         }
         return nodeStack.peek().name;
     }
+
 
     public Iterator<Map.Entry<QName, String>> getAttributeIterator() {
         return nodeStack.peek().iterator();
@@ -245,15 +261,23 @@ public class XMLSimpleReader {
 
 
     public int saveSubTree(SubTreeStore store) {
-//        printStore(lastNodeCache,"cache ");
 
+        // save a starting position of this block
         int pos = store.getPosition();
+        store.addElement(SubTreeStore.START_BLOCK);
+
+        // copy elements from eventCache to current store
+        SubTreeStore.Element element = lastEventCache.getNextElement(0);
+        while (element != null) {
+            store.addElement(element.command, element.data);
+            element = lastEventCache.getNextElement();
+        }
+
         int event = reader.getEventType();
         int depth = 0;
         QName qName;
         String name;
         boolean loop = true;
-        store.addElement(SubTreeStore.START_BLOCK);
         while (loop) {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
@@ -262,17 +286,24 @@ public class XMLSimpleReader {
                 case XMLStreamConstants.END_ELEMENT:
                     if (depth == 0) {
                         loop = false;
+                        System.out.println("EXIT="+reader.getName());
                     }
                     depth--;
                     break;
             }
-            System.out.print("store ");
             processElement(store);
-//            printStore(store,"store ");
-            System.out.println("-------------------------");
-            event = nextEvent();
+            if (loop) {
+                event = nextEvent();
+            } else {
+                // when storing XML subtree is finished
+                // the XML stream has to be positioned on the next node boundary
+                nextNodeBoundary();
+            }
         }
         store.addElement(SubTreeStore.END_BLOCK);
+        printStore(lastEventCache, "last");
+        printStore(currentEventCache, "current");
+        printStore(store, "store ");
         return pos;
     }
 
@@ -293,19 +324,19 @@ public class XMLSimpleReader {
             case XMLStreamConstants.START_ELEMENT:
                 qName = reader.getName();
                 name = qName.getPrefix() + "=" + qName.getLocalPart() + "=" + qName.getNamespaceURI();
-                System.out.println("start element: " + qName.getLocalPart());
+                System.out.println("process start element: " + qName.getLocalPart());
                 store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
                 break;
             case XMLStreamConstants.END_ELEMENT:
-                System.out.println("end element: " + reader.getName().getLocalPart());
+                System.out.println("process end element: " + reader.getName().getLocalPart());
                 store.addElement(XMLStreamConstants.END_ELEMENT);
                 break;
             case XMLStreamConstants.ATTRIBUTE:
-                System.out.println("attribute: " + reader.getAttributeCount());
+                System.out.println("process attribute: " + reader.getAttributeCount());
                 store.addAtributes(reader, settings.encoding);
                 break;
             case XMLStreamConstants.NAMESPACE:
-                System.out.println("namespace: ");
+                System.out.println("process namespace: ");
                 store.addNamespaces(reader, settings.encoding);
                 break;
             case XMLStreamConstants.CHARACTERS:
@@ -318,22 +349,23 @@ public class XMLSimpleReader {
 //                store.addElement(XMLStreamConstants.CDATA, reader.getText(), settings.encoding);
 //                break;
             case XMLStreamConstants.SPACE:
-                System.out.println("space: ");
+                System.out.println("process space: ");
                 store.addElement(XMLStreamConstants.SPACE, reader.getText(), settings.encoding);
                 break;
             default:
-                System.out.println("other tag: " + reader.getEventType());
+//                System.out.println("other tag: " + reader.getEventType());
         }
     }
 
     public static void printStore(SubTreeStore store, String name) {
 
-        boolean processingBlocks = true;
         SubTreeStore.Element element = store.getNextElement(0);
+        System.out.print(name + ": ");
         while (element != null) {
-            System.out.println(name + " command:" + element.command + " data:" + new String(element.data));
+            System.out.print(element.command + "(" + new String(element.data) + ") ");
             element = store.getNextElement();
         }
+        System.out.println("");
     }
 
 }

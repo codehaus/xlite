@@ -2,14 +2,12 @@ package si.ptb.xlite;
 
 import org.custommonkey.xmlunit.*;
 import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 
 /**
  * User: peter
@@ -18,37 +16,48 @@ import java.util.List;
  */
 public class SubTreeStoreTest {
 
-    static String xml1 = "<a xmlns=\"ns1\" xmlns:s=\"ns2\">\n" +
+    static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\">\n" +
             "<s:b>\n" +
             "<c>\n" +
             "<d attr=\"DDD\" ></d>\n" +
-            "<ignored><subignored/></ignored>" +
+            "<ignored >" +
+            "IGNORED" +
+            "<subignored><subsubignored/></subignored>" +
+            "</ignored>\n" +
             "</c>\n" +
             "</s:b>\n" +
             "</a>";
 
+//        static String xml = "<a> "+
+//            "<ignored >" +
+//            "IGNORED" +
+//            "<subignored><subsubignored/></subignored>" +
+//            "</ignored>\n" +
+//            "</a>";
+
     @Test
     public void testStoringNodes() throws IOException, SAXException, XpathException {
-        StringReader reader = new StringReader(xml1);
+        StringReader reader = new StringReader(xml);
 
-        Xlite xlite = new Xlite(A.class, "a", "ns1");
+        Xlite xlite = new Xlite(A.class, "a");
         xlite.isStoringUnknownNodes = true;
         xlite.addNamespace("ns1");
 //        xlite.addNamespace("s=ns2");
         A a = (A) xlite.fromXML(reader);
-        System.out.println("");
-        System.out.println(xml1);
 
-        printStore(xlite.getNodeStore());
+//        printStore(xlite.getNodeStore());
 
         // writing back to XML
         StringWriter sw = new StringWriter();
         xlite.toXML(a, sw);
         String ssw = sw.toString();
+        System.out.println("");
+        System.out.println(xml);
+        System.out.println("");
         System.out.println(ssw);
 
         XMLUnit.setIgnoreWhitespace(true);
-        XMLAssert.assertXMLEqual(xml1, ssw);
+        XMLAssert.assertXMLEqual(xml, ssw);
     }
 
     public static void printStore(SubTreeStore store) {

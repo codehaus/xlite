@@ -25,6 +25,7 @@ public class SubTreeStore {
     private XmlStreamSettings settings;
     public static final int START_BLOCK = 99;
     public static final int END_BLOCK = 98;
+    private boolean isResetPending = false;
 
     public SubTreeStore(int size) {
         this(size, 1000000);
@@ -43,10 +44,19 @@ public class SubTreeStore {
         this.position = position;
     }
 
-    public void reset(){
-        Arrays.fill(data, (byte) 0);
-        writingFinished = false;
-        position = 0;
+    public void resetPending() {
+        this.isResetPending = true;
+    }
+
+    public boolean checkAndReset() {
+        if (isResetPending) {
+            Arrays.fill(data, (byte) 0);
+            writingFinished = false;
+            position = 0;
+            isResetPending = false;
+            return true;
+        }
+        return false;
     }
 
 //    public String getEncoding() {
@@ -128,11 +138,11 @@ public class SubTreeStore {
         return getNextElement(-1);
     }
 
+
     public Element getNextElement(int location) {
 //        if (!writingFinished) {
 //            writingFinished = true;
 //        }
-
 
         // set the location where reading will start
         if (location != -1) {
@@ -151,7 +161,6 @@ public class SubTreeStore {
 
         return new Element(comm, holder);
     }
-
 
     private boolean isNextCommand(int readPosition) {
         byte d = data[readPosition + 1];

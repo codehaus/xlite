@@ -44,7 +44,6 @@ public class NodeMapper {
     }
 
     private void collectionAddItem(Object targetObject, XMLSimpleReader reader) {
-
         try {
             Collection collection = (Collection) targetField.get(targetObject);
             if (collection == null) {
