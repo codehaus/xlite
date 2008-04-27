@@ -87,10 +87,10 @@ public class AnnotatedClassConverter implements NodeConverter {
         try {
             currentObject = targetClass.newInstance();
         } catch (InstantiationException e) {
-            e.printStackTrace();
-
+            throw new XliteException("Could not instantiate class " + targetClass.getName(), e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new XliteException("Could not instantiate class " + targetClass.getName(), e);
+
         }
 
         // XML node value
@@ -131,8 +131,9 @@ public class AnnotatedClassConverter implements NodeConverter {
                     reader.saveSubTree(nodeStorage);
                 }
             }
+            System.out.println("READER POSITION: "+reader.reader.getEventType());
+//            System.out.println( " "+reader.reader.getName());
             reader.moveUp();
-//            System.out.println("#### POSITION: "+reader.getName());
         }
 
         return currentObject;
@@ -148,7 +149,7 @@ public class AnnotatedClassConverter implements NodeConverter {
         }
 
         // write node's value
-        if(valueMapper != null){
+        if (valueMapper != null) {
             writer.addText(valueMapper.getValue(object));
         }
 

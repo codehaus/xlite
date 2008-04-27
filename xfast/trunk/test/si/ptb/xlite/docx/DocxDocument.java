@@ -23,7 +23,7 @@ public class DocxDocument {
     public static void main(String[] args) throws IOException {
 
         DocxDocument document = null;
-        Xlite xlite = new Xlite(DocxDocument.class, "w:document");
+        Xlite xlite = new Xlite(DocxDocument.class, "document", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
         xlite.isStoringUnknownNodes = true;
         xlite.addNamespace("w=http://schemas.openxmlformats.org/wordprocessingml/2006/main");
 
@@ -37,17 +37,22 @@ public class DocxDocument {
 
         }
 
-//        FileWriter writer = new FileWriter("/home/peter/doc.html", false);
+////        FileWriter writer = new FileWriter("/home/peter/doc.html", false);
 //        for (Paragraph paragraph : document.body.paragraphs) {
 //            if (paragraph.runs != null) {
-//                writer.append("\n");
+////                writer.append("\n");
+//                System.out.println("\n");
 //                for (Run run : paragraph.runs) {
 //                    if (run.textnode != null) {
-//                        writer.append(run.textnode.text);
+////                        writer.append(run.textnode.text);
+//                        System.out.print(run.textnode.text);
+//                    } else {
+//                        System.out.print("|");
 //                    }
 //                }
 //            }
 //        }
+
     }
 
 }

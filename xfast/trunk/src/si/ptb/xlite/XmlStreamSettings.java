@@ -13,5 +13,4 @@ public class XmlStreamSettings {
 
     public String encoding;
     public String version;
-    public boolean isStandalone;
 }

@@ -44,19 +44,11 @@ public class SubTreeStore {
         this.position = position;
     }
 
-    public void resetPending() {
-        this.isResetPending = true;
-    }
-
-    public boolean checkAndReset() {
-        if (isResetPending) {
+    public void reset() {
             Arrays.fill(data, (byte) 0);
             writingFinished = false;
             position = 0;
             isResetPending = false;
-            return true;
-        }
-        return false;
     }
 
 //    public String getEncoding() {
@@ -160,6 +152,14 @@ public class SubTreeStore {
         readPos += holder.length - 1;
 
         return new Element(comm, holder);
+    }
+
+    public void copyFrom(SubTreeStore source){
+        Element element = source.getNextElement(0);
+        while (element != null) {
+            addElement(element.command, element.data);
+            element = source.getNextElement();
+        }
     }
 
     private boolean isNextCommand(int readPosition) {

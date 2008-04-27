@@ -19,11 +19,12 @@ public class SubTreeStoreTest {
     static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\">\n" +
             "<s:b>\n" +
             "<c>\n" +
-            "<d attr=\"DDD\" ></d>\n" +
-            "<ignored >" +
+            "<i:ignored xmlns:i=\"iii\">" +
             "IGNORED" +
             "<subignored><subsubignored/></subignored>" +
-            "</ignored>\n" +
+            "</i:ignored>\n" +
+            "<d attr=\"DDD\" ></d>\n" +
+            "<ign></ign>" +
             "</c>\n" +
             "</s:b>\n" +
             "</a>";
@@ -45,7 +46,7 @@ public class SubTreeStoreTest {
 //        xlite.addNamespace("s=ns2");
         A a = (A) xlite.fromXML(reader);
 
-//        printStore(xlite.getNodeStore());
+        printStore(xlite.getNodeStore());
 
         // writing back to XML
         StringWriter sw = new StringWriter();
@@ -61,21 +62,16 @@ public class SubTreeStoreTest {
     }
 
     public static void printStore(SubTreeStore store) {
+        if (store == null) {
+            return;
+        }
 
         store.setPosition(0);
-        boolean processingBlocks = true;
+        boolean loop = true;
         SubTreeStore.Element element = store.getNextElement(0);
-        while (processingBlocks) {
+        while (loop) {
             if (element == null) {
                 break;
-            }
-            if (element.command != SubTreeStore.START_BLOCK) {
-                throw new IllegalArgumentException("Error: XMLSimpleWriter.restoreSubTree was given a wrong location " +
-                        "argument: no saved data block is found on given location!");
-            }
-            while (element.command != SubTreeStore.END_BLOCK) {
-                System.out.println("command:" + element.command + " data:" + new String(element.data));
-                element = store.getNextElement();
             }
             System.out.println("command:" + element.command + " data:" + new String(element.data));
             element = store.getNextElement();
