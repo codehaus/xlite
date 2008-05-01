@@ -131,8 +131,9 @@ public class AnnotatedClassConverter implements NodeConverter {
                     reader.saveSubTree(nodeStorage);
                 }
             }
-            System.out.println("READER POSITION: "+reader.reader.getEventType());
-//            System.out.println( " "+reader.reader.getName());
+            String nm = "null";
+            nm = (reader.reader.getEventType() == 1 || reader.reader.getEventType() == 2) ? reader.reader.getName().getLocalPart() : "";
+            System.out.println("BEFORE moveUp: "+reader.reader.getEventType()+" "+nm);
             reader.moveUp();
         }
 

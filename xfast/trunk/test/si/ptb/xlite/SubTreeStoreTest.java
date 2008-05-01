@@ -21,7 +21,7 @@ public class SubTreeStoreTest {
             "<c>\n" +
             "<i:ignored xmlns:i=\"iii\">" +
             "IGNORED" +
-            "<subignored><subsubignored/></subignored>" +
+            "<subignored><subsub/></subignored>" +
             "</i:ignored>\n" +
             "<d attr=\"DDD\" ></d>\n" +
             "<ign></ign>" +
@@ -40,7 +40,7 @@ public class SubTreeStoreTest {
     public void testStoringNodes() throws IOException, SAXException, XpathException {
         StringReader reader = new StringReader(xml);
 
-        Xlite xlite = new Xlite(A.class, "a");
+        Xlite xlite = new Xlite(A.class, "a", "ns1");
         xlite.isStoringUnknownNodes = true;
         xlite.addNamespace("ns1");
 //        xlite.addNamespace("s=ns2");

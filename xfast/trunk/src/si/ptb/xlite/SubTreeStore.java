@@ -45,10 +45,10 @@ public class SubTreeStore {
     }
 
     public void reset() {
-            Arrays.fill(data, (byte) 0);
-            writingFinished = false;
-            position = 0;
-            isResetPending = false;
+        Arrays.fill(data, (byte) 0);
+        writingFinished = false;
+        position = 0;
+        isResetPending = false;
     }
 
 //    public String getEncoding() {
@@ -154,7 +154,7 @@ public class SubTreeStore {
         return new Element(comm, holder);
     }
 
-    public void copyFrom(SubTreeStore source){
+    public void copyFrom(SubTreeStore source) {
         Element element = source.getNextElement(0);
         while (element != null) {
             addElement(element.command, element.data);
@@ -182,6 +182,20 @@ public class SubTreeStore {
             System.out.println("new length: " + data.length);
             System.gc();
         }
+    }
+
+    public int getDepth() {
+        Element element = getNextElement(0);
+        int depth = 0;
+        while (element != null) {
+            if (element.command == XMLStreamConstants.START_ELEMENT) {
+                depth++;
+            } else if (element.command == XMLStreamConstants.END_ELEMENT) {
+                depth--;
+            }
+            element = getNextElement();
+        }
+        return depth;
     }
 
     public static class Element {
