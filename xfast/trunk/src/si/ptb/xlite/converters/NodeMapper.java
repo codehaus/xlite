@@ -29,8 +29,8 @@ public class NodeMapper {
             this.itemType = annotation.itemType();
             if (this.itemType == Object.class) {
                 throw new XliteException("Error: collection in class " + targetField.getDeclaringClass().getSimpleName() +
-                        " does not have a target type defined. " +
-                        "When @XMLnode annotation is used on collection, a 'targetType' value must be defined.");
+                        " does not have a item type defined. " +
+                        "When @XMLnode annotation is used on collection, a 'itemType' value must be defined.");
             }
         }
     }

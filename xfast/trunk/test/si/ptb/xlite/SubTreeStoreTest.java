@@ -1,6 +1,7 @@
 package si.ptb.xlite;
 
-import org.custommonkey.xmlunit.*;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -16,25 +17,32 @@ import java.io.StringWriter;
  */
 public class SubTreeStoreTest {
 
-    static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\">\n" +
+//    static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\">\n" +
+//            "<s:b>\n" +
+//            "<c>\n" +
+//            "<i:ignored xmlns:i=\"iii\" ia=\"11\" ia2=\"12\">" +
+//            "<ign/>" +
+//            "IGNORED" +
+//            "<subignored asub=\"666\"><subsub/></subignored>" +
+//            "</i:ignored>\n" +
+//            "<d attrD=\"DDD\" ></d>\n" +
+//            "</c>\n" +
+//            "</s:b>\n" +
+//            "</a>";
+
+
+    static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\" xmlns:w=\"ns3\">\n" +
             "<s:b>\n" +
             "<c>\n" +
-            "<i:ignored xmlns:i=\"iii\">" +
-            "IGNORED" +
-            "<subignored><subsub/></subignored>" +
-            "</i:ignored>\n" +
-            "<d attr=\"DDD\" ></d>\n" +
-            "<ign></ign>" +
+            "<w:emptico/>\n" +
+            "<w:one aa=\"prvi\">\n" +
+            "<w:empty/>\n" +
+            "</w:one>\n" +
+            "<subignored asub=\"666\"><subsub/></subignored>" +
+            "<d attrD=\"DDD\" ></d>\n" +
             "</c>\n" +
             "</s:b>\n" +
             "</a>";
-
-//        static String xml = "<a> "+
-//            "<ignored >" +
-//            "IGNORED" +
-//            "<subignored><subsubignored/></subignored>" +
-//            "</ignored>\n" +
-//            "</a>";
 
     @Test
     public void testStoringNodes() throws IOException, SAXException, XpathException {
@@ -46,7 +54,7 @@ public class SubTreeStoreTest {
 //        xlite.addNamespace("s=ns2");
         A a = (A) xlite.fromXML(reader);
 
-        printStore(xlite.getNodeStore());
+//        XMLSimpleReader.printStore(xlite.getNodeStore(), "STORE");
 
         // writing back to XML
         StringWriter sw = new StringWriter();
@@ -59,23 +67,6 @@ public class SubTreeStoreTest {
 
         XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual(xml, ssw);
-    }
-
-    public static void printStore(SubTreeStore store) {
-        if (store == null) {
-            return;
-        }
-
-        store.setPosition(0);
-        boolean loop = true;
-        SubTreeStore.Element element = store.getNextElement(0);
-        while (loop) {
-            if (element == null) {
-                break;
-            }
-            System.out.println("command:" + element.command + " data:" + new String(element.data));
-            element = store.getNextElement();
-        }
     }
 
     public static class A {
@@ -97,7 +88,7 @@ public class SubTreeStoreTest {
 
     public static class D {
         @XMLattribute
-        public String attr;
+        public String attrD;
     }
 
 }

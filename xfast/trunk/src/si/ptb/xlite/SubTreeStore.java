@@ -1,10 +1,11 @@
 package si.ptb.xlite;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 /**
  * User: peter
@@ -15,6 +16,7 @@ public class SubTreeStore {
 
 
     private byte[] data;
+    private IdentityHashMap<Object, List<Integer>> references;
 
     public int elementNumber = 0;
     private int position = 0;
@@ -23,9 +25,8 @@ public class SubTreeStore {
     private boolean writingFinished = false;
 
     private XmlStreamSettings settings;
-    public static final int START_BLOCK = 99;
-    public static final int END_BLOCK = 98;
-    private boolean isResetPending = false;
+    private static final int START_BLOCK = 99;
+    private static final int END_BLOCK = 98;
 
     public SubTreeStore(int size) {
         this(size, 1000000);
@@ -34,6 +35,11 @@ public class SubTreeStore {
     public SubTreeStore(int size, int sizeIncrement) {
         data = new byte[size];
         increment = sizeIncrement;
+        references = new IdentityHashMap<Object, List<Integer>>(size / 500);
+    }
+
+    public int getStoreSize(){
+        return data.length;
     }
 
     public int getPosition() {
@@ -48,32 +54,37 @@ public class SubTreeStore {
         Arrays.fill(data, (byte) 0);
         writingFinished = false;
         position = 0;
-        isResetPending = false;
     }
 
 //    public String getEncoding() {
 //        return settings.encoding;
 //    }
 
-    public void addAtributes(XMLStreamReader reader, String encoding) {
-        QName qName;
-        String name;
-        for (int i = 0, n = reader.getAttributeCount(); i < n; ++i) {
-            qName = reader.getAttributeName(i);
-            name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-            addElement(XMLStreamConstants.ATTRIBUTE, name + "=" + reader.getAttributeValue(i), encoding);
-        }
+    public List<Integer> getLocations(Object reference) {
+        return references.get(reference);
     }
 
-    public void addNamespaces(XMLStreamReader reader, String encoding) {
-        String uri;
-        String prefix;
-        for (int i = 0, n = reader.getNamespaceCount(); i < n; ++i) {
-            uri = reader.getNamespaceURI(i);
-            prefix = reader.getNamespacePrefix(i);
-            addElement(XMLStreamConstants.NAMESPACE, prefix + "=" + uri, encoding);
+    public void addStart(Object object) {
+        int location = addElement(START_BLOCK);
+        if (!references.containsKey(object)) {
+            references.put(object, new ArrayList<Integer>());
         }
+        List<Integer> locations = references.get(object);
+        locations.add(location - 1);
     }
+
+    public static boolean isBlockStart(Element element) {
+        return element.command == START_BLOCK;
+    }
+
+    public void addEnd() {
+        addElement(END_BLOCK);
+    }
+
+    public static boolean isBlockEnd(Element element) {
+        return element.command == END_BLOCK;
+    }
+
 
     public int addElement(int command) {
         return addElement(command, (byte[]) null);
@@ -82,7 +93,7 @@ public class SubTreeStore {
     public int addElement(int command, String source, String encoding) {
         encoding = encoding == null ? "UTF-8" : encoding;
         try {
-//            System.out.println("add:" + command + " " + source);
+//            System.out.println("    add:" + command + " " + source);
             return addElement(command, source.getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
             System.out.println(e.getMessage());
@@ -140,10 +151,10 @@ public class SubTreeStore {
         if (location != -1) {
             readPos = location;
         }
+        int start = readPos++;
         if (!isNextCommand(readPos)) {
             return null;
         }
-        readPos++;
         byte comm = data[readPos++];
         int len = data[readPos++] + (data[readPos++] << 7) + (data[readPos++] << 14);
 
@@ -151,7 +162,7 @@ public class SubTreeStore {
         System.arraycopy(data, readPos, holder, 0, len);
         readPos += holder.length - 1;
 
-        return new Element(comm, holder);
+        return new Element(comm, holder, start);
     }
 
     public void copyFrom(SubTreeStore source) {
@@ -163,7 +174,10 @@ public class SubTreeStore {
     }
 
     private boolean isNextCommand(int readPosition) {
-        byte d = data[readPosition + 1];
+        if (readPosition >= data.length) {
+            return false;
+        }
+        byte d = data[readPosition];
         return d == XMLStreamConstants.START_ELEMENT ||
                 d == XMLStreamConstants.END_ELEMENT ||
                 d == XMLStreamConstants.CDATA ||
@@ -179,8 +193,8 @@ public class SubTreeStore {
     private void needsResize(int size) {
         if (position + size >= data.length - 1) {
             data = ArrayUtil.arrayCopy(data, Math.max(data.length + increment, data.length + size));
-            System.out.println("new length: " + data.length);
-            System.gc();
+//            System.out.println("new length: " + data.length+ "  "+data.hashCode());
+//            System.gc();
         }
     }
 
@@ -201,10 +215,12 @@ public class SubTreeStore {
     public static class Element {
         public byte command;
         public byte[] data;
+        public int location;
 
-        public Element(byte command, byte[] data) {
+        public Element(byte command, byte[] data, int start) {
             this.command = command;
             this.data = data == null ? (new byte[0]) : data;
+            this.location = start;
         }
     }
 

@@ -5,6 +5,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,10 +20,10 @@ public class XMLSimpleWriter {
     public final boolean isPrettyPrinting;
     private StringBuilder tabs = new StringBuilder("\n");
 
-    public XMLSimpleWriter(XMLStreamWriter writer, XmlStreamSettings settings, boolean preetyPrint) {
+    public XMLSimpleWriter(XMLStreamWriter writer, XmlStreamSettings settings, boolean prettyPrint) {
         this.settings = settings;
         this.writer = writer;
-        this.isPrettyPrinting = preetyPrint;
+        this.isPrettyPrinting = prettyPrint;
     }
 
     private void prettyPrint() {
@@ -58,7 +59,7 @@ public class XMLSimpleWriter {
     public void writeNamespaces(NsContext context) {
         try {
             for (Map.Entry<String, String> nsEntry : context) {
-                System.out.println("namespace: " + nsEntry.getKey() + "=" + nsEntry.getValue());
+//                System.out.println("namespace: " + nsEntry.getKey() + "=" + nsEntry.getValue());
                 writer.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
             }
         } catch (XMLStreamException e) {
@@ -168,21 +169,35 @@ public class XMLSimpleWriter {
                 throw new XliteException(e);
             }
         }
-    }    
+    }
 
-      public void restoreSubTree(SubTreeStore store, int location) throws XMLStreamException, UnsupportedEncodingException {
+    public void restoreSubTrees(SubTreeStore store, Object reference) {
+        List<Integer> locations = store.getLocations(reference);
+        if (locations != null) {
+            for (Integer location : locations) {
+                try {
+                    restoreSubTree(store, location);
+                } catch (XMLStreamException e) {
+                    throw new XliteException(e);
+                } catch (UnsupportedEncodingException e) {
+                    throw new XliteException(e);
+                }
+            }
+        }
+    }
+
+    private void restoreSubTree(SubTreeStore store, int location) throws XMLStreamException, UnsupportedEncodingException {
 
         String prefix, localName, nsURI, value, data;
         String encoding = settings.encoding;  // default encoding
         int first, second, third;
 
-
-        SubTreeStore.Element element = store.getNextElement();
-        if(element.command != SubTreeStore.START_BLOCK){
+        SubTreeStore.Element element = store.getNextElement(location);
+        if (!SubTreeStore.isBlockStart(element)) {
             throw new IllegalArgumentException("Error: XMLSimpleWriter.restoreSubTree was given a wrong location " +
                     "argument: no saved data block is found on given location!");
         }
-        while (element.command != SubTreeStore.END_BLOCK) {
+        while (!SubTreeStore.isBlockEnd(element)) {
             switch (element.command) {
                 case XMLStreamConstants.START_DOCUMENT:
                     String header = new String(element.data);

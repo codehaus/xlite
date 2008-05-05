@@ -52,7 +52,7 @@ public class Xlite {
 
         // initialize storing unknown nodes
         if (isStoringUnknownNodes) {
-            mappingContext.setNodeStore(new SubTreeStore(1000000));
+            mappingContext.setNodeStore(new SubTreeStore(10000000));
         } else {
             mappingContext.setNodeStore(null);
         }
@@ -147,7 +147,6 @@ public class Xlite {
         rootNodeMapper.toXML(source, simpleWriter);
 
     }
-
 
     public SubTreeStore getNodeStore() {
         return mappingContext.getNodeStore();

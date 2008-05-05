@@ -128,12 +128,17 @@ public class AnnotatedClassConverter implements NodeConverter {
                 subMapper.setValue(currentObject, reader);
             } else {  // unknown subMapper
                 if (nodeStorage != null) {
-                    reader.saveSubTree(nodeStorage);
+//                    System.out.println("");
+//                    System.out.println("SUBTREE: "+qname);
+                    if (qname.getLocalPart().equals("p")||qname.getLocalPart().equals("r")||qname.getLocalPart().equals("t")) {
+                        System.out.println("ustavi");
+                    }
+                    reader.saveSubTree(nodeStorage, currentObject);
                 }
             }
-            String nm = "null";
-            nm = (reader.reader.getEventType() == 1 || reader.reader.getEventType() == 2) ? reader.reader.getName().getLocalPart() : "";
-            System.out.println("BEFORE moveUp: "+reader.reader.getEventType()+" "+nm);
+//            String nm = "null";
+//            nm = (reader.reader.getEventType() == 1 || reader.reader.getEventType() == 2) ? reader.reader.getName().getLocalPart() : "";
+//            System.out.println("BEFORE moveUp: "+reader.reader.getEventType()+" "+nm);
             reader.moveUp();
         }
 
@@ -162,6 +167,8 @@ public class AnnotatedClassConverter implements NodeConverter {
             writer.endNode();
         }
 
+        // write  unknown (stored) subnodes
+        writer.restoreSubTrees(nodeStorage, object);
 
     }
 
