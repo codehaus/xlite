@@ -212,11 +212,9 @@ public class XMLSimpleWriter {
                 case XMLStreamConstants.START_ELEMENT:
                     data = new String(element.data);
                     first = data.indexOf('=');
-                    second = data.indexOf('=', first + 1);
                     prefix = data.substring(0, first);
-                    localName = data.substring(first + 1, second);
-                    nsURI = data.substring(second + 1, data.length());
-                    startNode(prefix, localName, nsURI);
+                    localName = data.substring(first + 1, data.length());
+                    startNode(prefix, localName, "");
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     endNode();

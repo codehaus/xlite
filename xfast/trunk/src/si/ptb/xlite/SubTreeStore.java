@@ -2,10 +2,7 @@ package si.ptb.xlite;
 
 import javax.xml.stream.XMLStreamConstants;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.IdentityHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: peter
@@ -17,16 +14,17 @@ public class SubTreeStore {
 
     private byte[] data;
     private IdentityHashMap<Object, List<Integer>> references;
+    Map<String, String> namespaceCache = new HashMap<String, String>();
 
     public int elementNumber = 0;
     private int position = 0;
     private int readPos = 0;
     private int increment;
-    private boolean writingFinished = false;
 
     private XmlStreamSettings settings;
     private static final int START_BLOCK = 99;
     private static final int END_BLOCK = 98;
+    private static final int NAMESPACE_CACHE = 97;
 
     public SubTreeStore(int size) {
         this(size, 1000000);
@@ -38,7 +36,7 @@ public class SubTreeStore {
         references = new IdentityHashMap<Object, List<Integer>>(size / 500);
     }
 
-    public int getStoreSize(){
+    public int getStoreSize() {
         return data.length;
     }
 
@@ -52,7 +50,7 @@ public class SubTreeStore {
 
     public void reset() {
         Arrays.fill(data, (byte) 0);
-        writingFinished = false;
+        namespaceCache.clear();
         position = 0;
     }
 
@@ -79,12 +77,19 @@ public class SubTreeStore {
 
     public void addEnd() {
         addElement(END_BLOCK);
+        namespaceCache.clear();
     }
 
     public static boolean isBlockEnd(Element element) {
         return element.command == END_BLOCK;
     }
 
+    public void cacheNamespace(String prefix, String namespaceURI, String encoding) {
+        if (!namespaceCache.containsKey(prefix)) {
+            namespaceCache.put(prefix, prefix);
+            addElement(NAMESPACE_CACHE, prefix + "=" + namespaceURI, encoding);
+        }
+    }
 
     public int addElement(int command) {
         return addElement(command, (byte[]) null);
@@ -103,10 +108,6 @@ public class SubTreeStore {
 
     public int addElement(int commandID, byte[] source) {
 
-        if (writingFinished) {
-            throw new XliteException("Writing has finished for this SubTreeStore instance. " +
-                    "Once getNextElement() was called the addElement() must not be called again!");
-        }
         int len = source == null ? 0 : source.length;
         int len21 = len & 0x1FFFF;
         if (len != len21) {
@@ -168,9 +169,18 @@ public class SubTreeStore {
     public void copyFrom(SubTreeStore source) {
         Element element = source.getNextElement(0);
         while (element != null) {
+            if (element.command == NAMESPACE_CACHE) {
+
+            }
             addElement(element.command, element.data);
             element = source.getNextElement();
         }
+
+        namespaceCache.putAll(source.getCachedNamespaces());
+    }
+
+    private Map<String, String> getCachedNamespaces() {
+        return namespaceCache;
     }
 
     private boolean isNextCommand(int readPosition) {
@@ -187,7 +197,9 @@ public class SubTreeStore {
                 d == XMLStreamConstants.END_DOCUMENT ||
                 d == XMLStreamConstants.NAMESPACE ||
                 d == START_BLOCK ||
-                d == END_BLOCK;
+                d == END_BLOCK ||
+                d == NAMESPACE_CACHE;
+
     }
 
     private void needsResize(int size) {
@@ -210,6 +222,10 @@ public class SubTreeStore {
             element = getNextElement();
         }
         return depth;
+    }
+
+    public void copyNamespaceCache(SubTreeStore store) {
+        namespaceCache.putAll(store.getCachedNamespaces());
     }
 
     public static class Element {

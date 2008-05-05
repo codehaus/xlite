@@ -110,6 +110,8 @@ public class XMLSimpleReader {
     public boolean moveDown() {
         lastEventCache = currentEventCache;
         currentEventCache = new SubTreeStore(200, 200);
+        currentEventCache.copyNamespaceCache(lastEventCache);
+
         int event = reader.getEventType();
         if (event == XMLStreamConstants.START_ELEMENT) {
             Node node = new Node();
@@ -123,13 +125,13 @@ public class XMLSimpleReader {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
                 throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
-            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
+//            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
 //            System.out.println("-moveDown() false " + nm + "  (" + reader.getEventType() + ":" + nm + ")");
             return false;
         }
         nextNodeBoundary();
-        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
-        DP++;
+//        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
+//        DP++;
 //        System.out.println("-moveDown() "+DP+" true " + nm + "  (" + reader.getEventType() + ":" + nm + ")");
         return true;
     }
@@ -143,8 +145,8 @@ public class XMLSimpleReader {
 //            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
             nodeStack.pop();
             nextNodeBoundary();
-            DP--;
-            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
+//            DP--;
+//            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
 //            System.out.println("-moveUp() "+DP+" " + nm + "  (" + reader.getEventType() + ":" + nm + ")");
             return;
         }
@@ -161,8 +163,8 @@ public class XMLSimpleReader {
             }
         }
         nodeStack.pop();
-        DP--;
-        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
+//        DP--;
+//        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
 //        System.out.println("-moveUp() "+depth+" " + nm + "  (" + reader.getEventType() + ":" + nm + ")");
     }
 
@@ -323,15 +325,19 @@ public class XMLSimpleReader {
                 break;
             case XMLStreamConstants.START_ELEMENT:
                 qName = reader.getName();
-                name = qName.getPrefix() + "=" + qName.getLocalPart() + "=" + "."; //qName.getNamespaceURI();
+                // save namespace
+                    store.cacheNamespace(qName.getPrefix(), qName.getNamespaceURI(), settings.encoding);
+                name = qName.getPrefix() + "=" + qName.getLocalPart(); //qName.getNamespaceURI();
 //                System.out.println("process "+desc+" start element: " + qName.getLocalPart());
                 store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
                 addAtributes(store, settings.encoding);
                 addNamespaces(store, settings.encoding);
                 break;
             case XMLStreamConstants.END_ELEMENT:
+                qName = reader.getName();
+                name = qName.getPrefix() + "=" + qName.getLocalPart();
 //                System.out.println("process "+desc+" end element: " + reader.getName().getLocalPart());
-                store.addElement(XMLStreamConstants.END_ELEMENT, reader.getName().getLocalPart(), settings.encoding);
+                store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
                 break;
             case XMLStreamConstants.CHARACTERS:
                 if (!reader.isWhiteSpace()) {
@@ -353,7 +359,7 @@ public class XMLSimpleReader {
         for (int i = 0, n = reader.getAttributeCount(); i < n; ++i) {
             qName = reader.getAttributeName(i);
 //            name = qName.getPrefix().length() == 0 ? qName.getLocalPart() : (qName.getPrefix() + ":" + qName.getLocalPart());
-            name = qName.getPrefix() + "=" + qName.getLocalPart() + "=."; //+ qName.getNamespaceURI();
+            name = qName.getPrefix() + "=" + qName.getLocalPart(); //+ qName.getNamespaceURI();
             store.addElement(XMLStreamConstants.ATTRIBUTE, name + "=" + reader.getAttributeValue(i), encoding);
         }
     }
