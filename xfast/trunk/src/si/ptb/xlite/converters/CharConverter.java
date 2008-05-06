@@ -5,7 +5,7 @@ package si.ptb.xlite.converters;
  */
 public class CharConverter implements ValueConverter{
     public boolean canConvert(Class type) {
-        return type.equals(char.class) || type.equals(Character.class);
+        return type.equals(char.class) || Character.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

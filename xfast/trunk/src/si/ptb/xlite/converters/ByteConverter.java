@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class ByteConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return type.equals(byte.class) || type.equals(Byte.class);
+        return type.equals(byte.class) || Byte.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

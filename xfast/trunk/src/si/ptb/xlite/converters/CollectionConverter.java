@@ -24,12 +24,15 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
     }
 
     public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
-        throw new UnsupportedOperationException("method not implemented yet!!");
+        Collection collection = (Collection) object;
+        for (Object obj : collection) {
+            mappingContext.processNextObject(obj, writer);
+        }
     }
 
     public Collection initializeCollection(Class targetType) {
         if (!isCollectionType(targetType)) {
-            throw new XliteException("Error: Target class " + targetType.getName() + " is can not be cast to java.util.Collection!");
+            throw new XliteException("Error: Target class " + targetType.getName() + " can not be cast to java.util.Collection!");
         }
         Class<? extends Collection> concreteType = getConcreteCollectionType(targetType);
         try {

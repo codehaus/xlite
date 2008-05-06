@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class FloatConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return type.equals(float.class) || type.equals(Float.class);
+        return type.equals(float.class) || Float.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

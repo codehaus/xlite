@@ -130,9 +130,6 @@ public class AnnotatedClassConverter implements NodeConverter {
                 if (nodeStorage != null) {
 //                    System.out.println("");
 //                    System.out.println("SUBTREE: "+qname);
-                    if (qname.getLocalPart().equals("p") || qname.getLocalPart().equals("r") || qname.getLocalPart().equals("t")) {
-                        System.out.println("ustavi");
-                    }
                     reader.saveSubTree(nodeStorage, currentObject);
                 }
             }

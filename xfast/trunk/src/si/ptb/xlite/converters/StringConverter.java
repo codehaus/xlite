@@ -9,7 +9,7 @@ package si.ptb.xlite.converters;
 public class StringConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return String.class.equals(type);
+        return String.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

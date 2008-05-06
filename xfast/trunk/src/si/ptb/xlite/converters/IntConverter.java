@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class IntConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return type.equals(int.class) || type.equals(Integer.class);
+        return type.equals(int.class) || Integer.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

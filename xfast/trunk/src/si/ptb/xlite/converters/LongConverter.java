@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class LongConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return type.equals(long.class) || type.equals(Long.class);
+        return type.equals(long.class) || Long.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

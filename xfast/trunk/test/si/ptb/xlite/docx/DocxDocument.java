@@ -1,11 +1,14 @@
 package si.ptb.xlite.docx;
 
 import org.xml.sax.SAXException;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import si.ptb.xlite.XMLnode;
 import si.ptb.xlite.Xlite;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.FileWriter;
 
 /**
  * User: peter
@@ -23,7 +26,7 @@ public class DocxDocument {
 
     public static void main(String[] args) throws IOException, SAXException {
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
 
             DocxDocument document = null;
             Xlite xlite = new Xlite(DocxDocument.class, "document", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
@@ -42,17 +45,17 @@ public class DocxDocument {
 
             System.out.println("duration read: " + (System.currentTimeMillis() - start));
             System.out.println("store size: "+xlite.getNodeStore().getStoreSize());
-//            start = System.currentTimeMillis();
-//
-//            String tmpfile = "/home/peter/tmp/out.xml";
-//            FileWriter fw = new FileWriter(tmpfile);
-//            xlite.toXML(document, fw);
-//
-//            System.out.println("duration write: " + (System.currentTimeMillis() - start));
-//
-//            FileReader fr = new FileReader(tmpfile);
-//            XMLUnit.setIgnoreWhitespace(true);
-//            XMLAssert.assertXMLEqual(reader, fr);
+            start = System.currentTimeMillis();
+
+            String tmpfile = "/home/peter/tmp/out.xml";
+            FileWriter fw = new FileWriter(tmpfile);
+            xlite.toXML(document, fw);
+
+            System.out.println("duration write: " + (System.currentTimeMillis() - start));
+
+            FileReader fr = new FileReader(tmpfile);
+            XMLUnit.setIgnoreWhitespace(true);
+            XMLAssert.assertXMLEqual(reader, fr);
 
         }
 

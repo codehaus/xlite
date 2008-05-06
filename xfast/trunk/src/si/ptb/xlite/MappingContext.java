@@ -45,6 +45,12 @@ public class MappingContext {
         return converter.fromNode(reader, targetType, this);
     }
 
+    public void processNextObject(Object object, XMLSimpleWriter writer) {
+        // find the converter for given Object
+        NodeConverter converter = lookupNodeConverter(object.getClass());
+        converter.toNode(object, writer, this);
+    }
+
     public ValueConverter lookupValueConverter(Class type) {
         for (ValueConverter valueConverter : valueConverters) {
             if (valueConverter.canConvert(type)) {

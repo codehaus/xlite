@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class ShortConverter implements ValueConverter {
 
     public boolean canConvert(Class type) {
-        return type.equals(short.class) || type.equals(Short.class);
+        return type.equals(short.class) || Short.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

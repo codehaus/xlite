@@ -20,7 +20,7 @@ public class BooleanConverter implements ValueConverter {
     }
 
     public boolean canConvert(Class type) {
-        return type.equals(boolean.class) || type.equals(Boolean.class);
+        return type.equals(boolean.class) || Boolean.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {

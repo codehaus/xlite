@@ -1,8 +1,13 @@
 package si.ptb.xlite;
 
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.Assert;
+import org.xml.sax.SAXException;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,26 +19,27 @@ public class CollectionConverterTest {
             "<one>" +
                     "just some text" +
                     "<item>" +
-                    "first item text" +
-                    "<subitem>sub11</subitem>" +
-                    "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
-                    "<subitem>sub12</subitem>" +
+                      "first item text" +
+                      "<subitem>sub11</subitem>" +
+                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
+                      "<subitem>sub12</subitem>" +
                     "</item>" +
                     "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
                     "<item>" +
-                    "second item text" +
-                    "<subitem>sub21<ignored>Ignored</ignored></subitem>" +
-                    "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
-                    "<subitem>sub22</subitem>" +
-                    "<subitem>sub23</subitem>" +
+                      "second item text" +
+                      "<subitem>sub21<ignored>Ignored</ignored></subitem>" +
+                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
+                      "<subitem>sub22</subitem>" +
+                      "<subitem>sub23</subitem>" +
                     "</item>" +
-                    "</one>";
+                  "</one>";
 
     @org.testng.annotations.Test
-    public void collectionConverterTest() {
+    public void collectionConverterTest() throws IOException, SAXException {
 
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(One.class, "one");
+        xlite.isStoringUnknownNodes = true;
         One one = (One) xlite.fromXML(reader);
 
         Assert.assertEquals(one.text, "just some text"); // should be converted to upper case
@@ -46,6 +52,13 @@ public class CollectionConverterTest {
         Assert.assertEquals(one.list.get(1).subs.get(1).text, "sub22");
         Assert.assertEquals(one.list.get(1).subs.get(2).text, "sub23");
 
+        StringWriter writer = new StringWriter();
+        xlite.toXML(one, writer);
+
+        System.out.println(writer.toString());
+
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, writer.toString());
     }
 
     public static class One {

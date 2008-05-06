@@ -6,7 +6,7 @@ package si.ptb.xlite.converters;
 public class DoubleConverter implements ValueConverter{
 
     public boolean canConvert(Class type) {
-        return type.equals(double.class) || type.equals(Double.class);
+        return type.equals(double.class) || Double.class.isAssignableFrom(type);
     }
 
     public Object fromValue(String value) {
