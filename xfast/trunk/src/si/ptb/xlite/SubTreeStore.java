@@ -24,7 +24,7 @@ public class SubTreeStore {
     private XmlStreamSettings settings;
     private static final int START_BLOCK = 99;
     private static final int END_BLOCK = 98;
-    private static final int NAMESPACE_CACHE = 97;
+    public static final int NAMESPACE_CACHE = 97;
 
     public SubTreeStore(int size) {
         this(size, 1000000);
@@ -82,6 +82,10 @@ public class SubTreeStore {
 
     public static boolean isBlockEnd(Element element) {
         return element.command == END_BLOCK;
+    }
+
+    public static boolean isCachedNamespace(Element element) {
+        return element.command == NAMESPACE_CACHE;
     }
 
     public void cacheNamespace(String prefix, String namespaceURI, String encoding) {

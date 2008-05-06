@@ -334,10 +334,8 @@ public class XMLSimpleReader {
                 addNamespaces(store, settings.encoding);
                 break;
             case XMLStreamConstants.END_ELEMENT:
-                qName = reader.getName();
-                name = qName.getPrefix() + "=" + qName.getLocalPart();
 //                System.out.println("process "+desc+" end element: " + reader.getName().getLocalPart());
-                store.addElement(XMLStreamConstants.END_ELEMENT, name, settings.encoding);
+                store.addElement(XMLStreamConstants.END_ELEMENT);
                 break;
             case XMLStreamConstants.CHARACTERS:
                 if (!reader.isWhiteSpace()) {

@@ -34,7 +34,7 @@ public class SubTreeStoreTest {
     static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\" xmlns:w=\"ns3\">\n" +
             "<s:b>\n" +
             "<c>\n" +
-            "<w:emptico/>\n" +
+            "<w:emptico xmlns:w=\"www\"/>\n" +
             "<w:one aa=\"prvi\">\n" +
             "<w:empty/>\n" +
             "</w:one>\n" +
@@ -51,26 +51,27 @@ public class SubTreeStoreTest {
         Xlite xlite = new Xlite(A.class, "a", "ns1");
         xlite.isStoringUnknownNodes = true;
         xlite.addNamespace("ns1");
-//        xlite.addNamespace("s=ns2");
+        xlite.addNamespace("s=ns2");
+        xlite.addNamespace("w=ns3");
         A a = (A) xlite.fromXML(reader);
 
         XMLSimpleReader.printStore(xlite.getNodeStore(), "STORE");
 
         // writing back to XML
-//        StringWriter sw = new StringWriter();
-//        xlite.toXML(a, sw);
-//        String ssw = sw.toString();
-//        System.out.println("");
-//        System.out.println(xml);
-//        System.out.println("");
-//        System.out.println(ssw);
-//
-//        XMLUnit.setIgnoreWhitespace(true);
-//        XMLAssert.assertXMLEqual(xml, ssw);
+        StringWriter sw = new StringWriter();
+        xlite.toXML(a, sw);
+        String ssw = sw.toString();
+        System.out.println("");
+        System.out.println(xml);
+        System.out.println("");
+        System.out.println(ssw);
+
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(xml, ssw);
     }
 
     public static class A {
-        @XMLnamespaces("s=ns2")
+//        @XMLnamespaces("s=ns2")
         @XMLnode("s:b")
         public B b;
     }
