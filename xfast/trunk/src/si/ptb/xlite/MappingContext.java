@@ -3,6 +3,7 @@ package si.ptb.xlite;
 import si.ptb.xlite.converters.NodeConverter;
 import si.ptb.xlite.converters.ValueConverter;
 
+import javax.xml.namespace.QName;
 import java.util.List;
 
 /**
@@ -45,10 +46,10 @@ public class MappingContext {
         return converter.fromNode(reader, targetType, this);
     }
 
-    public void processNextObject(Object object, XMLSimpleWriter writer) {
+    public void processNextObject(Object object, QName nodeName, XMLSimpleWriter writer) {
         // find the converter for given Object
         NodeConverter converter = lookupNodeConverter(object.getClass());
-        converter.toNode(object, writer, this);
+        converter.toNode(object, nodeName, writer, this);
     }
 
     public ValueConverter lookupValueConverter(Class type) {

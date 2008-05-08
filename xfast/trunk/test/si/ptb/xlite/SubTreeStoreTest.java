@@ -33,12 +33,13 @@ public class SubTreeStoreTest {
 
     static String xml = "<a xmlns=\"ns1\" xmlns:s=\"ns2\" xmlns:w=\"ns3\">\n" +
             "<s:b>\n" +
-            "<c>\n" +
+            "<c>CCCCCCC\n" +
+            "<e>EEEE</e>\n"+
             "<w:emptico xmlns:w=\"www\"/>\n" +
             "<w:one aa=\"prvi\">\n" +
             "<w:empty/>\n" +
             "</w:one>\n" +
-            "<subignored asub=\"666\"><subsub/></subignored>" +
+            "<subignored asub=\"666\"><subsub/></subignored>\n" +
             "<d attrD=\"DDD\" ></d>\n" +
             "</c>\n" +
             "</s:b>\n" +
@@ -85,6 +86,9 @@ public class SubTreeStoreTest {
     public static class C {
         @XMLnode
         public D d;
+
+        @XMLtext
+        public String text;
     }
 
     public static class D {

@@ -2,6 +2,7 @@ package si.ptb.xlite.converters;
 
 import si.ptb.xlite.*;
 
+import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
@@ -66,11 +67,11 @@ public class NodeMapper {
         }
     }
 
-    public void writeNode(Object object, XMLSimpleWriter writer) {
+    public void writeNode(Object object, QName nodeName, XMLSimpleWriter writer) {
         Object targetObject = null;
         try {
             targetObject = targetField.get(object);
-            nodeConverter.toNode(targetObject, writer, mappingContext);
+            nodeConverter.toNode(targetObject, nodeName, writer, mappingContext);
         } catch (IllegalAccessException e) {
             throw new XliteException("Field could not be read! ", e);
         }

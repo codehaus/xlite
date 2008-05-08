@@ -9,6 +9,7 @@ import si.ptb.xlite.Xlite;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
+import java.io.StringWriter;
 
 /**
  * User: peter
@@ -38,7 +39,7 @@ public class DocxDocument {
             FileReader reader2 = new FileReader("/home/peter/vmware/shared/test2/word/document_pp.xml");
             FileReader reader1 = new FileReader("/home/peter/vmware/shared/test1/word/document-pp.xml");
 
-            FileReader reader = reader4;
+            FileReader reader = reader3;
 
             long start = System.currentTimeMillis();
             document = (DocxDocument) xlite.fromXML(reader);
@@ -48,14 +49,13 @@ public class DocxDocument {
             start = System.currentTimeMillis();
 
             String tmpfile = "/home/peter/tmp/out.xml";
-            FileWriter fw = new FileWriter(tmpfile);
+            StringWriter fw = new StringWriter();
             xlite.toXML(document, fw);
 
             System.out.println("duration write: " + (System.currentTimeMillis() - start));
 
-            FileReader fr = new FileReader(tmpfile);
-            XMLUnit.setIgnoreWhitespace(true);
-            XMLAssert.assertXMLEqual(reader, fr);
+//            XMLUnit.setIgnoreWhitespace(true);
+//            XMLAssert.assertXMLEqual(reader, fr);
 
         }
 

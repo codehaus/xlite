@@ -16,23 +16,23 @@ import java.util.List;
 public class CollectionConverterTest {
 
     static String xml =
-            "<one>" +
-                    "just some text" +
-                    "<item>" +
-                      "first item text" +
-                      "<subitem>sub11</subitem>" +
-                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
-                      "<subitem>sub12</subitem>" +
-                    "</item>" +
-                    "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
-                    "<item>" +
-                      "second item text" +
-                      "<subitem>sub21<ignored>Ignored</ignored></subitem>" +
-                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
-                      "<subitem>sub22</subitem>" +
-                      "<subitem>sub23</subitem>" +
-                    "</item>" +
-                  "</one>";
+            "<one>\n" +
+                    "just some text\n" +
+                    "<item>\n" +
+                      "first item text\n" +
+                      "<subitem>sub12<e></e></subitem>\n" +
+                      "<subitem>sub11</subitem>\n" +
+                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>\n" +
+                    "</item>\n" +
+                    "<item>\n" +
+                    "second item text\n" +
+                    "<subitem>sub21<ignored>IIIgnored</ignored></subitem>\n" +
+//                      "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>" +
+                    "<subitem>sub22</subitem>\n" +
+                    "<subitem>sub23</subitem>\n" +
+                    "</item>\n" +
+                    "<ignored>Ignored<subignored/><subignored2/><subignored3/></ignored>\n" +
+                    "</one>\n";
 
     @org.testng.annotations.Test
     public void collectionConverterTest() throws IOException, SAXException {
@@ -55,6 +55,8 @@ public class CollectionConverterTest {
         StringWriter writer = new StringWriter();
         xlite.toXML(one, writer);
 
+        System.out.println(xml);
+        System.out.println("\n");
         System.out.println(writer.toString());
 
         XMLUnit.setIgnoreWhitespace(true);

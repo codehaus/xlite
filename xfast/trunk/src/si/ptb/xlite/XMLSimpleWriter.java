@@ -18,6 +18,7 @@ public class XMLSimpleWriter {
     private XMLStreamWriter writer;
     private XmlStreamSettings settings = new XmlStreamSettings();
     private List<Element> elementCache = new ArrayList<Element>();
+    private List<Element> predefinedNamespaces = new ArrayList<Element>();
 
     public final boolean isPrettyPrinting;
     private StringBuilder tabs = new StringBuilder("\n");
@@ -58,20 +59,12 @@ public class XMLSimpleWriter {
         }
     }
 
-    public void setDefaultNamespace(String namespaceURI) {
-        try {
-            writer.setDefaultNamespace(namespaceURI);
-        } catch (XMLStreamException e) {
-            throw new XliteException(e);
-        }
-    }
-
     public void startNode(String prefix, String localName, String namespaceURI) {
         flushElementCache();
         prettyPrint();
         prettyPrintIncreaseDepth();
 //            System.out.println("start: " + prefix + ":" + localName + "  ns=" + namespaceURI);
-        elementCache.add(new Element(Element.START_NODE, prefix, localName, namespaceURI, ""));
+        elementCache.add(0, new Element(Element.START_NODE, prefix, localName, namespaceURI, ""));
     }
 
     public void startNode(QName qname) {
@@ -155,6 +148,12 @@ public class XMLSimpleWriter {
         }
     }
 
+    public void predefineNamespaces(NsContext namespaces) {
+        for (Map.Entry<String, String> namespace : namespaces) {
+            predefinedNamespaces.add(new Element(Element.NAMESPACE, namespace.getKey(), "", namespace.getValue(), ""));
+        }
+    }
+
     public void addNamespaces(NsContext namespaces) {
         for (Map.Entry<String, String> namespace : namespaces) {
             addNamespace(namespace.getKey(), namespace.getValue());
@@ -184,6 +183,8 @@ public class XMLSimpleWriter {
 
         flushElementCache();
 
+//        XMLSimpleReader.printStore(store, "RE-STORE");
+
         String prefix, localName, nsURI, value, data;
         String encoding = settings.encoding;  // default encoding
         int first, second, third;
@@ -212,7 +213,6 @@ public class XMLSimpleWriter {
                     String header = new String(element.data);
                     String[] headers = header.split("\n");
                     encoding = headers[0].equals("null") ? encoding : headers[0];  // default encoding is UTF-8
-//                    System.out.println("Header written: " + headers[0] + " " + headers[1]);
                     startDocument();
                     break;
                 case XMLStreamConstants.END_DOCUMENT:
@@ -261,20 +261,33 @@ public class XMLSimpleWriter {
                     emptyNode = false;
                     addComment(new String(element.data, encoding));
                     break;
-//                default:
-//                    System.out.println("other: type="+reader.getEventType());
             }
             element = store.getNextElement();
         }
     }
 
+    private void writePredefinedNamespaces() {
+        if (predefinedNamespaces.size()!=0) {
+            for (Element ns : predefinedNamespaces) {
+                try {
+                    writer.writeNamespace(ns.prefix, ns.nsURI);
+                } catch (XMLStreamException e) {
+                    throw new XliteException(e);
+                }
+            }
+            predefinedNamespaces.clear();
+        }
+    }
+
     private void flushElementCache() {
 
+        // write out cache contents
         try {
             for (Element element : elementCache) {
                 switch (element.command) {
                     case Element.START_NODE:
                         writer.writeStartElement(element.prefix, element.localName, element.nsURI);
+                        writePredefinedNamespaces();
                         break;
                     case Element.EMPTY_NODE:
                         writer.writeEmptyElement(element.prefix, element.localName, element.nsURI);
@@ -292,7 +305,7 @@ public class XMLSimpleWriter {
             throw new XliteException(e);
         }
 
-        // cache has been written out, so we can clear it
+        // cache has been written out, so it can be cleared
         elementCache.clear();
     }
 
@@ -317,70 +330,4 @@ public class XMLSimpleWriter {
         }
     }
 
-//       public void restoreSubTree2(XMLSimpleWriter writer, Object refeence) throws XMLStreamException, UnsupportedEncodingException {
-//
-//        String prefix, localName, nsURI, value, data;
-//        String encoding = settings.encoding;  // default encoding
-//        int first, second, third;
-//
-//
-//        SubTreeStore.Element element = getNextElement();
-//        if(element.command != SubTreeStore.START_BLOCK){
-//            throw new IllegalArgumentException("Error: XMLSimpleWriter.restoreSubTree was given a wrong location " +
-//                    "argument: no saved data block is found on given location!");
-//        }
-//        while (element.command != SubTreeStore.END_BLOCK) {
-//            switch (element.command) {
-//                case XMLStreamConstants.START_DOCUMENT:
-//                    String header = new String(element.data);
-//                    String[] headers = header.split("\n");
-//                    encoding = headers[0].equals("null") ? encoding : headers[0];  // default encoding is UTF-8
-////                    System.out.println("Header written: " + headers[0] + " " + headers[1]);
-//                    writer.startDocument();
-//                    break;
-//                case XMLStreamConstants.END_DOCUMENT:
-//                    writer.endDocument();
-//                    break;
-//                case XMLStreamConstants.START_NODE:
-//                    data = new String(element.data);
-//                    first = data.indexOf('=');
-//                    second = data.indexOf('=', first + 1);
-//                    prefix = data.substring(0, first);
-//                    localName = data.substring(first + 1, second);
-//                    nsURI = data.substring(second + 1, data.length());
-//                    writer.startNode(prefix, localName, nsURI);
-//                    break;
-//                case XMLStreamConstants.END_ELEMENT:
-//                    writer.endNode();
-//                    break;
-//                case XMLStreamConstants.ATTRIBUTE:
-//                    data = new String(element.data);
-//                    first = data.indexOf('=');
-//                    second = data.indexOf('=', first + 1);
-//                    third = data.indexOf('=', second + 1);
-//                    prefix = data.substring(0, first);
-//                    localName = data.substring(first + 1, second);
-//                    nsURI = data.substring(second + 1, third);
-//                    value = data.substring(third + 1, data.length());
-//                    writer.addAttribute(prefix, localName, nsURI, value);
-//                    break;
-//                case XMLStreamConstants.NAMESPACE:
-//                    data = new String(element.data);
-//                    first = data.indexOf('=');
-//                    prefix = data.substring(0, first);
-//                    nsURI = data.substring(first + 1, data.length());
-//                    writer.addNamespace(prefix, nsURI);
-//                    break;
-//                case XMLStreamConstants.CHARACTERS:
-//                    writer.addText(new String(element.data, encoding));
-//                    break;
-//                case XMLStreamConstants.CDATA:
-//                    writer.addComment(new String(element.data, encoding));
-//                    break;
-////                default:
-////                    System.out.println("other: type="+reader.getEventType());
-//            }
-//            element = getNextElement();
-//        }
-//    }
 }

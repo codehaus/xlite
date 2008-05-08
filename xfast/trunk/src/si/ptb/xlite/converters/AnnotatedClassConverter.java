@@ -128,8 +128,8 @@ public class AnnotatedClassConverter implements NodeConverter {
                 subMapper.setValue(currentObject, reader);
             } else {  // unknown subMapper
                 if (nodeStorage != null) {
-//                    System.out.println("");
-//                    System.out.println("SUBTREE: "+qname);
+                    System.out.println("");
+                    System.out.println("SUBTREE: "+qname);
                     reader.saveSubTree(nodeStorage, currentObject);
                 }
             }
@@ -142,7 +142,10 @@ public class AnnotatedClassConverter implements NodeConverter {
         return currentObject;
     }
 
-    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
+    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+
+        // write a start tag
+        writer.startNode(nodeName);
 
         // write attributes
         for (QName attrName : attributeMappers.keySet()) {
@@ -152,22 +155,24 @@ public class AnnotatedClassConverter implements NodeConverter {
         }
 
         // write node's value
-        if (valueMapper != null) {
+        if (valueMapper != null && object != null) {
             writer.addText(valueMapper.getValue(object));
         }
 
         // write subnodes
         for (QName subName : nodeMappers.keySet()) {
-            writer.startNode(subName);
             NodeMapper nodeMapper = nodeMappers.get(subName);
-            nodeMapper.writeNode(object, writer);
-            writer.endNode();
+            nodeMapper.writeNode(object, subName, writer);
         }
 
         // write  unknown (stored) subnodes
         if (nodeStorage != null) {
             writer.restoreSubTrees(nodeStorage, object);
         }
+
+        // write end tag
+        writer.endNode();
+
     }
 
     public void printContents(String prefix) {

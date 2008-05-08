@@ -36,10 +36,8 @@ public class RootMapper {
     }
 
     public void toXML(Object object, XMLSimpleWriter writer) {
-        writer.startNode(rootNodeName);
-        writer.addNamespaces(mappingContext.getPredefinedNamespaces());
-        nodeConverter.toNode(object, writer, mappingContext);
-        writer.endNode();
+        writer.predefineNamespaces(mappingContext.getPredefinedNamespaces());
+        nodeConverter.toNode(object, rootNodeName, writer, mappingContext);
     }
 
 }

@@ -4,6 +4,7 @@ import org.testng.Assert;
 import si.ptb.xlite.converters.NodeConverter;
 import si.ptb.xlite.converters.ValueConverter;
 
+import javax.xml.namespace.QName;
 import java.io.StringReader;
 
 /**
@@ -57,7 +58,7 @@ public class CustomConverterTest {
             return custom;
         }
 
-        public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
+        public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
             //To change body of implemented methods use File | Settings | File Templates.
         }
 

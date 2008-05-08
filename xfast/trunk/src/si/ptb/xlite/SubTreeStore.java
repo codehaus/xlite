@@ -25,6 +25,7 @@ public class SubTreeStore {
     private static final int START_BLOCK = 99;
     private static final int END_BLOCK = 98;
     public static final int NAMESPACE_CACHE = 97;
+    private int markedPosition = 0;
 
     public SubTreeStore(int size) {
         this(size, 1000000);
@@ -40,23 +41,28 @@ public class SubTreeStore {
         return data.length;
     }
 
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
     public void reset() {
         Arrays.fill(data, (byte) 0);
         namespaceCache.clear();
         position = 0;
+        markedPosition = 0;
     }
 
-//    public String getEncoding() {
-//        return settings.encoding;
-//    }
+        public void mark() {
+        this.markedPosition = position;
+    }
+
+    public void trim(){
+        namespaceCache.clear();
+//        XMLSimpleReader.printStore(this, "data");
+        byte[] newData = new byte[data.length];
+        System.arraycopy(data, markedPosition, newData, 0, position-markedPosition+1);
+        data = newData;
+        position = position-markedPosition;
+        markedPosition = 0;
+//        XMLSimpleReader.printStore(this, "new data");
+
+    }
 
     public List<Integer> getLocations(Object reference) {
         return references.get(reference);

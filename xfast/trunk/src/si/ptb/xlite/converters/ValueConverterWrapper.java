@@ -4,6 +4,8 @@ import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
 import si.ptb.xlite.MappingContext;
 
+import javax.xml.namespace.QName;
+
 /**
  * @author peter
  */
@@ -23,7 +25,9 @@ public class ValueConverterWrapper implements NodeConverter {
         return valueConverter.fromValue(reader.getText());
     }
 
-    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
+    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+        writer.startNode(nodeName);
         writer.addText(valueConverter.toValue(object));
+        writer.endNode();
     }
 }

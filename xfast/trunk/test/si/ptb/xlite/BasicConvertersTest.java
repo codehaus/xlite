@@ -26,6 +26,7 @@ public class BasicConvertersTest {
     public void mainTest() throws IllegalAccessException {
         StringReader reader = new StringReader(xml);
         Xlite xf = new Xlite(Primitives.class, "primitives");
+        xf.isStoringUnknownNodes = true;
 
         Primitives primitives = (Primitives) xf.fromXML(reader);
 

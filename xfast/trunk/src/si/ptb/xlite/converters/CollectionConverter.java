@@ -5,6 +5,7 @@ import si.ptb.xlite.XMLSimpleReader;
 import si.ptb.xlite.XMLSimpleWriter;
 import si.ptb.xlite.XliteException;
 
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,10 +24,13 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
         return mappingContext.processNextNode(targetType, reader);
     }
 
-    public void toNode(Object object, XMLSimpleWriter writer, MappingContext mappingContext) {
+    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+        if (object == null) {
+            return;
+        }
         Collection collection = (Collection) object;
         for (Object obj : collection) {
-            mappingContext.processNextObject(obj, writer);
+            mappingContext.processNextObject(obj, nodeName, writer);
         }
     }
 
