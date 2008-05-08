@@ -56,7 +56,7 @@ public class SubTreeStoreTest {
         xlite.addNamespace("w=ns3");
         A a = (A) xlite.fromXML(reader);
 
-        XMLSimpleReader.printStore(xlite.getNodeStore(), "STORE");
+//        XMLSimpleReader.printStore(xlite.getNodeStore(), "STORE");
 
         // writing back to XML
         StringWriter sw = new StringWriter();

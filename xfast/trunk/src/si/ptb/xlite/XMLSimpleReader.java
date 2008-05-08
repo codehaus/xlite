@@ -23,9 +23,7 @@ public class XMLSimpleReader {
     private Stack<Node> nodeStack = new Stack<Node>();
     private boolean isEnd = false;
     private boolean isStoringUnknownNodes;
-    private SubTreeStore currentEventCache = new SubTreeStore(200, 200);
-    private SubTreeStore lastEventCache;
-    private SubTreeStore testCache = new SubTreeStore(200, 200);
+    private SubTreeStore eventCache = new SubTreeStore(200, 200);
 
     private int DP;
 
@@ -76,33 +74,27 @@ public class XMLSimpleReader {
         }
 
         for (int event = nextEvent(); true; event = nextEvent()) {
-
-            // save the xml events in a cache
-            if (isStoringUnknownNodes && processEvents) {
-                processElement(currentEventCache, "current");
-            }
-
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
 //                    System.out.println("start: " + reader.getName());
-                    testCache.trim();
-                    testCache.mark();
-                    processElement(testCache, "test");
+                    eventCache.trim();
+                    eventCache.mark();
+                    processElement(eventCache, "test");
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
-                    processElement(testCache, "test");
+                    processElement(eventCache, "test");
 //                    System.out.println("end document ");
                     isEnd = true;
                     return false;
                 case XMLStreamConstants.END_ELEMENT:
-                    testCache.trim();
-                    processElement(testCache, "test");
+                    eventCache.trim();
+                    processElement(eventCache, "test");
 //                    System.out.println("end: " + reader.getName());
                     return false;
                 case XMLStreamConstants.CHARACTERS:
                     String text = reader.getText().trim();
                     if (processEvents && text.length() > 0) {
-                        processElement(testCache, "test");
+                        processElement(eventCache, "test");
                         nodeStack.peek().text.append(text);
 //                        System.out.println(" text:" + text);
                     }
@@ -119,9 +111,6 @@ public class XMLSimpleReader {
      */
     public boolean moveDown() {
 //        System.out.println("+moveDown() init");
-//        lastEventCache = currentEventCache;
-//        currentEventCache = new SubTreeStore(200, 200);
-//        currentEventCache.copyNamespaceCache(lastEventCache);
 
         int event = reader.getEventType();
         if (event == XMLStreamConstants.START_ELEMENT) {
@@ -266,26 +255,18 @@ public class XMLSimpleReader {
 
 
     public void saveSubTree(SubTreeStore store, Object object) {
-//        printStore(testCache, "TEST");
-//        printStore(lastEventCache, "LAST");
-//        printStore(currentEventCache, "CACHED");
+//        printStore(eventCache, "TEST");
         // save a starting position of this block
         store.addStart(object);
 
         // calculate current depth of xml nodes in store
 //        int depth = lastEventCache.getDepth() + currentEventCache.getDepth();
-        int depth = testCache.getDepth();
+        int depth = eventCache.getDepth();
         int lineNo = reader.getLocation().getLineNumber();
-//        System.out.println("depth: " + depth);
-//        System.out.println("lineNo: " + lineNo);
 
-        //copy cached xml events from both caches
-//        store.copyFrom(lastEventCache);
-//        store.copyFrom(currentEventCache);
-        store.copyFrom(testCache);
-        testCache.reset();
-//        lastEventCache.reset();
-//        currentEventCache.reset();
+        //copy cached xml events from event cache
+        store.copyFrom(eventCache);
+        eventCache.reset();
 
         // check if stream is already at the end of subtree (happens when there is only one empty node in a sutree)
         int event = reader.getEventType();
@@ -347,7 +328,7 @@ public class XMLSimpleReader {
                 qName = reader.getName();
                 // save namespace
                 store.cacheNamespace(qName.getPrefix(), qName.getNamespaceURI(), settings.encoding);
-                name = qName.getPrefix() + "=" + qName.getLocalPart(); //qName.getNamespaceURI();
+                name = qName.getPrefix() + "=" + qName.getLocalPart();
 //                System.out.println("process "+desc+" start element: " + qName.getLocalPart());
                 store.addElement(XMLStreamConstants.START_ELEMENT, name, settings.encoding);
                 addAtributes(store, settings.encoding);

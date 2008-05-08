@@ -128,8 +128,6 @@ public class AnnotatedClassConverter implements NodeConverter {
                 subMapper.setValue(currentObject, reader);
             } else {  // unknown subMapper
                 if (nodeStorage != null) {
-                    System.out.println("");
-                    System.out.println("SUBTREE: "+qname);
                     reader.saveSubTree(nodeStorage, currentObject);
                 }
             }
