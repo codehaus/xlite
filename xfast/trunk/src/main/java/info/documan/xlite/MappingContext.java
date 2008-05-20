@@ -43,8 +43,9 @@ public class MappingContext {
     public Object processNextNode(Class targetType, XMLSimpleReader reader) {
         // find the converter for given Class
         NodeConverter converter = lookupNodeConverter(targetType);
-        return converter.fromNode(reader, targetType, this);
+        return converter.fromNode(reader, this);
     }
+
 
     public void processNextObject(Object object, QName nodeName, XMLSimpleWriter writer) {
         // find the converter for given Object

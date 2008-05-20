@@ -21,7 +21,7 @@ public class ValueConverterWrapper implements NodeConverter {
         return valueConverter.canConvert(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext) {
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
         return valueConverter.fromValue(reader.getText());
     }
 

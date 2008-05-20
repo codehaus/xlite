@@ -31,10 +31,9 @@ public interface NodeConverter {
      * When method returns, the stream should be positioned on the same node as it was when entering method.
      *
      * @param reader
-     * @param targetType
      * @param mappingContext @return
      */
-    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext);
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext);
 
     public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext);
 

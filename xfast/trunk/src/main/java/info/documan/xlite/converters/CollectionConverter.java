@@ -1,16 +1,15 @@
 package info.documan.xlite.converters;
 
+import info.documan.xlite.MappingContext;
+import info.documan.xlite.XMLSimpleReader;
 import info.documan.xlite.XMLSimpleWriter;
+import info.documan.xlite.XliteException;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import info.documan.xlite.MappingContext;
-import info.documan.xlite.XliteException;
-import info.documan.xlite.*;
 
 /**
  * @author peter
@@ -21,18 +20,16 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
         return Collection.class.isAssignableFrom(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext) {
-        return mappingContext.processNextNode(targetType, reader);
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+//        NodeConverter converter = mappingContext.lookupNodeConverter(targetType);
+//        return converter.fromNode(reader, mappingContext);
+        throw new XliteException("CollectionConverter.fromNode() method should not be called directly. " +
+                "Rather for every object in a collection, a .fromNode() method should be called on it's assigned converter");
     }
 
     public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
-        if (object == null) {
-            return;
-        }
-        Collection collection = (Collection) object;
-        for (Object obj : collection) {
-            mappingContext.processNextObject(obj, nodeName, writer);
-        }
+        throw new XliteException("CollectionConverter.toNode() method should not be called directly. " +
+                "Rather for every object in a collection, a .toNode() method should be called on it's assigned converter");
     }
 
     public Collection initializeCollection(Class targetType) {
@@ -66,13 +63,6 @@ public class CollectionConverter implements NodeConverter, CollectionConverting 
 
     public Iterator getIterator(Collection collection) {
         return collection.iterator();
-    }
-
-    public static void main(String[] args) {
-        NodeConverter nc = new CollectionConverter();
-        CollectionConverting cc = (CollectionConverting) nc;
-
-        System.out.println(CollectionConverting.class.isAssignableFrom(nc.getClass()));
     }
 
 }
