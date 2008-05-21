@@ -177,7 +177,7 @@ public class AnnotationProcessor {
                 String nodename = annotation.value().length() != 0 ? annotation.value() :
                         (annotation.name().length() != 0 ? annotation.name() : field.getName());
                 NsContext fieldNS = getFieldNamespaces(field);
-                NsContext classNS = converter.getClassNamespaces();
+                NsContext classNS = converter.getClassNamespaces( );
                 QName qname = getQName(nodename, fieldNS, classNS);
 
                 if (fieldConverter != null) {
