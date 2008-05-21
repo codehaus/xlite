@@ -1,10 +1,15 @@
 package info.documan.xlite.converters;
 
+import info.documan.xlite.MappingContext;
+import info.documan.xlite.XMLSimpleReader;
+import info.documan.xlite.XMLSimpleWriter;
+import info.documan.xlite.XliteException;
+
 import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
 import java.util.Collection;
-
-import info.documan.xlite.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author peter
@@ -12,68 +17,111 @@ import info.documan.xlite.*;
 public class NodeMapper {
 
     private Field targetField;
-    public NodeConverter nodeConverter;    //todo make private
     private CollectionConverting collectionConverter;
     private MappingContext mappingContext;
-    private boolean collectionNotInitialized = true;
-    private Class itemType;
+    public NodeConverter nodeConverter;
+    private Map<Class, QName> itemTypes = new HashMap<Class, QName>();
+    private Map<QName, NodeConverter> converterCache = new HashMap<QName, NodeConverter>();
 
-    public NodeMapper(Field targetField, NodeConverter nodeConverter, MappingContext mappingContext) {
+    public NodeMapper(Field targetField, CollectionConverting collectionConverter, MappingContext mappingContext) {
         this.targetField = targetField;
-        this.nodeConverter = nodeConverter;
         this.mappingContext = mappingContext;
-
-        // is this a CollectionConverter?
-        if (CollectionConverting.class.isAssignableFrom(nodeConverter.getClass())) {
-            this.collectionConverter = (CollectionConverting) nodeConverter;
-            XMLnode annotation = (XMLnode) targetField.getAnnotation(XMLnode.class);
-            this.itemType = annotation.itemType();
-            if (this.itemType == Object.class) {
-                throw new XliteException("Error: collection in class " + targetField.getDeclaringClass().getSimpleName() +
-                        " does not have a item type defined. " +
-                        "When @XMLnode annotation is used on collection, a 'itemType' value must be defined.");
-            }
-        }
+        this.collectionConverter = collectionConverter;
     }
 
-    public void setValue(Object targetObject, XMLSimpleReader reader) {
+    public void setConverter(NodeConverter fieldConverter) {
+        this.nodeConverter = fieldConverter;
+    }
+
+    public void addMapping(QName nodeName, Class itemType) {
+        NodeConverter converter = mappingContext.lookupNodeConverter(itemType);
+        this.itemTypes.put(itemType, nodeName);
+        this.converterCache.put(nodeName, converter);
+    }
+
+    public void setValue(QName nodeName, Object targetObject, XMLSimpleReader reader) {
         if (collectionConverter == null) {
-            setFieldValue(targetObject, reader);
+            setFieldValue(nodeName, targetObject, reader);
         } else {
-            collectionAddItem(targetObject, reader);
+            collectionAddItem(nodeName, targetObject, reader);
         }
     }
 
-    private void collectionAddItem(Object targetObject, XMLSimpleReader reader) {
+    private void collectionAddItem(QName nodeName, Object targetObject, XMLSimpleReader reader) {
         try {
             Collection collection = (Collection) targetField.get(targetObject);
+
+            // initialize collection if needed
             if (collection == null) {
                 collection = collectionConverter.initializeCollection(targetField.getType());
                 targetField.set(targetObject, collection);
             }
-            Object value = nodeConverter.fromNode(reader, itemType, mappingContext);
+
+            // find the converter for given node name
+            NodeConverter converter = converterCache.get(nodeName);
+            if (converter == null) {
+                throw new XliteException("Error: could not find converter for node: "+ nodeName+
+                        " in collection " + collection.getClass().getName() +
+                        " in class " + collection.getClass().getEnclosingClass() +
+                        ". Collection contains element types that are not defined in @XMLnode annotation.");
+            }
+
+            Object value = converter.fromNode(reader, mappingContext);
             collectionConverter.addItem(collection, value);
         } catch (IllegalAccessException e) {
-            throw new XliteException("Field could not be read! ", e);
+            throw new XliteException("Field value could not be set! ", e);
         }
     }
 
-    private void setFieldValue(Object targetObject, XMLSimpleReader reader) {
+    private void setFieldValue(QName nodeName, Object targetObject, XMLSimpleReader reader) {
         try {
-            Object value = nodeConverter.fromNode(reader, targetField.getType(), mappingContext);
+//            Object value = nodeConverter.fromNode(reader, targetField.getType(), mappingContext);
+            Object value = nodeConverter.fromNode(reader, mappingContext);
             targetField.set(targetObject, value);
         } catch (IllegalAccessException e) {
-            throw new XliteException("Field could not be set! ", e);
+            throw new XliteException("Field value could not be set! ", e);
         }
     }
 
     public void writeNode(Object object, QName nodeName, XMLSimpleWriter writer) {
-        Object targetObject = null;
         try {
-            targetObject = targetField.get(object);
-            nodeConverter.toNode(targetObject, nodeName, writer, mappingContext);
+
+            // it's a collection
+            if (collectionConverter != null) {
+                Collection collection = (Collection) targetField.get(object);
+                if (collection == null) {
+                    return;
+                }
+                for (Object obj : collection) {
+                    QName name = itemTypes.get(obj.getClass());
+                    NodeConverter converter = converterCache.get(name);
+                    converter.toNode(obj, name, writer, mappingContext);
+                }
+
+            // normal field
+            } else {
+                nodeConverter.toNode(targetField.get(object), nodeName, writer, mappingContext);
+            }
         } catch (IllegalAccessException e) {
-            throw new XliteException("Field could not be read! ", e);
+            throw new XliteException("Field value could not be read! ", e);
         }
     }
+
+//    private NodeConverter findConverter(Class type) {
+//        NodeConverter converter = null;
+//
+//        // search the mapper cache
+//        for (Map.Entry<Class, NodeConverter> entry : converterCache.entrySet()) {
+//            if (entry.getKey().equals(type)) {
+//                converter = entry.getValue();
+//                return converter;
+//            }
+//        }
+//
+//        // if not in cache, lookup globally
+//        converter = mappingContext.lookupNodeConverter(type);
+//        // store in cache for future use
+//        converterCache.put(type, converter);
+//        return converter;
+//    }
 }

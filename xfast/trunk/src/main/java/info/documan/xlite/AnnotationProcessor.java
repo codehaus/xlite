@@ -1,10 +1,11 @@
 package info.documan.xlite;
 
+import info.documan.xlite.converters.*;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
-
-import info.documan.xlite.converters.*;
+import java.util.Arrays;
 
 /**
  * User: peter
@@ -78,34 +79,97 @@ public class AnnotationProcessor {
      */
     private void processNodes(Class currentClass, AnnotatedClassConverter converter) {
 
-        XMLnode annotation = null;
-
         for (Field field : currentClass.getDeclaredFields()) {
 
-            annotation = (XMLnode) field.getAnnotation(XMLnode.class);
-            if (annotation != null) {
+            // find the converter by the field type
+            NodeConverter converterByType = mappingContext.lookupNodeConverter(field.getType());
 
-                // get converter for the class that the field references
-                NodeConverter subConverter;
-                if (annotation.converter().equals(NodeConverter.class)) { // default - converter choosen by type
-                    subConverter = mappingContext.lookupNodeConverter(field.getType());
+            // get converter for the class that the field references
+            NodeConverter fieldConverter = null;
 
-                } else { // custom converter assigned via annotation
-                    try {
-                        subConverter = annotation.converter().newInstance();
+            // if target field is a collection, then a collection converter must be defined
+            CollectionConverting collectionConverter = null;
+            if (CollectionConverting.class.isAssignableFrom(converterByType.getClass())) {
+                collectionConverter = (CollectionConverting) converterByType;
+            }
 
-                        // check that assigned converter can actually converto to the target field type
-                        if (!subConverter.canConvert(field.getType())) {
-                            throw new XliteException("Error: assigned converter type does not match field type.\n" +
-                                    "Converter " + subConverter.getClass().getName() + " can not be used to convert " +
-                                    "data of type " + field.getType() + ".\n" +
-                                    "Please check XML annotations on field '" + field.getName() +
-                                    "' in class " + field.getDeclaringClass().getName() + ".");
+            // init a mapper
+            NodeMapper fieldMapper = new NodeMapper(field, collectionConverter, mappingContext);
+
+            // collect all @XMLnode annotations in a single array for easier processing
+            XMLnode[] annotations = new XMLnode[0];
+            XMLnodes multiAnno = (XMLnodes) field.getAnnotation(XMLnodes.class);
+            if (multiAnno != null && multiAnno.value().length != 0) {
+                annotations = multiAnno.value();
+            }
+            XMLnode singleAnno = (XMLnode) field.getAnnotation(XMLnode.class);
+            if (singleAnno != null) {
+                annotations = Arrays.copyOf(annotations, annotations.length + 1);
+                annotations[annotations.length - 1] = singleAnno;
+            }
+
+            // process @XMLnode annotations
+            for (XMLnode annotation : annotations) {
+                Class itemType = annotation.itemType();
+                Class<? extends NodeConverter> annotatedConverter = annotation.converter();
+
+                // set to default values according to annotations
+                if (itemType.equals(Object.class)) {
+                    itemType = null;
+                }
+                if (annotatedConverter.equals(NodeConverter.class)) {
+                    annotatedConverter = null;
+                }
+
+                // target field is a collection, so a target converter is a collection converter
+                if (collectionConverter != null) {
+
+                    if (annotatedConverter != null) {
+                        throw new XliteException("Error: Can  not assign converter for collection " + field.getDeclaringClass().getName() +
+                                " in class " + field.getDeclaringClass().getSimpleName() +
+                                "When @XMLnode annotation is used on a collection, 'converter' value can not be used. " +
+                                "Use 'itemType' instead.");
+                    }
+
+                    // if it's a collection, then @XMLnode must have "itemType" value defined
+                    if (itemType == null) {
+                        throw new XliteException("Error: Can  not assign converter for collection " + field.getDeclaringClass().getName() +
+                                " in class " + field.getDeclaringClass().getSimpleName() +
+                                "When @XMLnode annotation is used on a collection, 'itemType' value must be defined.");
+                    }
+                    fieldConverter = null;
+
+                } else { // target field is a normal field (not a collection)
+
+                    if (itemType != null) {
+                        throw new XliteException("Error: Wrong @XMLnode annotation value on field " + fieldConverter.getClass().getName() +
+                                "in class " + field.getDeclaringClass().getName() + ". @XMLnode 'itemType' can only be used on " +
+                                "field types that implement Collection.");
+                    }
+
+                    // was custom converter assigned via annotation?
+                    if (annotatedConverter != null) {
+                        try {
+                            fieldConverter = annotatedConverter.newInstance();
+
+                            // check that assigned converter can actually convert to the target field type
+                            if (collectionConverter == null && !fieldConverter.canConvert(field.getType())) {
+                                throw new XliteException("Error: assigned converter type does not match field type.\n" +
+                                        "Converter " + fieldConverter.getClass().getName() + " can not be used to convert " +
+                                        "data of type " + field.getType() + ".\n" +
+                                        "Please check XML annotations on field '" + field.getName() +
+                                        "' in class " + field.getDeclaringClass().getName() + ".");
+                            }
+
+                        } catch (InstantiationException e) {
+                            throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+                        } catch (IllegalAccessException e) {
+                            throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
                         }
-                    } catch (InstantiationException e) {
-                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
-                    } catch (IllegalAccessException e) {
-                        throw new XliteException("Could not instantiate converter " + annotation.converter().getName() + ". ", e);
+
+                    } else {
+                        // converter was not declared via annotation, so we just use a converter derived from field type
+                        fieldConverter = converterByType;
                     }
                 }
 
@@ -116,15 +180,20 @@ public class AnnotationProcessor {
                 NsContext classNS = converter.getClassNamespaces();
                 QName qname = getQName(nodename, fieldNS, classNS);
 
-                NodeMapper submapper = new NodeMapper(field, subConverter, mappingContext);
-                converter.addNodeConverter(qname, submapper);
+                if (fieldConverter != null) {
+                    fieldMapper.setConverter(fieldConverter);
+                }
+                if (itemType != null) {
+                    fieldMapper.addMapping(qname, itemType);
+                }
+                converter.addNodeMapper(qname, fieldMapper);
 
-                String conv = submapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
-                        ((ValueConverterWrapper) submapper.nodeConverter).valueConverter.getClass().getSimpleName() :
-                        submapper.nodeConverter.getClass().getSimpleName();
+//                String conv = fieldMapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
+//                        ((ValueConverterWrapper) fieldMapper.nodeConverter).valueConverter.getClass().getSimpleName() :
+//                        fieldMapper.nodeConverter.getClass().getSimpleName();
+//
+//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodename + " converter:" + conv);
 
-//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodeName
-//                        + " converter:" + conv);
             }
         }
     }
@@ -226,8 +295,8 @@ public class AnnotationProcessor {
 
                 converter.addAttributeConverter(qname, new ValueMapper(field, valueConverter));
 
-//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + attributeName
-//                        + " converter:" + valueConverter.getClass().getSimpleName());
+                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " attribute:" + qname
+                        + " converter:" + valueConverter.getClass().getSimpleName());
             }
         }
     }
@@ -281,8 +350,8 @@ public class AnnotationProcessor {
 
             converter.setValueMapper(new ValueMapper(targetField, valueConverter));
 
-//            System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
-//                    + " converter:" + valueConverter.getClass().getSimpleName());
+            System.out.println(currentClass.getSimpleName() + "." + targetField.getName() + " value "
+                    + " converter:" + valueConverter.getClass().getSimpleName());
         }
     }
 

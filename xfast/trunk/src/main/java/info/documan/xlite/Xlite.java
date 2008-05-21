@@ -23,10 +23,13 @@ public class Xlite {
     private List<ValueConverter> valueConverters;
     private MappingContext mappingContext;
 
+
     private boolean initialized = false;
-    public boolean isStoringUnknownNodes;
     private Class rootClass;
     private String rootNodeName;
+
+    private boolean isStoringUnknownNodes;
+    private int cacheSize = 1000000;   // default cache size for storing unknown nodes
 
     private String rootNodeNS = XMLConstants.NULL_NS_URI;
     private boolean isPrettyPrint = true;
@@ -48,11 +51,19 @@ public class Xlite {
         this.isPrettyPrint = prettyPrint;
     }
 
+    public void setStoringUnknownNodes(boolean storing){
+        isStoringUnknownNodes = storing;
+    }
+
+    public void setCacheSize(int sizeBytes){
+          cacheSize = sizeBytes;
+    }
+
     private void initialize() {
 
         // initialize storing unknown nodes
         if (isStoringUnknownNodes) {
-            mappingContext.setNodeStore(new SubTreeStore(10000000));
+            mappingContext.setNodeStore(new SubTreeStore(cacheSize));
         } else {
             mappingContext.setNodeStore(null);
         }

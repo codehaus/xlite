@@ -15,9 +15,6 @@ public class AnnotationProcessorTest {
     public void printMapperTree() {
         StringReader reader = new StringReader(SampleXml.xml);
         Xlite xf = new Xlite(SampleXml.One.class, "one");
-
-        System.out.println("end");
-
     }
    
 

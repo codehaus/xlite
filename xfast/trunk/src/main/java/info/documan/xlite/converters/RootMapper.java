@@ -19,7 +19,7 @@ public class RootMapper {
 
     public RootMapper(QName rootNodeName, Class rootClass, MappingContext mappingContext) {
         nodeConverter = mappingContext.lookupNodeConverter(rootClass);
-        NodeMapper mapper = new NodeMapper(null, nodeConverter, mappingContext);
+//        NodeMapper mapper = new NodeMapper(null, null, null, nodeConverter, mappingContext);
         this.rootNodeName = rootNodeName;
         this.mappingContext = mappingContext;
         this.rootClass = rootClass;
@@ -27,7 +27,7 @@ public class RootMapper {
 
     public Object getRootObject(XMLSimpleReader reader) {
         if (reader.findFirstNode(rootNodeName)) {
-            return nodeConverter.fromNode(reader, rootClass, mappingContext);
+            return nodeConverter.fromNode(reader, mappingContext);
         } else {
             throw new XliteException("Root node <" + rootNodeName + "> could not be found in XML data");
         }

@@ -55,7 +55,7 @@ public class SubTreeStoreTest {
         StringReader reader = new StringReader(xml);
 
         Xlite xlite = new Xlite(A.class, "a", "ns1");
-        xlite.isStoringUnknownNodes = true;
+        xlite.setStoringUnknownNodes(true);
         xlite.addNamespace("ns1");
         xlite.addNamespace("s=ns2");
         xlite.addNamespace("w=ns3");

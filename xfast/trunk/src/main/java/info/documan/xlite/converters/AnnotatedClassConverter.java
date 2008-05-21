@@ -1,11 +1,13 @@
 package info.documan.xlite.converters;
 
+import info.documan.xlite.*;
+
 import javax.xml.namespace.QName;
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import info.documan.xlite.*;
 
 /**
  * User: peter
@@ -20,7 +22,8 @@ public class AnnotatedClassConverter implements NodeConverter {
 
     private ValueMapper valueMapper;
 
-    private Map<QName, NodeMapper> nodeMappers = new HashMap<QName, NodeMapper>();
+    private Map<QName, NodeMapper> nodeMappersByName = new HashMap<QName, NodeMapper>();
+    private Map<Field, NodeMapper> nodeMappersByField = new HashMap<Field, NodeMapper>();
 
     private Map<QName, ValueMapper> attributeMappers = new HashMap<QName, ValueMapper>();
 
@@ -54,8 +57,8 @@ public class AnnotatedClassConverter implements NodeConverter {
         return valueMapper;
     }
 
-    public void addNodeConverter(QName qName, NodeMapper nodeConverter) {
-        nodeMappers.put(qName, nodeConverter);
+    public void addNodeMapper(QName qName, NodeMapper nodeMapper) {
+        nodeMappersByName.put(qName, nodeMapper);
     }
 
     public void addAttributeConverter(QName attributeQName, ValueMapper valueMapper) {
@@ -80,7 +83,7 @@ public class AnnotatedClassConverter implements NodeConverter {
         return targetClass.equals(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, Class targetType, MappingContext mappingContext) {
+    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
 
         // instantiate object that maps to the current XML node
         Object currentObject = null;
@@ -115,17 +118,16 @@ public class AnnotatedClassConverter implements NodeConverter {
 
         // XML subnodes
         QName qname;
-        String name;
         while (reader.moveDown()) {
             qname = reader.getName();
-//            name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
+//          String  name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
             // find NodeMapper for converting XML node with given name
-            NodeMapper subMapper = nodeMappers.get(qname);
+            NodeMapper subMapper = nodeMappersByName.get(qname);
             if (subMapper != null) {  // converter is found
 //                System.out.println("START:" + name + " thisConverter:" + this.toString() +
 //                        " subConverter:" + subMapper.nodeConverter);
-                subMapper.setValue(currentObject, reader);
+                subMapper.setValue(qname, currentObject, reader);
             } else {  // unknown subMapper
                 if (nodeStorage != null) {
                     reader.saveSubTree(nodeStorage, currentObject);
@@ -158,9 +160,13 @@ public class AnnotatedClassConverter implements NodeConverter {
         }
 
         // write subnodes
-        for (QName subName : nodeMappers.keySet()) {
-            NodeMapper nodeMapper = nodeMappers.get(subName);
-            nodeMapper.writeNode(object, subName, writer);
+        Map<NodeMapper, Integer> alreadyProcessed = new IdentityHashMap<NodeMapper, Integer>();
+        for (QName subName : nodeMappersByName.keySet()) {
+            NodeMapper nodeMapper = nodeMappersByName.get(subName);
+            if (!alreadyProcessed.containsKey(nodeMapper)) {
+                nodeMapper.writeNode(object, subName, writer);
+                alreadyProcessed.put(nodeMapper, 0);
+            }
         }
 
         // write  unknown (stored) subnodes
@@ -180,7 +186,7 @@ public class AnnotatedClassConverter implements NodeConverter {
                     + " field:" + attrEntry.getValue().targetField.getName() + "(" + attrEntry.getValue().targetField.getType() + ")");
         }
 
-        for (Map.Entry<QName, NodeMapper> nodeEntry : nodeMappers.entrySet()) {
+        for (Map.Entry<QName, NodeMapper> nodeEntry : nodeMappersByName.entrySet()) {
             System.out.println(prefix + "node:" + nodeEntry.getKey());
         }
 

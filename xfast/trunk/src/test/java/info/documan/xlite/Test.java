@@ -1,8 +1,5 @@
 package info.documan.xlite;
 
-import info.documan.xlite.SubTreeStore;
-import info.documan.xlite.XMLSimpleReader;
-
 import javax.xml.stream.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,18 +12,15 @@ import java.io.StringWriter;
  * Time: 10:41:52 PM
  */
 public class Test {
-
+  
     public static void main(String[] args) throws IOException, XMLStreamException {
 
-        SubTreeStore store = new SubTreeStore(200,20);
-        store.addElement(1,"abcdefghijklmn", "UTF-8");
-        store.mark();
-        store.addElement(2,"ABCDEFGHIJKLMN", "UTF-8");
-        store.addElement(7,"WWW", "UTF-8");
-        XMLSimpleReader.printStore(store, "S1");
-        store.trim();
-        store.addElement(8,"XXX", "UTF-8");
-        XMLSimpleReader.printStore(store, "S2");
+        int c = 10000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < c; i++) {
+            Xlite xf = new Xlite(SampleXml.One.class, "one");
+        }
+        System.out.println("iteration: " + (System.currentTimeMillis() - start) + " ms");
 
     }
 
@@ -53,7 +47,7 @@ public class Test {
 
         writer.writeStartElement("pre", "a", "ns1");
         writer.writeEmptyElement("", "b", "");
-        writer.writeAttribute("attr","value");
+        writer.writeAttribute("attr", "value");
         writer.writeEndElement();
 
 //        writer.writeEmptyElement("pre1", "a", "ns1");

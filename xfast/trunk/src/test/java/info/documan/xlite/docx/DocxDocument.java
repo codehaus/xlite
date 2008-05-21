@@ -28,7 +28,7 @@ public class DocxDocument {
 
             DocxDocument document = null;
             Xlite xlite = new Xlite(DocxDocument.class, "document", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
-            xlite.isStoringUnknownNodes = true;
+            xlite.setStoringUnknownNodes(true);
             xlite.addNamespace("w=http://schemas.openxmlformats.org/wordprocessingml/2006/main");
 
             String i4 = "/home/peter/vmware/shared/Office Open XML Part 4 - Markup Language Reference/word/document.xml";
