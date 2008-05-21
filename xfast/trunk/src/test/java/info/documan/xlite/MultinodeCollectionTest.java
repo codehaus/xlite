@@ -19,8 +19,8 @@ public class MultinodeCollectionTest {
             "<a>textA2</a>" +
             "<b>textB1</b>" +
             "<b>textB2</b>" +
-            "<unknown>XXX</unknown>" +
             "<data>YYY</data>" +
+            "<unknown>XXX</unknown>" +
             "</root>";
 
     @org.testng.annotations.Test
