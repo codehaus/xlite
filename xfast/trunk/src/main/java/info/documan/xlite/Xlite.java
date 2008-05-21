@@ -100,6 +100,7 @@ public class Xlite {
     private void setupNodeConverters() {
         nodeConverters = new ArrayList<NodeConverter>();
         nodeConverters.add(new CollectionConverter());
+        nodeConverters.add(new NodeHolderConverter());
 
         // wraps every ValueConverter so that it can be used as a NodeConverter
         for (ValueConverter valueConverter : valueConverters) {

@@ -4,9 +4,9 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -19,6 +19,8 @@ public class MultinodeCollectionTest {
             "<a>textA2</a>" +
             "<b>textB1</b>" +
             "<b>textB2</b>" +
+            "<unknown>XXX</unknown>" +
+            "<data>YYY</data>" +
             "</root>";
 
     @org.testng.annotations.Test
@@ -45,10 +47,14 @@ public class MultinodeCollectionTest {
     public static class Root {
         @XMLnodes(
                 {@XMLnode(name = "a", itemType = A.class),
-                @XMLnode(name = "b", itemType = B.class)}
+                @XMLnode(name = "b", itemType = B.class),
+                @XMLnode(name = "unknown", itemType = NodeHolder.class)}
         )
 //        @XMLnode(name = "a", itemType = A.class)
         public List letters;
+
+        @XMLnode("data")
+        public NodeHolder holder;
     }
 
     public static class A {

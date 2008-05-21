@@ -13,7 +13,7 @@ public class NodeHolderConverter implements NodeConverter {
     }
 
     public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
-        NodeHolder nodeHolder = new NodeHolder(500,500);
+        NodeHolder nodeHolder = new NodeHolder(500, 500);
         reader.saveSubTree(nodeHolder.getStore(), nodeHolder);
         return nodeHolder;
     }
@@ -23,11 +23,8 @@ public class NodeHolderConverter implements NodeConverter {
         if (NodeHolder.class.isAssignableFrom(object.getClass())) {
             nodeHolder = (NodeHolder) object;
         } else {
-            throw  new XliteException("NodeHolderConverter can only convert instances of NodeHolder!");
+            throw new XliteException("NodeHolderConverter can only convert instances of NodeHolder!");
         }
-        writer.startNode(nodeName);
-        writer.restoreSubTrees(nodeHolder.getStore(), nodeHolder);       
-        writer.endNode();
-
+        writer.restoreSubTrees(nodeHolder.getStore(), nodeHolder);
     }
 }
