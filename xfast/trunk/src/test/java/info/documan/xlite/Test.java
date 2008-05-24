@@ -15,12 +15,9 @@ public class Test {
   
     public static void main(String[] args) throws IOException, XMLStreamException {
 
-        int c = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < c; i++) {
-            Xlite xf = new Xlite(SampleXml.One.class, "one");
-        }
-        System.out.println("iteration: " + (System.currentTimeMillis() - start) + " ms");
+
+        Integer i = Integer.valueOf(null);
+        System.out.println(i);
 
     }
 
@@ -66,7 +63,7 @@ public class Test {
             XMLSimpleReader reader = new XMLSimpleReader(parser);
 
             long start = System.currentTimeMillis();
-            reader.findFirstNode();
+            reader.findFirstElement();
             recursiveRead(reader);
 
             System.out.println("duration: " + (System.currentTimeMillis() - start));

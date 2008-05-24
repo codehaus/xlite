@@ -9,7 +9,7 @@ import javax.xml.namespace.QName;
 /**
  * @author peter
  */
-public class ValueConverterWrapper implements NodeConverter {
+public class ValueConverterWrapper implements ElementConverter {
 
     public ValueConverter valueConverter;
 
@@ -21,13 +21,13 @@ public class ValueConverterWrapper implements NodeConverter {
         return valueConverter.canConvert(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+    public Object fromElement(XMLSimpleReader reader, MappingContext mappingContext) {
         return valueConverter.fromValue(reader.getText());
     }
 
-    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
-        writer.startNode(nodeName);
+    public void toElement(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+        writer.startElement(nodeName);
         writer.addText(valueConverter.toValue(object));
-        writer.endNode();
+        writer.endElement();
     }
 }

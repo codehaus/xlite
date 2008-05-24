@@ -18,20 +18,20 @@ import info.documan.xlite.converters.*;
  */
 public class Xlite {
 
-    RootMapper rootNodeMapper;
-    private List<NodeConverter> nodeConverters;
+    RootMapper rootElementMapper;
+    private List<ElementConverter> elementConverters;
     private List<ValueConverter> valueConverters;
     private MappingContext mappingContext;
 
 
     private boolean initialized = false;
     private Class rootClass;
-    private String rootNodeName;
+    private String rootElementName;
 
-    private boolean isStoringUnknownNodes;
+    private boolean isStoringUnknownElements;
     private int cacheSize = 1000000;   // default cache size for storing unknown nodes
 
-    private String rootNodeNS = XMLConstants.NULL_NS_URI;
+    private String rootElementNS = XMLConstants.NULL_NS_URI;
     private boolean isPrettyPrint = true;
 
     public Xlite(Class rootClass, String nodeName) {
@@ -40,19 +40,19 @@ public class Xlite {
 
     public Xlite(Class rootClass, String nodeName, String namespaceURI) {
         setupValueConverters();
-        setupNodeConverters();
+        setupElementConverters();
         this.rootClass = rootClass;
-        this.rootNodeName = nodeName;
-        this.rootNodeNS = namespaceURI;
-        this.mappingContext = new MappingContext(nodeConverters, valueConverters, rootClass);
+        this.rootElementName = nodeName;
+        this.rootElementNS = namespaceURI;
+        this.mappingContext = new MappingContext(elementConverters, valueConverters, rootClass);
     }
 
     public void setPrettyPrint(boolean prettyPrint){
         this.isPrettyPrint = prettyPrint;
     }
 
-    public void setStoringUnknownNodes(boolean storing){
-        isStoringUnknownNodes = storing;
+    public void setStoringUnknownElements(boolean storing){
+        isStoringUnknownElements = storing;
     }
 
     public void setCacheSize(int sizeBytes){
@@ -62,49 +62,49 @@ public class Xlite {
     private void initialize() {
 
         // initialize storing unknown nodes
-        if (isStoringUnknownNodes) {
-            mappingContext.setNodeStore(new SubTreeStore(cacheSize));
+        if (isStoringUnknownElements) {
+            mappingContext.setElementStore(new SubTreeStore(cacheSize));
         } else {
-            mappingContext.setNodeStore(null);
+            mappingContext.setElementStore(null);
         }
 
         // one-time initialization
         if (!initialized) {
 
             // split xml node name into prefix and local part
-            int index = rootNodeName.indexOf(':');
-            String rootNodeLocalpart;
-            String rootNodePrefix;
+            int index = rootElementName.indexOf(':');
+            String rootElementLocalpart;
+            String rootElementPrefix;
             if (index > 0) {  // with prefix ("prefix:localpart")
-                rootNodePrefix = rootNodeName.substring(0, index);
-                rootNodeLocalpart = rootNodeName.substring(index + 1, rootNodeName.length());
+                rootElementPrefix = rootElementName.substring(0, index);
+                rootElementLocalpart = rootElementName.substring(index + 1, rootElementName.length());
 
             } else if (index == 0) { // empty prefix (no prefix defined - e.g ":nodeName")
-                rootNodePrefix = XMLConstants.DEFAULT_NS_PREFIX;
-                rootNodeLocalpart = rootNodeName.substring(1, rootNodeName.length());
+                rootElementPrefix = XMLConstants.DEFAULT_NS_PREFIX;
+                rootElementLocalpart = rootElementName.substring(1, rootElementName.length());
 
             } else { // no prefix given
-                rootNodePrefix = XMLConstants.DEFAULT_NS_PREFIX;
-                rootNodeLocalpart = rootNodeName;
+                rootElementPrefix = XMLConstants.DEFAULT_NS_PREFIX;
+                rootElementLocalpart = rootElementName;
             }
 
             // namespace  of root element is not defined
-            if (rootNodeNS == null) {
-                rootNodeNS = mappingContext.getPredefinedNamespaces().getNamespaceURI(rootNodePrefix);
+            if (rootElementNS == null) {
+                rootElementNS = mappingContext.getPredefinedNamespaces().getNamespaceURI(rootElementPrefix);
             }
-            this.rootNodeMapper = new RootMapper(new QName(rootNodeNS, rootNodeLocalpart, rootNodePrefix), rootClass, mappingContext);
+            this.rootElementMapper = new RootMapper(new QName(rootElementNS, rootElementLocalpart, rootElementPrefix), rootClass, mappingContext);
             initialized = true;
         }
     }
 
-    private void setupNodeConverters() {
-        nodeConverters = new ArrayList<NodeConverter>();
-        nodeConverters.add(new CollectionConverter());
-        nodeConverters.add(new NodeHolderConverter());
+    private void setupElementConverters() {
+        elementConverters = new ArrayList<ElementConverter>();
+        elementConverters.add(new CollectionConverter());
+        elementConverters.add(new ElementHolderConverter());
 
-        // wraps every ValueConverter so that it can be used as a NodeConverter
+        // wraps every ValueConverter so that it can be used as a ElementConverter
         for (ValueConverter valueConverter : valueConverters) {
-            nodeConverters.add(new ValueConverterWrapper(valueConverter));
+            elementConverters.add(new ValueConverterWrapper(valueConverter));
         }
     }
 
@@ -138,9 +138,9 @@ public class Xlite {
         } catch (XMLStreamException e) {
             throw new XliteException("Error initalizing XMLStreamReader", e);
         }
-        XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader, isStoringUnknownNodes);
+        XMLSimpleReader simpleReader = new XMLSimpleReader(xmlreader, isStoringUnknownElements);
 
-        return rootNodeMapper.getRootObject(simpleReader);
+        return rootElementMapper.getRootObject(simpleReader);
     }
 
     public void toXML(Object source, Writer writer) {
@@ -156,11 +156,11 @@ public class Xlite {
         }
         XMLSimpleWriter simpleWriter = new XMLSimpleWriter(parser, new XmlStreamSettings(), isPrettyPrint);
 
-        rootNodeMapper.toXML(source, simpleWriter);
+        rootElementMapper.toXML(source, simpleWriter);
 
     }
 
     public SubTreeStore getNodeStore() {
-        return mappingContext.getNodeStore();
+        return mappingContext.getElementStore();
     }
 }

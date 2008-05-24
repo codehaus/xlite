@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 import info.documan.xlite.Xlite;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 import info.documan.xlite.XMLtext;
 
 /**
@@ -43,7 +43,7 @@ public class CollectionConverterTest {
 
         StringReader reader = new StringReader(xml);
         Xlite xlite = new Xlite(One.class, "one");
-        xlite.setStoringUnknownNodes(true);
+        xlite.setStoringUnknownElements(true);
         One one = (One) xlite.fromXML(reader);
 
         Assert.assertEquals(one.text, "just some text"); // should be converted to upper case
@@ -72,7 +72,7 @@ public class CollectionConverterTest {
         @XMLtext
         public String text;
 
-        @XMLnode(value = "item", itemType = Item.class)
+        @XMLelement(value = "item", itemType = Item.class)
         public List<Item> list;
     }
 
@@ -81,7 +81,7 @@ public class CollectionConverterTest {
         @XMLtext
         public String text;
 
-        @XMLnode(value = "subitem", itemType = SubItem.class)
+        @XMLelement(value = "subitem", itemType = SubItem.class)
         public List<SubItem> subs;
     }
 

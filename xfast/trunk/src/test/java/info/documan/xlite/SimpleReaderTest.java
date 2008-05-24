@@ -40,13 +40,13 @@ public class SimpleReaderTest {
         StringWriter sw = new StringWriter();
         XMLSimpleWriter writer = getWriter(sw);
  
-        reader.findFirstNode();
-        Node rootNode = processSubNodes(reader).get(0);
-//        printNodes(rootNode, "");
-        Assert.assertEquals(rootNode.name.getLocalPart(), "a");
-        Assert.assertEquals(rootNode.subnodes.get(0).name.getLocalPart(), "b");
-        Assert.assertEquals(rootNode.subnodes.get(0).subnodes.get(0).name.getLocalPart(), "c");
-        Assert.assertEquals(rootNode.subnodes.get(0).subnodes.get(0).subnodes.get(0).name.getLocalPart(), "d");
+        reader.findFirstElement();
+        Element rootElement = processSubElements(reader).get(0);
+//        printElements(rootElement, "");
+        Assert.assertEquals(rootElement.name.getLocalPart(), "a");
+        Assert.assertEquals(rootElement.subelements.get(0).name.getLocalPart(), "b");
+        Assert.assertEquals(rootElement.subelements.get(0).subelements.get(0).name.getLocalPart(), "c");
+        Assert.assertEquals(rootElement.subelements.get(0).subelements.get(0).subelements.get(0).name.getLocalPart(), "d");
 
 
     }
@@ -56,13 +56,13 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void simpleTest2() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml2);
-        reader.findFirstNode();
-        Node rootNode = processSubNodes(reader).get(0);
-        printNodes(rootNode, "");
-        Assert.assertEquals(rootNode.name.getLocalPart(), "a");
-        Assert.assertEquals(rootNode.subnodes.get(0).name.getLocalPart(), "b");  // first subnode of <a>
-        Assert.assertEquals(rootNode.subnodes.get(1).name.getLocalPart(), "c");
-        Assert.assertEquals(rootNode.subnodes.get(2).name.getLocalPart(), "d");
+        reader.findFirstElement();
+        Element rootElement = processSubElements(reader).get(0);
+        printElements(rootElement, "");
+        Assert.assertEquals(rootElement.name.getLocalPart(), "a");
+        Assert.assertEquals(rootElement.subelements.get(0).name.getLocalPart(), "b");  // first subnode of <a>
+        Assert.assertEquals(rootElement.subelements.get(1).name.getLocalPart(), "c");
+        Assert.assertEquals(rootElement.subelements.get(2).name.getLocalPart(), "d");
     }
 
     static String xml3 = "<a>1<b>2</b>3</a>";
@@ -70,7 +70,7 @@ public class SimpleReaderTest {
     @org.testng.annotations.Test
     public void textTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml3);
-        reader.findFirstNode("a");
+        reader.findFirstElement("a");
         Assert.assertEquals(reader.getName().getLocalPart(), "a");  // inside <a>
         Assert.assertEquals(reader.getText(), "1");
         reader.moveDown();
@@ -86,9 +86,9 @@ public class SimpleReaderTest {
     static String xml4 = "<a><b><c></c><d></d></b></a>";
 
     @org.testng.annotations.Test
-    public void skippingChildNodesTest() throws XMLStreamException {
+    public void skippingChildElementsTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml4);
-        reader.findFirstNode();
+        reader.findFirstElement();
         reader.moveDown();
         Assert.assertEquals(reader.getName().getLocalPart(), "a");  // inside <a>
         reader.moveDown();  // down two times
@@ -104,9 +104,9 @@ public class SimpleReaderTest {
     static String xml5 = "";
 
     @org.testng.annotations.Test
-    public void ignoringOtherNodesTest() throws XMLStreamException {
+    public void ignoringOtherElementsTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml4);
-        reader.findFirstNode();
+        reader.findFirstElement();
         reader.moveDown();
 
     }
@@ -114,11 +114,11 @@ public class SimpleReaderTest {
     static String xml6 = "<a><b1>B1</b1><c><d><e/></d></c><b2>B2</b2></a>";
 
     @org.testng.annotations.Test
-    public void skippedNodesTest() throws XMLStreamException {
+    public void skippedElementsTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(xml6);
 
         // inside a
-        reader.findFirstNode("a");
+        reader.findFirstElement("a");
         Assert.assertEquals(reader.getName().getLocalPart(), "a");
 
         // inside b1
@@ -149,52 +149,52 @@ public class SimpleReaderTest {
      @org.testng.annotations.Test
     public void anotherTest() throws XMLStreamException {
         XMLSimpleReader reader = getReader(SampleXml.xml);
-         reader.findFirstNode(new QName("one")); // first node we start with
-         Node rootNode = processSubNodes(reader).get(0);
+         reader.findFirstElement(new QName("one")); // first node we start with
+         Element rootElement = processSubElements(reader).get(0);
     }
 
-    public static List<Node> processSubNodes(XMLSimpleReader reader) {
-        List<Node> nodes = new ArrayList<Node>();
+    public static List<Element> processSubElements(XMLSimpleReader reader) {
+        List<Element> elements = new ArrayList<Element>();
         while (reader.moveDown()) {
-            Node node = new Node();
-            nodes.add(node);
-            node.name = reader.getName();
+            Element element = new Element();
+            elements.add(element);
+            element.name = reader.getName();
             Iterator<Map.Entry<QName, String>> attrIterator = reader.getAttributeIterator();
             while(attrIterator.hasNext()){
                 Map.Entry<QName, String> entry = attrIterator.next();
-                node.attributes.put(entry.getKey(), entry.getValue());
+                element.attributes.put(entry.getKey(), entry.getValue());
             }
-//            System.out.println("NODE-"+node.name.getLocalPart());
-            List<Node> subNodes = processSubNodes(reader);
-            if (!subNodes.isEmpty()) {
-                node.subnodes.addAll(subNodes);
+//            System.out.println("NODE-"+element.name.getLocalPart());
+            List<Element> subElements = processSubElements(reader);
+            if (!subElements.isEmpty()) {
+                element.subelements.addAll(subElements);
             }
-            node.value = reader.getText();
+            element.value = reader.getText();
             reader.moveUp();
         }
-        return nodes;
+        return elements;
     }
 
-    public static class Node {
+    public static class Element {
         public QName name;
         public Map<QName, String> attributes = new HashMap<QName, String>();
         public String value;
-        List<Node> subnodes = new ArrayList<Node>();
+        List<Element> subelements = new ArrayList<Element>();
     }
 
-    public static void printNodes(Node node, String prefix) {
-        System.out.print(prefix + "<" + node.name.getLocalPart());
-        for (QName qName : node.attributes.keySet()) {
-            System.out.print(" " + qName + "=\"" + node.attributes.get(qName) + "\"");
+    public static void printElements(Element element, String prefix) {
+        System.out.print(prefix + "<" + element.name.getLocalPart());
+        for (QName qName : element.attributes.keySet()) {
+            System.out.print(" " + qName + "=\"" + element.attributes.get(qName) + "\"");
         }
         System.out.println(">");
-        if (node.value != null && node.value.length() != 0) {
-            System.out.println(prefix + node.value);
+        if (element.value != null && element.value.length() != 0) {
+            System.out.println(prefix + element.value);
         }
-        for (Node subnode : node.subnodes) {
-            printNodes(subnode, prefix + "  ");
+        for (Element subnode : element.subelements) {
+            printElements(subnode, prefix + "  ");
         }
-        System.out.println(prefix + "</" + node.name.getLocalPart() + ">");
+        System.out.println(prefix + "</" + element.name.getLocalPart() + ">");
 
     }
 

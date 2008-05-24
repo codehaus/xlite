@@ -1,6 +1,6 @@
 package info.documan.xlite;
 
-import info.documan.xlite.converters.NodeConverter;
+import info.documan.xlite.converters.ElementConverter;
 import info.documan.xlite.converters.ValueConverter;
 import org.testng.Assert;
 import org.testng.annotations.ExpectedExceptions;
@@ -41,26 +41,26 @@ public class CustomConverterTest {
 
     }
 
-    public static class CustomNodeConverter implements NodeConverter {
+    public static class CustomElementConverter implements ElementConverter {
 
         public boolean canConvert(Class type) {
             return Custom.class.equals(type);
         }
 
 
-        public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+        public Object fromElement(XMLSimpleReader reader, MappingContext mappingContext) {
             Custom custom = new Custom();
             custom.value = reader.getText();
             while (reader.moveDown()) {
                 if (reader.getName().getLocalPart().equals("three")) {
-                    custom.three = (Three) mappingContext.processNextNode(Three.class, reader);
+                    custom.three = (Three) mappingContext.processNextElement(Three.class, reader);
                 }
                 reader.moveUp();
             }
             return custom;
         }
 
-        public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+        public void toElement(Object object, QName elementName, XMLSimpleWriter writer, MappingContext mappingContext) {
             //To change body of implemented methods use File | Settings | File Templates.
         }
 
@@ -107,7 +107,7 @@ public class CustomConverterTest {
         @XMLtext(converter = UpperCaseConverter.class)
         public String text;
 
-        @XMLnode(converter = CustomNodeConverter.class)
+        @XMLelement(converter = CustomElementConverter.class)
         public CustomConverterTest.Custom custom;
 
     }

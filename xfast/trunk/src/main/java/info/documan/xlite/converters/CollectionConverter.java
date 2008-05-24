@@ -14,22 +14,22 @@ import java.util.List;
 /**
  * @author peter
  */
-public class CollectionConverter implements NodeConverter, CollectionConverting {
+public class CollectionConverter implements ElementConverter, CollectionConverting {
 
     public boolean canConvert(Class type) {
         return Collection.class.isAssignableFrom(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
-//        NodeConverter converter = mappingContext.lookupNodeConverter(targetType);
-//        return converter.fromNode(reader, mappingContext);
-        throw new XliteException("CollectionConverter.fromNode() method should not be called directly. " +
-                "Rather for every object in a collection, a .fromNode() method should be called on it's assigned converter");
+    public Object fromElement(XMLSimpleReader reader, MappingContext mappingContext) {
+//        ElementConverter converter = mappingContext.lookupElementConverter(targetType);
+//        return converter.fromElement(reader, mappingContext);
+        throw new XliteException("CollectionConverter.fromElement() method should not be called directly. " +
+                "Rather for every object in a collection, a .fromElement() method should be called on it's assigned converter");
     }
 
-    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
-        throw new XliteException("CollectionConverter.toNode() method should not be called directly. " +
-                "Rather for every object in a collection, a .toNode() method should be called on it's assigned converter");
+    public void toElement(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+        throw new XliteException("CollectionConverter.toElement() method should not be called directly. " +
+                "Rather for every object in a collection, a .toElement() method should be called on it's assigned converter");
     }
 
     public Collection initializeCollection(Class targetType) {

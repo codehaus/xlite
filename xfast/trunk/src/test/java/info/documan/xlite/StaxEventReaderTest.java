@@ -52,7 +52,7 @@ public class StaxEventReaderTest {
 //                                Attribute attr = (Attribute) iter.next();
 //                                newSubTree.attributes.add(new SubTreeStore.Attrib(attr.getName().getLocalPart().toCharArray(), attr.getValue().toCharArray()));
 //                            }
-//                            currentSubTree.subnodes.add(newSubTree);
+//                            currentSubTree.subelements.add(newSubTree);
 //                            newSubTree.parent = currentSubTree;
 //                            currentSubTree = newSubTree;
                             if(qName.equals("w:r")){

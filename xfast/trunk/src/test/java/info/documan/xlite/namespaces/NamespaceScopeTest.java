@@ -1,6 +1,6 @@
 package info.documan.xlite.namespaces;
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -50,10 +50,10 @@ public class NamespaceScopeTest {
     public static class aaa {
 
         @XMLnamespaces("l=uppercase")
-        @XMLnode("l:BBB")
+        @XMLelement("l:BBB")
         public BBB node_BBB;
 
-        @XMLnode("l:x111")
+        @XMLelement("l:x111")
         public x111 node_x111;
     }
 
@@ -61,16 +61,16 @@ public class NamespaceScopeTest {
     public static class BBB {
 
         @XMLnamespaces("l=xnumber")
-        @XMLnode("ccc")
+        @XMLelement("ccc")
         public ccc node_ccc;
 
-        @XMLnode("l:x111")
+        @XMLelement("l:x111")
         public x111 node_x111;
     }
 
     @XMLnamespaces("l=xnumber")
     public static class ccc {
-        @XMLnode("l:x111")
+        @XMLelement("l:x111")
         public x111 node_x111;
     }
 

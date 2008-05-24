@@ -1,6 +1,6 @@
 package info.documan.xlite.docx;
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Paragraph {
 
-    @XMLnode(value = "w:r", itemType = Run.class)
+    @XMLelement(value = "w:r", itemType = Run.class)
     public List<Run> runs;
 
 }

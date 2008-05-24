@@ -1,6 +1,6 @@
 package info.documan.xlite.namespaces;
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -52,21 +52,21 @@ public class DefaultNSEachSubnode {
 
     public static class aaa {
         @XMLnamespaces("lowercase")
-        @XMLnode("bbb")
+        @XMLelement("bbb")
         public bbb node_bbb;
 
         @XMLnamespaces("uppercase")
-        @XMLnode("BBB")
+        @XMLelement("BBB")
         public BBB node_BBB;
 
         @XMLnamespaces("xnumber")
-        @XMLnode("x111")
+        @XMLelement("x111")
         public x111 node_x111;
     }
 
     @XMLnamespaces("lowercase")
     public static class bbb {
-        @XMLnode("ccc")
+        @XMLelement("ccc")
         public ccc node_ccc;
     }
 
@@ -75,7 +75,7 @@ public class DefaultNSEachSubnode {
 
     @XMLnamespaces("uppercase")
     public static class BBB {
-        @XMLnode("CCC")
+        @XMLelement("CCC")
         public CCC node_CCC;
     }
 
@@ -84,7 +84,7 @@ public class DefaultNSEachSubnode {
 
     @XMLnamespaces("xnumber")
     public static class x111 {
-        @XMLnode("x222")
+        @XMLelement("x222")
         public x222 node_x222;
     }
 

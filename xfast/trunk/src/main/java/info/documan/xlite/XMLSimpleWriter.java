@@ -67,13 +67,13 @@ public class XMLSimpleWriter {
         elementCache.add(0, new Element(Element.START_NODE, prefix, localName, namespaceURI, ""));
     }
 
-    public void startNode(QName qname) {
+    public void startElement(QName qname) {
         startNode(qname.getPrefix(), qname.getLocalPart(), qname.getNamespaceURI());
     }
 
-    public void endNode() {
+    public void endElement() {
         try {
-            // if there are elements in cache, then this is an empty node (has no subnodes or text)
+            // if there are elements in cache, then this is an empty node (has no subelements or text)
             if (elementCache.size() != 0) {
                 if (elementCache.get(0).command != Element.START_NODE) {
                     throw new XliteException("ERROR: first element should always be START_NODE!");
@@ -84,7 +84,7 @@ public class XMLSimpleWriter {
                 flushElementCache();
                 prettyPrintDecreaseDepth();               
 
-            // this node contains internal elements (text or subnodes) and should have a normal closing tag
+            // this node contains internal elements (text or subelements) and should have a normal closing tag
             } else {
                 flushElementCache();
                 prettyPrintDecreaseDepth();
@@ -231,7 +231,7 @@ public class XMLSimpleWriter {
                     break;
                 case XMLStreamConstants.END_ELEMENT:
 
-                    endNode();
+                    endElement();
                     break;
                 case XMLStreamConstants.ATTRIBUTE:
                     data = new String(element.data);

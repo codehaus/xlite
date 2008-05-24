@@ -12,7 +12,7 @@ import java.io.StringWriter;
 
 import info.documan.xlite.Xlite;
 import info.documan.xlite.XMLattribute;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 import info.documan.xlite.XMLtext;
 
 /**
@@ -55,13 +55,13 @@ public class SubTreeStoreTest {
         StringReader reader = new StringReader(xml);
 
         Xlite xlite = new Xlite(A.class, "a", "ns1");
-        xlite.setStoringUnknownNodes(true);
+        xlite.setStoringUnknownElements(true);
         xlite.addNamespace("ns1");
         xlite.addNamespace("s=ns2");
         xlite.addNamespace("w=ns3");
         A a = (A) xlite.fromXML(reader);
 
-//        XMLSimpleReader.printStore(xlite.getNodeStore(), "STORE");
+//        XMLSimpleReader.printStore(xlite.getElementStore(), "STORE");
 
         // writing back to XML
         StringWriter sw = new StringWriter();
@@ -78,18 +78,18 @@ public class SubTreeStoreTest {
 
     public static class A {
 //        @XMLnamespaces("s=ns2")
-        @XMLnode("s:b")
+        @XMLelement("s:b")
         public B b;
     }
 
     //    @XMLnamespaces("ns2")
     public static class B {
-        @XMLnode
+        @XMLelement
         public C c;
     }
 
     public static class C {
-        @XMLnode
+        @XMLelement
         public D d;
 
         @XMLtext

@@ -3,7 +3,6 @@ package info.documan.xlite.converters;
 import info.documan.xlite.*;
 
 import javax.xml.namespace.QName;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -14,16 +13,15 @@ import java.util.Map;
  * Date: Feb 28, 2008
  * Time: 10:19:19 PM
  */
-public class AnnotatedClassConverter implements NodeConverter {
+public class AnnotatedClassConverter implements ElementConverter {
 
-    private SubTreeStore nodeStorage;
+    private SubTreeStore elementStorage;
 
     private Class targetClass;
 
     private ValueMapper valueMapper;
 
-    private Map<QName, NodeMapper> nodeMappersByName = new HashMap<QName, NodeMapper>();
-    private Map<Field, NodeMapper> nodeMappersByField = new HashMap<Field, NodeMapper>();
+    private Map<QName, ElementMapper> elementMappersByName = new HashMap<QName, ElementMapper>();
 
     private Map<QName, ValueMapper> attributeMappers = new HashMap<QName, ValueMapper>();
 
@@ -33,12 +31,12 @@ public class AnnotatedClassConverter implements NodeConverter {
         this.targetClass = targetClass;
     }
 
-    public SubTreeStore getNodeStorage() {
-        return nodeStorage;
+    public SubTreeStore getElementStorage() {
+        return elementStorage;
     }
 
-    public void setNodeStorage(SubTreeStore nodeStorage) {
-        this.nodeStorage = nodeStorage;
+    public void setElementStorage(SubTreeStore elementStorage) {
+        this.elementStorage = elementStorage;
     }
 
     public NsContext getClassNamespaces() {
@@ -57,8 +55,8 @@ public class AnnotatedClassConverter implements NodeConverter {
         return valueMapper;
     }
 
-    public void addNodeMapper(QName qName, NodeMapper nodeMapper) {
-        nodeMappersByName.put(qName, nodeMapper);
+    public void addElementMapper(QName qName, ElementMapper elementMapper) {
+        elementMappersByName.put(qName, elementMapper);
     }
 
     public void addAttributeConverter(QName attributeQName, ValueMapper valueMapper) {
@@ -74,7 +72,7 @@ public class AnnotatedClassConverter implements NodeConverter {
     }
 
     /**
-     * This is a default NodeConverter that tries to convert all classes.
+     * This is a default ElementConverter that tries to convert all classes.
      *
      * @param type
      * @return
@@ -83,9 +81,9 @@ public class AnnotatedClassConverter implements NodeConverter {
         return targetClass.equals(type);
     }
 
-    public Object fromNode(XMLSimpleReader reader, MappingContext mappingContext) {
+    public Object fromElement(XMLSimpleReader reader, MappingContext mappingContext) {
 
-        // instantiate object that maps to the current XML node
+        // instantiate object that maps to the current XML element
         Object currentObject = null;
         try {
             currentObject = targetClass.newInstance();
@@ -96,12 +94,13 @@ public class AnnotatedClassConverter implements NodeConverter {
 
         }
 
-        // XML node value
-        if (valueMapper != null) {
-            valueMapper.setValue(currentObject, reader.getText());
+        // XML element value
+        String value = reader.getText();
+        if (valueMapper != null && value.length() != 0) {
+            valueMapper.setValue(currentObject, value);
         }
 
-        // XML node attributes
+        // XML element attributes
         Iterator<Map.Entry<QName, String>> attributeSet = reader.getAttributeIterator();
         while (attributeSet.hasNext()) {
             Map.Entry<QName, String> entry = attributeSet.next();
@@ -110,27 +109,27 @@ public class AnnotatedClassConverter implements NodeConverter {
             // find the attribute mapper
             ValueMapper attrMapper = attributeMappers.get(attrQName);
             // if mapper exists, use it to set field to attribute value
-            if (attrMapper != null) {
+            if (attrMapper != null && attrValue.length() != 0) {
                 attrMapper.setValue(currentObject, attrValue);
             }
 //            System.out.println("ATTR: " + attrQName);
         }
 
-        // XML subnodes
+        // XML subelements
         QName qname;
         while (reader.moveDown()) {
             qname = reader.getName();
 //          String  name = qname.getPrefix().length() == 0 ? qname.getLocalPart() : (qname.getPrefix() + ":" + qname.getLocalPart());
 
-            // find NodeMapper for converting XML node with given name
-            NodeMapper subMapper = nodeMappersByName.get(qname);
+            // find ElementMapper for converting XML element with given name
+            ElementMapper subMapper = elementMappersByName.get(qname);
             if (subMapper != null) {  // converter is found
 //                System.out.println("START:" + name + " thisConverter:" + this.toString() +
-//                        " subConverter:" + subMapper.nodeConverter);
+//                        " subConverter:" + subMapper.elementConverter);
                 subMapper.setValue(qname, currentObject, reader);
             } else {  // unknown subMapper
-                if (nodeStorage != null) {
-                    reader.saveSubTree(nodeStorage, currentObject);
+                if (elementStorage != null) {
+                    reader.saveSubTree(elementStorage, currentObject);
                 }
             }
 //            String nm = "null";
@@ -142,10 +141,10 @@ public class AnnotatedClassConverter implements NodeConverter {
         return currentObject;
     }
 
-    public void toNode(Object object, QName nodeName, XMLSimpleWriter writer, MappingContext mappingContext) {
+    public void toElement(Object object, QName elementName, XMLSimpleWriter writer, MappingContext mappingContext) {
 
         // write a start tag
-        writer.startNode(nodeName);
+        writer.startElement(elementName);
 
         // write attributes
         for (QName attrName : attributeMappers.keySet()) {
@@ -154,28 +153,28 @@ public class AnnotatedClassConverter implements NodeConverter {
             writer.addAttribute(attrName, value);
         }
 
-        // write node's value
+        // write element's value
         if (valueMapper != null && object != null) {
             writer.addText(valueMapper.getValue(object));
         }
 
-        // write subnodes
-        Map<NodeMapper, Integer> alreadyProcessed = new IdentityHashMap<NodeMapper, Integer>();
-        for (QName subName : nodeMappersByName.keySet()) {
-            NodeMapper nodeMapper = nodeMappersByName.get(subName);
-            if (!alreadyProcessed.containsKey(nodeMapper)) {
-                nodeMapper.writeNode(object, subName, writer);
-                alreadyProcessed.put(nodeMapper, 0);
+        // write subelements
+        Map<ElementMapper, Integer> alreadyProcessed = new IdentityHashMap<ElementMapper, Integer>();
+        for (QName subName : elementMappersByName.keySet()) {
+            ElementMapper elementMapper = elementMappersByName.get(subName);
+            if (!alreadyProcessed.containsKey(elementMapper)) {
+                elementMapper.writeElement(object, subName, writer);
+                alreadyProcessed.put(elementMapper, 0);
             }
         }
 
-        // write  unknown (stored) subnodes
-        if (nodeStorage != null) {
-            writer.restoreSubTrees(nodeStorage, object);
+        // write  unknown (stored) subelements
+        if (elementStorage != null) {
+            writer.restoreSubTrees(elementStorage, object);
         }
 
         // write end tag
-        writer.endNode();
+        writer.endElement();
 
     }
 
@@ -186,8 +185,8 @@ public class AnnotatedClassConverter implements NodeConverter {
                     + " field:" + attrEntry.getValue().targetField.getName() + "(" + attrEntry.getValue().targetField.getType() + ")");
         }
 
-        for (Map.Entry<QName, NodeMapper> nodeEntry : nodeMappersByName.entrySet()) {
-            System.out.println(prefix + "node:" + nodeEntry.getKey());
+        for (Map.Entry<QName, ElementMapper> elementEntry : elementMappersByName.entrySet()) {
+            System.out.println(prefix + "element:" + elementEntry.getKey());
         }
 
     }

@@ -1,7 +1,7 @@
 package info.documan.xlite.docx;
 
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Body {
 
-    @XMLnode(value = "w:p", itemType = Paragraph.class)
+    @XMLelement(value = "w:p", itemType = Paragraph.class)
     public List<Paragraph> paragraphs;
 
 

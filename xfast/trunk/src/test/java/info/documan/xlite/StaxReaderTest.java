@@ -47,7 +47,7 @@ public class StaxReaderTest {
 //                                newSubTree.attributes.add(new SubTreeStore.Attrib(parser.getAttributeLocalName(j).toCharArray(),
 //                                        parser.getAttributeValue(j).toCharArray()));
 //                            }
-//                            currentSubTree.subnodes.add(newSubTree);
+//                            currentSubTree.subelements.add(newSubTree);
 //                            newSubTree.parent = currentSubTree;
 //                            currentSubTree = newSubTree;
                             if(qName.equals("w:r")){

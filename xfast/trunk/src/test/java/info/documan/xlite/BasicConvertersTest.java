@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 
 import info.documan.xlite.Xlite;
 import info.documan.xlite.XMLattribute;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 import info.documan.xlite.XMLtext;
 
 /**
@@ -24,6 +24,8 @@ public class BasicConvertersTest {
             "<dbv>1.6</dbv>" +
             "<flv>-1.1</flv>" +
             "<chv>g</chv>" +
+            "<node/>"+
+            "<int/>"+
             "</primitives> ";
 
 
@@ -31,7 +33,7 @@ public class BasicConvertersTest {
     public void mainTest() throws IllegalAccessException {
         StringReader reader = new StringReader(xml);
         Xlite xf = new Xlite(Primitives.class, "primitives");
-        xf.setStoringUnknownNodes(true);
+        xf.setStoringUnknownElements(true);
 
         Primitives primitives = (Primitives) xf.fromXML(reader);
 
@@ -50,7 +52,7 @@ public class BasicConvertersTest {
         //node text
         Assert.assertEquals(primitives.value, "A text value");
 
-        // subnodes
+        // subelements
         Assert.assertEquals(primitives.iv, 999);
         Assert.assertFalse(primitives.boolv);
         Assert.assertEquals(primitives.bytv, -127);
@@ -82,22 +84,28 @@ public class BasicConvertersTest {
         @XMLtext
         public String value;
 
-        @XMLnode
+        @XMLelement("node")
+        public String stringNode;
+
+        @XMLelement("int")
+        public int intNode;
+
+        @XMLelement
         public int iv;
 
-        @XMLnode
+        @XMLelement
         public boolean boolv;
 
-        @XMLnode
+        @XMLelement
         public byte bytv;
 
-        @XMLnode
+        @XMLelement
         public float flv;
 
-        @XMLnode
+        @XMLelement
         public double dbv;
 
-        @XMLnode
+        @XMLelement
         public char chv;
 
     }

@@ -12,7 +12,7 @@ import java.io.StringWriter;
 import info.documan.xlite.Xlite;
 import info.documan.xlite.XMLattribute;
 import info.documan.xlite.XMLnamespaces;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 /**
  * @author peter
@@ -47,18 +47,18 @@ public class SimpleWriterTest {
 
     public static class A {
         @XMLnamespaces("s=ns2")
-        @XMLnode("s:b")
+        @XMLelement("s:b")
         public B b;
     }
 
     //    @XMLnamespaces("ns2")
     public static class B {
-        @XMLnode
+        @XMLelement
         public C c;
     }
 
     public static class C {
-        @XMLnode
+        @XMLelement
         public D d;
     }
 

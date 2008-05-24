@@ -2,7 +2,7 @@ package info.documan.xlite.namespaces;
 
 import info.documan.xlite.Xlite;
 import info.documan.xlite.XMLnamespaces;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -54,21 +54,21 @@ public class DifferentNsSamePrefixesTest {
     // node aaa is in default namespace
     public static class aaa {
         @XMLnamespaces("lower=lowercase")
-        @XMLnode("lower:bbb")
+        @XMLelement("lower:bbb")
         public bbb node_bbb;
 
         @XMLnamespaces("lower=uppercase")
-        @XMLnode("lower:BBB")
+        @XMLelement("lower:BBB")
         public BBB node_BBB;
 
         @XMLnamespaces("lower=xnumber")
-        @XMLnode("lower:x111")
+        @XMLelement("lower:x111")
         public x111 node_x111;
     }
 
     public static class bbb {
         @XMLnamespaces("lower=lowercase")
-        @XMLnode("lower:ccc")
+        @XMLelement("lower:ccc")
         public ccc node_ccc;
     }
 
@@ -77,7 +77,7 @@ public class DifferentNsSamePrefixesTest {
 
     public static class BBB {
         @XMLnamespaces("lower=uppercase")
-        @XMLnode("lower:CCC")
+        @XMLelement("lower:CCC")
         public CCC node_CCC;
     }
 
@@ -86,7 +86,7 @@ public class DifferentNsSamePrefixesTest {
 
     @XMLnamespaces("lower=xnumber")
     public static class x111 {
-        @XMLnode("lower:x222")
+        @XMLelement("lower:x222")
         public x222 node_x222;
     }
 

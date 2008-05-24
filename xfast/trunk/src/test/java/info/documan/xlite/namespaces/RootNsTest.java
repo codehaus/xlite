@@ -5,7 +5,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.xml.sax.SAXException;
 import info.documan.xlite.XMLnamespaces;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 import info.documan.xlite.Xlite;
 
 import java.io.StringReader;
@@ -58,19 +58,19 @@ public class RootNsTest {
     }
 
     public static class aaa {
-        @XMLnode("l:bbb")
+        @XMLelement("l:bbb")
         public bbb node_bbb;
 
-        @XMLnode("u:BBB")
+        @XMLelement("u:BBB")
         public BBB node_BBB;
 
         @XMLnamespaces("xn=xnumber")
-        @XMLnode("xn:x111")
+        @XMLelement("xn:x111")
         public x111 node_x111;
     }
 
     public static class bbb {
-        @XMLnode("l:ccc")
+        @XMLelement("l:ccc")
         public ccc node_ccc;
     }
 
@@ -78,7 +78,7 @@ public class RootNsTest {
     }
 
     public static class BBB {
-        @XMLnode("u:CCC")
+        @XMLelement("u:CCC")
         public CCC node_CCC;
     }
 
@@ -87,7 +87,7 @@ public class RootNsTest {
 
     @XMLnamespaces("xn=xnumber")
     public static class x111 {
-        @XMLnode("xn:x222")
+        @XMLelement("xn:x222")
         public x222 node_x222;
     }
 

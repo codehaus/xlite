@@ -1,6 +1,6 @@
 package info.documan.xlite.namespaces;
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -45,19 +45,19 @@ public class UndeclaringDefaultNs {
 
     }
     public static class aaa {
-        @XMLnode("bbb")
+        @XMLelement("bbb")
         public bbb node_bbb;
     }
 
     public static class bbb {
         @XMLnamespaces("")
-        @XMLnode("ccc")
+        @XMLelement("ccc")
         public ccc node_ccc;
     }
 
     @XMLnamespaces("")
     public static class ccc {
-        @XMLnode("ddd")
+        @XMLelement("ddd")
         public ddd node_ddd;
     }
 

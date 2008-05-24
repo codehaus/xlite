@@ -21,16 +21,16 @@ public class AnnotationProcessor {
     }
 
     /**
-     * Processes @XMLnode, @XMLattribute and @XMLtext annotations in a given class.
-     * If subnodes are found (@XMLnode), they are processed recursivelly.
+     * Processes @XMLelement, @XMLattribute and @XMLtext annotations in a given class.
+     * If subelements are found (@XMLelement), they are processed recursivelly.
      *
      * @param currentClass
      * @return
      */
-    public NodeConverter processClass(Class currentClass) {
+    public ElementConverter processClass(Class currentClass) {
 
         AnnotatedClassConverter annotatedClassConverter = new AnnotatedClassConverter(currentClass);
-        annotatedClassConverter.setNodeStorage(mappingContext.getNodeStore());
+        annotatedClassConverter.setElementStorage(mappingContext.getElementStore());
 
         // find and process @XMLnamespaces annotation
         processClassNamespaces(currentClass, annotatedClassConverter);
@@ -38,10 +38,10 @@ public class AnnotationProcessor {
         processAttributes(currentClass, annotatedClassConverter);
         // find and process @XMLvalue annotation
         processValue(currentClass, annotatedClassConverter);
-        // find and process @XMLnode annotations
-        processNodes(currentClass, annotatedClassConverter);
+        // find and process @XMLelement annotations
+        processElements(currentClass, annotatedClassConverter);
 
-        mappingContext.nodeConverters.add(annotatedClassConverter);
+        mappingContext.elementConverters.add(annotatedClassConverter);
 
         return annotatedClassConverter;
     }
@@ -58,10 +58,10 @@ public class AnnotationProcessor {
         annotatedClassConverter.setClassNamespaces(classNS);
     }
 
-    private NodeConverter lookupNodeConverter(Class type) {
-        for (NodeConverter nodeConverter : mappingContext.nodeConverters) {
-            if (nodeConverter.canConvert(type)) {
-                return nodeConverter;
+    private ElementConverter lookupElementConverter(Class type) {
+        for (ElementConverter elementConverter : mappingContext.elementConverters) {
+            if (elementConverter.canConvert(type)) {
+                return elementConverter;
             }
         }
         return null;
@@ -72,20 +72,20 @@ public class AnnotationProcessor {
     }
 
     /**
-     * Searches given class for fields that have @XMLnode annotation.
+     * Searches given class for fields that have @XMLelement annotation.
      *
-     * @param currentClass A class to be inspected for @XMLnode annotations.
+     * @param currentClass A class to be inspected for @XMLelement annotations.
      * @param converter    AnnotatedClassMapper that coresponds in
      */
-    private void processNodes(Class currentClass, AnnotatedClassConverter converter) {
+    private void processElements(Class currentClass, AnnotatedClassConverter converter) {
 
         for (Field field : currentClass.getDeclaredFields()) {
 
             // find the converter by the field type
-            NodeConverter converterByType = mappingContext.lookupNodeConverter(field.getType());
+            ElementConverter converterByType = mappingContext.lookupElementConverter(field.getType());
 
             // get converter for the class that the field references
-            NodeConverter fieldConverter = null;
+            ElementConverter fieldConverter = null;
 
             // if target field is a collection, then a collection converter must be defined
             CollectionConverting collectionConverter = null;
@@ -94,30 +94,30 @@ public class AnnotationProcessor {
             }
 
             // init a mapper
-            NodeMapper fieldMapper = new NodeMapper(field, collectionConverter, mappingContext);
+            ElementMapper fieldMapper = new ElementMapper(field, collectionConverter, mappingContext);
 
-            // collect all @XMLnode annotations in a single array for easier processing
-            XMLnode[] annotations = new XMLnode[0];
-            XMLnodes multiAnno = (XMLnodes) field.getAnnotation(XMLnodes.class);
+            // collect all @XMLelement annotations in a single array for easier processing
+            XMLelement[] annotations = new XMLelement[0];
+            XMLelements multiAnno = (XMLelements) field.getAnnotation(XMLelements.class);
             if (multiAnno != null && multiAnno.value().length != 0) {
                 annotations = multiAnno.value();
             }
-            XMLnode singleAnno = (XMLnode) field.getAnnotation(XMLnode.class);
+            XMLelement singleAnno = (XMLelement) field.getAnnotation(XMLelement.class);
             if (singleAnno != null) {
                 annotations = Arrays.copyOf(annotations, annotations.length + 1);
                 annotations[annotations.length - 1] = singleAnno;
             }
 
-            // process @XMLnode annotations
-            for (XMLnode annotation : annotations) {
+            // process @XMLelement annotations
+            for (XMLelement annotation : annotations) {
                 Class itemType = annotation.itemType();
-                Class<? extends NodeConverter> annotatedConverter = annotation.converter();
+                Class<? extends ElementConverter> annotatedConverter = annotation.converter();
 
                 // set to default values according to annotations
                 if (itemType.equals(Object.class)) {
                     itemType = null;
                 }
-                if (annotatedConverter.equals(NodeConverter.class)) {
+                if (annotatedConverter.equals(ElementConverter.class)) {
                     annotatedConverter = null;
                 }
 
@@ -127,23 +127,23 @@ public class AnnotationProcessor {
                     if (annotatedConverter != null) {
                         throw new XliteException("Error: Can  not assign converter for collection " + field.getDeclaringClass().getName() +
                                 " in class " + field.getDeclaringClass().getSimpleName() +
-                                "When @XMLnode annotation is used on a collection, 'converter' value can not be used. " +
+                                "When @XMLelement annotation is used on a collection, 'converter' value can not be used. " +
                                 "Use 'itemType' instead.");
                     }
 
-                    // if it's a collection, then @XMLnode must have "itemType" value defined
+                    // if it's a collection, then @XMLelement must have "itemType" value defined
                     if (itemType == null) {
                         throw new XliteException("Error: Can  not assign converter for collection " + field.getDeclaringClass().getName() +
                                 " in class " + field.getDeclaringClass().getSimpleName() +
-                                "When @XMLnode annotation is used on a collection, 'itemType' value must be defined.");
+                                "When @XMLelement annotation is used on a collection, 'itemType' value must be defined.");
                     }
                     fieldConverter = null;
 
                 } else { // target field is a normal field (not a collection)
 
                     if (itemType != null) {
-                        throw new XliteException("Error: Wrong @XMLnode annotation value on field " + fieldConverter.getClass().getName() +
-                                "in class " + field.getDeclaringClass().getName() + ". @XMLnode 'itemType' can only be used on " +
+                        throw new XliteException("Error: Wrong @XMLelement annotation value on field " + fieldConverter.getClass().getName() +
+                                "in class " + field.getDeclaringClass().getName() + ". @XMLelement 'itemType' can only be used on " +
                                 "field types that implement Collection.");
                     }
 
@@ -174,11 +174,11 @@ public class AnnotationProcessor {
                 }
 
                 // get QName that field maps to
-                String nodename = annotation.value().length() != 0 ? annotation.value() :
+                String elementName = annotation.value().length() != 0 ? annotation.value() :
                         (annotation.name().length() != 0 ? annotation.name() : field.getName());
                 NsContext fieldNS = getFieldNamespaces(field);
                 NsContext classNS = converter.getClassNamespaces( );
-                QName qname = getQName(nodename, fieldNS, classNS);
+                QName qname = getQName(elementName, fieldNS, classNS);
 
                 if (fieldConverter != null) {
                     fieldMapper.setConverter(fieldConverter);
@@ -186,34 +186,34 @@ public class AnnotationProcessor {
                 if (itemType != null) {
                     fieldMapper.addMapping(qname, itemType);
                 }
-                converter.addNodeMapper(qname, fieldMapper);
+                converter.addElementMapper(qname, fieldMapper);
 
-//                String conv = fieldMapper.nodeConverter.getClass().equals(ValueConverterWrapper.class) ?
-//                        ((ValueConverterWrapper) fieldMapper.nodeConverter).valueConverter.getClass().getSimpleName() :
-//                        fieldMapper.nodeConverter.getClass().getSimpleName();
+//                String conv = fieldMapper.elementConverter.getClass().equals(ValueConverterWrapper.class) ?
+//                        ((ValueConverterWrapper) fieldMapper.elementConverter).valueConverter.getClass().getSimpleName() :
+//                        fieldMapper.elementConverter.getClass().getSimpleName();
 //
-//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " node:" + nodename + " converter:" + conv);
+//                System.out.println(currentClass.getSimpleName() + "." + field.getName() + " element:" + elementName + " converter:" + conv);
 
             }
         }
     }
 
-    private QName getQName(String nodeName, NsContext fieldNS, NsContext classNS) {
+    private QName getQName(String elementName, NsContext fieldNS, NsContext classNS) {
 
-        // split xml node name into prefix and local part
-        int index = nodeName.indexOf(':');
+        // split xml element name into prefix and local part
+        int index = elementName.indexOf(':');
         String prefix, localPart;
         if (index > 0) {  // with prefix ("prefix:localpart")
-            prefix = nodeName.substring(0, index);
-            localPart = nodeName.substring(index + 1, nodeName.length());
+            prefix = elementName.substring(0, index);
+            localPart = elementName.substring(index + 1, elementName.length());
 
-        } else if (index == 0) { // empty prefix (no prefix defined - e.g ":nodeName")
+        } else if (index == 0) { // empty prefix (no prefix defined - e.g ":elementName")
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
-            localPart = nodeName.substring(1, nodeName.length());
+            localPart = elementName.substring(1, elementName.length());
 
         } else { // no prefix given
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
-            localPart = nodeName;
+            localPart = elementName;
         }
 
         String fieldNsURI = fieldNS.getNamespaceURI(prefix);
@@ -282,9 +282,9 @@ public class AnnotationProcessor {
                 }
 
                 // get QName that field maps to
-                String nodename = annotation.value().length() != 0 ? annotation.value() :
+                String elementName = annotation.value().length() != 0 ? annotation.value() :
                         (annotation.name().length() != 0 ? annotation.name() : field.getName());
-                QName qname = getQName(nodename, getFieldNamespaces(field), converter.getClassNamespaces());
+                QName qname = getQName(elementName, getFieldNamespaces(field), converter.getClassNamespaces());
 
                 // SPECIAL CASE!!!
                 // XML attributes with empty prefix DO NOT belong to default namespace

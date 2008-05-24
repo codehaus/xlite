@@ -1,6 +1,6 @@
 package info.documan.xlite.docx;
 
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 
 /**
@@ -10,7 +10,7 @@ import info.documan.xlite.XMLnode;
  */
 public class Run {
 
-    @XMLnode("w:t")
+    @XMLelement("w:t")
     public Text textnode;
 
 }

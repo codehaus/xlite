@@ -1,7 +1,7 @@
 package info.documan.xlite;
 
 import info.documan.xlite.XMLattribute;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 import info.documan.xlite.XMLtext;
 
 /**
@@ -43,10 +43,10 @@ public class SampleXml {
         @XMLtext
         public String text;
 
-        @XMLnode
+        @XMLelement
         public Empty emptyNode;
 
-        @XMLnode
+        @XMLelement
         public Two two;
 
     }
@@ -62,10 +62,10 @@ public class SampleXml {
         @XMLtext
         public String text;
 
-        @XMLnode
+        @XMLelement
         public Three three1;
 
-        @XMLnode("nodeWithSubnodes")
+        @XMLelement("nodeWithSubnodes")
         public Four four;
     }
 
@@ -80,16 +80,16 @@ public class SampleXml {
 
     public static class Four {
 
-        @XMLnode("integer")
+        @XMLelement("integer")
         public int i;
 
-        @XMLnode("bool")
+        @XMLelement("bool")
         public boolean b;
 
-        @XMLnode("char")
+        @XMLelement("char")
         public char c;
 
-        @XMLnode("float")
+        @XMLelement("float")
         public float f;
 
     }

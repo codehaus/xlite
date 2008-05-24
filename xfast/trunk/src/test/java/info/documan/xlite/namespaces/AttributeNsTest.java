@@ -4,7 +4,7 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.Assert;
 import org.xml.sax.SAXException;
-import info.documan.xlite.XMLnode;
+import info.documan.xlite.XMLelement;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -58,18 +58,18 @@ public class AttributeNsTest {
     }
 
     public static class aaa {
-        @XMLnode("l:bbb")
+        @XMLelement("l:bbb")
         public bbb node_bbb;
 
-        @XMLnode("u:BBB")
+        @XMLelement("u:BBB")
         public BBB node_BBB;
 
-        @XMLnode("xn:x111")
+        @XMLelement("xn:x111")
         public x111 node_x111;
     }
 
     public static class bbb {
-        @XMLnode("l:ccc")
+        @XMLelement("l:ccc")
         public ccc node_ccc;
 
         @XMLattribute("l:zz")

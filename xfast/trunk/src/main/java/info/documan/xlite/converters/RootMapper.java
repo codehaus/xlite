@@ -14,20 +14,20 @@ public class RootMapper {
     private QName rootNodeName;
     private Class rootClass;
     private MappingContext mappingContext;
-    private NodeConverter nodeConverter;
+    private ElementConverter elementConverter;
 
 
     public RootMapper(QName rootNodeName, Class rootClass, MappingContext mappingContext) {
-        nodeConverter = mappingContext.lookupNodeConverter(rootClass);
-//        NodeMapper mapper = new NodeMapper(null, null, null, nodeConverter, mappingContext);
+        elementConverter = mappingContext.lookupElementConverter(rootClass);
+//        ElementMapper mapper = new ElementMapper(null, null, null, elementConverter, mappingContext);
         this.rootNodeName = rootNodeName;
         this.mappingContext = mappingContext;
         this.rootClass = rootClass;
     }
 
     public Object getRootObject(XMLSimpleReader reader) {
-        if (reader.findFirstNode(rootNodeName)) {
-            return nodeConverter.fromNode(reader, mappingContext);
+        if (reader.findFirstElement(rootNodeName)) {
+            return elementConverter.fromElement(reader, mappingContext);
         } else {
             throw new XliteException("Root node <" + rootNodeName + "> could not be found in XML data");
         }
@@ -36,7 +36,7 @@ public class RootMapper {
 
     public void toXML(Object object, XMLSimpleWriter writer) {
         writer.predefineNamespaces(mappingContext.getPredefinedNamespaces());
-        nodeConverter.toNode(object, rootNodeName, writer, mappingContext);
+        elementConverter.toElement(object, rootNodeName, writer, mappingContext);
     }
 
 }

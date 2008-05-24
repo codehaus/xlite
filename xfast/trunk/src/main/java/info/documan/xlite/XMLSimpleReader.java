@@ -20,10 +20,10 @@ public class XMLSimpleReader {
     public XMLStreamReader reader;  //todo make private
     private XmlStreamSettings settings = new XmlStreamSettings();
 
-    private Stack<Node> nodeStack = new Stack<Node>();
+    private Stack<Element> elementStack = new Stack<Element>();
     private boolean isEnd = false;
-    private boolean isStoringUnknownNodes;
-    private SubTreeStore eventCache = new SubTreeStore(200, 200);
+    private boolean isStoringUnknownElements;
+    private SubTreeStore eventCache;
 
     private int DP;
 
@@ -31,9 +31,12 @@ public class XMLSimpleReader {
         this(reader, false);
     }
 
-    public XMLSimpleReader(XMLStreamReader reader, boolean isStoringUnknownNodes) {
+    public XMLSimpleReader(XMLStreamReader reader, boolean isStoringUnknownElements) {
         this.reader = reader;
-        this.isStoringUnknownNodes = isStoringUnknownNodes;
+        this.isStoringUnknownElements = isStoringUnknownElements;
+        if (this.isStoringUnknownElements) {
+            eventCache = new SubTreeStore(200, 200);
+        }
     }
 
     private int nextEvent() {
@@ -47,22 +50,22 @@ public class XMLSimpleReader {
     }
 
     /**
-     * Finds next START or END of a XML node.
-     * Accumulates the CHARACTER data for the current node.
+     * Finds next START or END of a XML element.
+     * Accumulates the CHARACTER data for the current element.
      *
      * @return True if START, false if END.
      */
-    private boolean nextNodeBoundary() {
-        return nextNodeBoundary(true);
+    private boolean nextElementBoundary() {
+        return nextElementBoundary(true);
     }
 
-    private boolean nextNodeBoundary(boolean processEvents) {
+    private boolean nextElementBoundary(boolean processEvents) {
 
         // checkAndReset the accumulated Text
-        if (!nodeStack.isEmpty()) {
-            StringBuilder sb = nodeStack.peek().text;
+        if (!elementStack.isEmpty()) {
+            StringBuilder sb = elementStack.peek().text;
             if (sb == null) {
-                nodeStack.peek().text = new StringBuilder();
+                elementStack.peek().text = new StringBuilder();
             } else {
                 sb.delete(0, sb.length());
             }
@@ -77,25 +80,33 @@ public class XMLSimpleReader {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
 //                    System.out.println("start: " + reader.getName());
-                    eventCache.trim();
-                    eventCache.mark();
-                    processElement(eventCache, "test");
+                    if (isStoringUnknownElements) {
+                        eventCache.trim();
+                        eventCache.mark();
+                        processElement(eventCache, "test");
+                    }
                     return true;
                 case XMLStreamConstants.END_DOCUMENT:
-                    processElement(eventCache, "test");
+                    if (isStoringUnknownElements) {
+                        processElement(eventCache, "test");
+                    }
 //                    System.out.println("end document ");
                     isEnd = true;
                     return false;
                 case XMLStreamConstants.END_ELEMENT:
-                    eventCache.trim();
-                    processElement(eventCache, "test");
+                    if (isStoringUnknownElements) {
+                        eventCache.trim();
+                        processElement(eventCache, "test");
+                    }
 //                    System.out.println("end: " + reader.getName());
                     return false;
                 case XMLStreamConstants.CHARACTERS:
                     String text = reader.getText().trim();
                     if (processEvents && text.length() > 0) {
-                        processElement(eventCache, "test");
-                        nodeStack.peek().text.append(text);
+                        if (isStoringUnknownElements) {
+                            processElement(eventCache, "test");
+                        }
+                        elementStack.peek().text.append(text);
 //                        System.out.println(" text:" + text);
                     }
                     break;
@@ -114,26 +125,26 @@ public class XMLSimpleReader {
 
         int event = reader.getEventType();
         if (event == XMLStreamConstants.START_ELEMENT) {
-            Node node = new Node();
-            node.name = reader.getName();
+            Element element = new Element();
+            element.name = reader.getName();
             int attrCount = reader.getAttributeCount();
             for (int i = 0; i < attrCount; i++) {
-                node.putAttribute(reader.getAttributeName(i), reader.getAttributeValue(i));
+                element.putAttribute(reader.getAttributeName(i), reader.getAttributeValue(i));
             }
-            nodeStack.push(node);
+            elementStack.push(element);
         } else {
             if (event != XMLStreamConstants.END_ELEMENT && event != XMLStreamConstants.END_DOCUMENT) {
                 throw new XliteException("ERROR: this should be a node END. Instead it's a event=" + event);
             }
 //            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
-//            System.out.println("-moveDown() false " + nodeStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
+//            System.out.println("-moveDown() false " + elementStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
 //            System.out.println("");
             return false;
         }
-        nextNodeBoundary();
+        nextElementBoundary();
 //        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
 //        DP++;
-//        System.out.println("-moveDown() " + DP + " true " + nodeStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
+//        System.out.println("-moveDown() " + DP + " true " + elementStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
 //        System.out.println("");
         return true;
     }
@@ -145,54 +156,54 @@ public class XMLSimpleReader {
     public void moveUp() {
 //        System.out.println("+moveUP() init");
         if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
-//            System.out.println("pop:" + nodeStack.peek().name.getLocalPart());
-            nodeStack.pop();
-            nextNodeBoundary();
+//            System.out.println("pop:" + elementStack.peek().name.getLocalPart());
+            elementStack.pop();
+            nextElementBoundary();
 //            DP--;
 //            String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
-//            System.out.println("-moveUp() " + DP + " " + nodeStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
+//            System.out.println("-moveUp() " + DP + " " + elementStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
 //            System.out.println("");
             return;
         }
         int depth = 1;
         boolean continueLooping = true;
         while (continueLooping) {
-            if (nextNodeBoundary()) {  // node START
+            if (nextElementBoundary()) {  // node START
                 depth++;
             } else {      // node END
                 if (depth-- == 0) {
                     continueLooping = false;
-                    nextNodeBoundary();
+                    nextElementBoundary();
                 }
             }
         }
-        nodeStack.pop();
+        elementStack.pop();
 //        DP--;
 //        String nm = (reader.getEventType() == 1 || reader.getEventType() == 2) ? reader.getName().getLocalPart() : "";
-//        System.out.println("-moveUp() " + depth + " " + nodeStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
+//        System.out.println("-moveUp() " + depth + " " + elementStack.peek().name + "  (" + reader.getEventType() + ":" + nm + ")");
 //        System.out.println("");
     }
 
     public String getText() {
-        if (nodeStack.isEmpty()) {
-            return null;
+        if (elementStack.isEmpty()) {
+            throw new XliteException("Error: there are no XML nodes available to be read.");
         }
-        return nodeStack.peek().text.toString();
+        return elementStack.peek().text.toString();
     }
 
     public QName getName() {
-        if (nodeStack.isEmpty()) {
+        if (elementStack.isEmpty()) {
             return null;
         }
-        return nodeStack.peek().name;
+        return elementStack.peek().name;
     }
 
 
     public Iterator<Map.Entry<QName, String>> getAttributeIterator() {
-        return nodeStack.peek().iterator();
+        return elementStack.peek().iterator();
     }
 
-    public static class Node implements Iterable {
+    public static class Element implements Iterable {
         public QName name;
         public StringBuilder text;
         private Map<QName, String> attributes = new HashMap<QName, String>();
@@ -226,21 +237,21 @@ public class XMLSimpleReader {
         }
     }
 
-    public boolean findFirstNode() {
-        return findFirstNode((QName) null);
+    public boolean findFirstElement() {
+        return findFirstElement((QName) null);
     }
 
-    public boolean findFirstNode(String nodeName) {
-        return findFirstNode(new QName(nodeName));
+    public boolean findFirstElement(String nodeName) {
+        return findFirstElement(new QName(nodeName));
     }
 
-    public boolean findFirstNode(QName qName) {
+    public boolean findFirstElement(QName qName) {
         // handle empty argument
         if (qName == null || qName.getLocalPart().equals("")) {
-            return nextNodeBoundary(false);
+            return nextElementBoundary(false);
         }
         while (true) {
-            if (nextNodeBoundary(false)) {
+            if (nextElementBoundary(false)) {
                 if (reader.getName().equals(qName)) {
                     moveDown();
                     return true;
@@ -253,8 +264,10 @@ public class XMLSimpleReader {
         }
     }
 
-
     public void saveSubTree(SubTreeStore store, Object object) {
+        if (eventCache == null) {
+            throw new XliteException("Error: passed SubTreeStore is null. This ");
+        }
 //        printStore(eventCache, "TEST");
         // save a starting position of this block
         store.addStart(object);
